@@ -14,6 +14,7 @@ func main() {
 
 	store.Put("/etcd2/1", "value1")
 	store.Put("/etcd2/2", "value2")
+	store.Put("/etcd2/3", "value3")
 
 	store.Get("/etcd2/1")
 

@@ -16,6 +16,7 @@ type KVStore struct {
 // ref https://blog.csdn.net/wohu1104/article/details/108552649
 
 func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
+	fmt.Print("\n")
 	config := clientv3.Config{
 		Endpoints:   []string{"127.0.0.1:2379"},
 		DialTimeout: 5 * time.Second,
@@ -43,6 +44,7 @@ func (kvs *KVStore) Get(key string) error {
 	} else {
 		fmt.Println("-> Get result: Empty")
 	}
+	fmt.Print("\n")
 	return nil
 }
 
@@ -61,6 +63,7 @@ func (kvs *KVStore) GetPrefix(key string) error {
 	} else {
 		fmt.Println("-> Get result: Empty")
 	}
+	fmt.Print("\n")
 	return nil
 }
 
