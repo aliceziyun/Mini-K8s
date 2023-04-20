@@ -79,34 +79,10 @@ func (kvs *KVStore) Del(key string) error {
 	return err
 }
 
-func EtcdWatchTest() {
-	config := clientv3.Config{
-		Endpoints:   []string{"127.0.0.1:2379"}, // 集群列表
-		DialTimeout: 5 * time.Second,
-	}
+func (kvs *KVStore) Watch(key string) {
+	kv := clientv3.NewKV(kvs.client)
 
-	// 建立一个客户端
-	client, err := clientv3.New(config)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	// 获得kv API子集
-	kv := clientv3.NewKV(client)
-
-	// 模拟etcd中KV的变化
-	go func() {
-		for {
-			kv.Put(context.TODO(), "/demo/A/B1", "i am B1")
-
-			kv.Delete(context.TODO(), "/demo/A/B1")
-
-			time.Sleep(1 * time.Second)
-		}
-	}()
-
-	// 先GET到当前的值，并监听后续变化
-	getResp, err := kv.Get(context.TODO(), "/demo/A/B1")
+	getResp, err := kv.Get(context.TODO(), key)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -115,11 +91,7 @@ func EtcdWatchTest() {
 	// 当前etcd集群事务ID, 单调递增的
 	watchStartRevision := getResp.Header.Revision + 1
 
-	// 创建一个watcher
-	watcher := clientv3.NewWatcher(client)
-
-	// 启动监听
-	fmt.Println("从该版本向后监听:", watchStartRevision)
+	watcher := clientv3.NewWatcher(kvs.client)
 
 	// 创建一个 5s 后取消的上下文
 	ctx, cancelFunc := context.WithCancel(context.TODO())
@@ -128,75 +100,17 @@ func EtcdWatchTest() {
 	})
 
 	// 该监听动作在 5s 后取消
-	watchRespChan := watcher.Watch(ctx, "/demo/A/B1", clientv3.WithRev(watchStartRevision))
+	watchRespChan := watcher.Watch(ctx, key, clientv3.WithRev(watchStartRevision))
 
 	// 处理kv变化事件
 	for watchResp := range watchRespChan {
 		for _, event := range watchResp.Events {
 			switch event.Type {
 			case mvccpb.PUT:
-				fmt.Println("修改为:", string(event.Kv.Value), "Revision:",
-					event.Kv.CreateRevision, event.Kv.ModRevision)
+				fmt.Println("Put: ", string(event.Kv.Value), "Revision:", event.Kv.CreateRevision, event.Kv.ModRevision)
 			case mvccpb.DELETE:
-				fmt.Println("删除了", "Revision:", event.Kv.ModRevision)
+				fmt.Println("Delete: ", "Revision:", event.Kv.ModRevision)
 			}
 		}
-	}
-
-}
-
-func EtcdTest() {
-	config := clientv3.Config{
-		Endpoints:   []string{"127.0.0.1:2379"}, // 集群列表
-		DialTimeout: 5 * time.Second,
-	}
-
-	// establish a client
-	client, err := clientv3.New(config)
-	if err != nil {
-		return
-	}
-
-	kv := clientv3.NewKV(client)
-
-	// put
-	_, err = kv.Put(context.TODO(), "/etcd/1", "value1", clientv3.WithPrevKV())
-	if err != nil {
-		return
-	}
-	_, err = kv.Put(context.TODO(), "/etcd/2", "value2", clientv3.WithPrevKV())
-	if err != nil {
-		return
-	}
-	_, err = kv.Put(context.TODO(), "/etcd/3", "value3", clientv3.WithPrevKV())
-	if err != nil {
-		return
-	}
-
-	// read the key with the prefix "/demo/A"
-	// clientv3.WithPrefix() , clientv3.WithCountOnly() can have more than one and just separate them with commas
-	getResp, err := kv.Get(context.TODO(), "/etcd/", clientv3.WithPrefix() /*,clientv3.WithCountOnly()*/)
-	if err != nil {
-		return
-	}
-
-	fmt.Println(getResp.Kvs, getResp.Count)
-	for _, resp := range getResp.Kvs {
-		fmt.Printf("key: %s, value: %s\n", string(resp.Key), string(resp.Value))
-	}
-
-	// WithFromKey will delete the "/etcd/3" in this case
-	_, err = kv.Delete(context.TODO(), "/etcd/2", clientv3.WithPrevKV() /*, clientv3.WithFromKey()*/)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	getResp1, err := kv.Get(context.TODO(), "/etcd/", clientv3.WithPrefix() /*,clientv3.WithCountOnly()*/)
-	if err != nil {
-		return
-	}
-
-	for _, resp := range getResp1.Kvs {
-		fmt.Printf("key: %s, value: %s\n", string(resp.Key), string(resp.Value))
 	}
 }
