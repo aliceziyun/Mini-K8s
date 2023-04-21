@@ -9,6 +9,10 @@ import (
 	"github.com/coreos/etcd/clientv3"
 )
 
+const (
+	EtcdPodPrefix string = "/registry/pods/"
+)
+
 type KVStore struct {
 	client *clientv3.Client
 }
@@ -18,8 +22,8 @@ type KVStore struct {
 func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
 	fmt.Print("\n")
 	config := clientv3.Config{
-		Endpoints:   []string{"127.0.0.1:2379"},
-		DialTimeout: 5 * time.Second,
+		Endpoints:   endpoints,
+		DialTimeout: timeout,
 	}
 
 	// establish a client
@@ -31,21 +35,18 @@ func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
 	return &KVStore{client: cli}, nil
 }
 
-func (kvs *KVStore) Get(key string) error {
+func (kvs *KVStore) Get(key string) (string, error) {
 	kv := clientv3.NewKV(kvs.client)
 	response, err := kv.Get(context.TODO(), key)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if len(response.Kvs) != 0 {
-		fmt.Print("-> Get result:\n")
-		fmt.Printf("\tkey: %s, value: %s\n", response.Kvs[0].Key, response.Kvs[0].Value)
+		return string(response.Kvs[0].Value), nil
 	} else {
-		fmt.Println("-> Get result: Empty")
+		return "", nil
 	}
-	fmt.Print("\n")
-	return nil
 }
 
 func (kvs *KVStore) GetPrefix(key string) error {
@@ -105,11 +106,13 @@ func (kvs *KVStore) Watch(key string) {
 	// 处理kv变化事件
 	for watchResp := range watchRespChan {
 		for _, event := range watchResp.Events {
+			fmt.Print("[WATCH]")
 			switch event.Type {
 			case mvccpb.PUT:
-				fmt.Println("Put: ", string(event.Kv.Value), "Revision:", event.Kv.CreateRevision, event.Kv.ModRevision)
+				//fmt.Println("Put: ", string(event.Kv.Value), "Revision:", event.Kv.CreateRevision, event.Kv.ModRevision)
+				fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
 			case mvccpb.DELETE:
-				fmt.Println("Delete: ", "Revision:", event.Kv.ModRevision)
+				fmt.Println("Delete\tRevision:", event.Kv.ModRevision)
 			}
 		}
 	}

@@ -22,6 +22,7 @@ type PodSpec struct {
 }
 
 type PodStatus struct {
+	Phase      string      `json:"phase"`
 	Conditions []Condition `json:"conditions" yaml:"conditions"`
 }
 
