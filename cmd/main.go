@@ -53,12 +53,18 @@ func main() {
 			return
 		}
 
-		fmt.Println(value)
-
 		err3 := store.Del(key)
 		if err3 != nil {
 			return
 		}
+
+		podPtr := &o.Pod{}
+		err4 := json.Unmarshal([]byte(value), podPtr)
+		if err4 != nil {
+			return
+		}
+
+		fmt.Println(*podPtr)
 	}()
 
 	store.Watch(key)
