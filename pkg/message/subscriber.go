@@ -92,6 +92,7 @@ func (s *Subscriber) Subscribe(exchangeName string, handler HandleFunc, stopChan
 	s.Conn.NotifyClose(stopConnectionCh)
 	go stop(ch, stopChannelCh, stopConnectionCh)
 	go consumeLoop(msgs, handler)
+
 	return nil
 }
 

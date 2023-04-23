@@ -79,39 +79,29 @@ func (kvs *KVStore) GetPrefix(key string) error {
 }
 
 func (kvs *KVStore) Put(key string, val string) error {
+	fmt.Println("put a new pod", key, val)
 	kv := clientv3.NewKV(kvs.client)
 	_, err := kv.Put(context.TODO(), key, val)
+	if err != nil {
+		fmt.Println(err)
+	}
 	return err
 }
 
 func (kvs *KVStore) Del(key string) error {
+	fmt.Println("delete a new pod", key)
 	kv := clientv3.NewKV(kvs.client)
 	_, err := kv.Delete(context.TODO(), key)
 	return err
 }
 
 func (kvs *KVStore) Watch(key string) {
-	kv := clientv3.NewKV(kvs.client)
-
-	getResp, err := kv.Get(context.TODO(), key)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// 当前etcd集群事务ID, 单调递增的
-	watchStartRevision := getResp.Header.Revision + 1
+	fmt.Println("etcd start watch", key)
 
 	watcher := clientv3.NewWatcher(kvs.client)
 
-	// 创建一个 5s 后取消的上下文
-	ctx, cancelFunc := context.WithCancel(context.TODO())
-	time.AfterFunc(5*time.Second, func() {
-		cancelFunc()
-	})
-
-	// 该监听动作在 5s 后取消
-	watchRespChan := watcher.Watch(ctx, key, clientv3.WithRev(watchStartRevision))
+	watchRespChan := watcher.Watch(context.Background(), key)
+	fmt.Println(watchRespChan)
 
 	// 处理kv变化事件
 	for watchResp := range watchRespChan {
@@ -119,7 +109,6 @@ func (kvs *KVStore) Watch(key string) {
 			fmt.Print("[WATCH]")
 			switch event.Type {
 			case mvccpb.PUT:
-				//fmt.Println("Put: ", string(event.Kv.Value), "Revision:", event.Kv.CreateRevision, event.Kv.ModRevision)
 				fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
 			case mvccpb.DELETE:
 				fmt.Println("Delete\tRevision:", event.Kv.ModRevision)

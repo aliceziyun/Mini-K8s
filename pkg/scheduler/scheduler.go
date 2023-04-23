@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listener"
 	"Mini-K8s/pkg/object"
@@ -8,7 +9,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/coreos/etcd/client"
 	"time"
 )
 
@@ -17,23 +17,25 @@ type Scheduler struct {
 	stopChannel <-chan struct{}
 	selectType  string
 	queue       queue.ConcurrentQueue
-	//Client      client.RESTClient
+	Client      client.RESTClient
 }
 
 func NewScheduler(lsConfig *listener.Config, clientConfig client.Config, selectType string) *Scheduler {
+	println("scheduler create")
+
 	ls, err := listener.NewListener(lsConfig)
 	if err != nil {
 		fmt.Println(err)
 		fmt.Printf("[Scheduler] list watch start fail...")
 	}
 
-	//restClient := client.RESTClient{
-	//	Base: "http://" + clientConfig.Host,
-	//}
+	restClient := client.RESTClient{
+		Base: "http://" + clientConfig.Host,
+	}
 
 	scheduler := &Scheduler{
-		ls: ls,
-		//Client: restClient,
+		ls:     ls,
+		Client: restClient,
 	}
 	scheduler.stopChannel = make(chan struct{})
 	scheduler.selectType = selectType
@@ -49,10 +51,11 @@ func (sched *Scheduler) Run(ctx context.Context) {
 }
 
 func (sched *Scheduler) register() {
-	err := sched.ls.Watch(config.PodConfigPREFIX, sched.watchNewPod, sched.stopChannel)
+	podConfig := "/testpod"
+	err := sched.ls.Watch(podConfig, sched.watchNewPod, sched.stopChannel)
 	if err != nil {
 		fmt.Println(err)
-		fmt.Printf("[Scheduler] ListWatch init fail...\n")
+		fmt.Printf("[Scheduler] listen fail...\n")
 	}
 }
 

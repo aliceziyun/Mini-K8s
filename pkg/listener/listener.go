@@ -34,7 +34,7 @@ func NewListener(c *Config) (*Listener, error) {
 	return ls, nil
 }
 
-// Watch :
+// Watch : 监听某url绑定的操作，当对方有回复时，便调用watchHandler中的函数
 func (l *Listener) Watch(key string, handler WatchHandler, stopChannel <-chan struct{}) error {
 	// 向对应url发起http请求
 	resourceURL := l.RootURL + key

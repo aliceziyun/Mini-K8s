@@ -14,8 +14,8 @@ type QConfig struct {
 
 func DefaultQConfig() *QConfig {
 	config := QConfig{
-		User:          "root",
-		Password:      "Asd11111",
+		User:          "user",
+		Password:      "123456",
 		Host:          "localhost",
 		Port:          "5672",
 		VHost:         "admin",
