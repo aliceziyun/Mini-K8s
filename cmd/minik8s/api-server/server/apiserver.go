@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/atomic"
+	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -15,6 +17,10 @@ type watchOpt struct {
 	key        string
 	withPrefix bool
 	ticket     uint64
+}
+
+type Ticket struct {
+	T uint64
 }
 
 type APIServer struct {
@@ -44,10 +50,7 @@ func NewServer(c *ServerConfig) (*APIServer, error) {
 		return nil, err
 	}
 	watcherChan := make(chan watchOpt)
-	//kubeNetSupport, err2 := kubeNetSupport.NewKubeNetSupport(listerwatcher.DefaultConfig(), client.DefaultClientConfig())
-	//if err2 != nil {
-	//	return nil, err2
-	//}
+
 	s := &APIServer{
 		engine: engine,
 		port:   c.HttpPort,
@@ -61,6 +64,7 @@ func NewServer(c *ServerConfig) (*APIServer, error) {
 	}
 
 	engine.PUT("/testpod", s.addPodTest)
+	engine.POST("/testwatch", s.watch)
 
 	go s.daemon(watcherChan)
 
@@ -77,7 +81,7 @@ func (s *APIServer) Run() error {
 }
 
 func (s *APIServer) addPodTest(ctx *gin.Context) {
-	key := "1"
+	key := "2"
 	pod := object.Pod{}
 	fmt.Printf("key:%v\n", key)
 
@@ -91,7 +95,6 @@ func (s *APIServer) addPodTest(ctx *gin.Context) {
 	body, _ := json.Marshal(pod)
 
 	err := s.store.Put(key, string(body))
-	err = s.store.Del(key)
 	if err != nil {
 		return
 	}
@@ -99,18 +102,55 @@ func (s *APIServer) addPodTest(ctx *gin.Context) {
 
 func (s *APIServer) daemon(listening <-chan watchOpt) {
 	fmt.Println("start daemon")
-	var resChan <-chan etcdstorage.WatchRes
-	s.store.Watch("1")
-	go func(resChan <-chan etcdstorage.WatchRes) {
-		for res := range resChan {
-			data, err := json.Marshal(res)
-			if err != nil {
-				fmt.Println("error when watch etcd")
-			}
-			err = s.publisher.Publish("1", data, "application/json")
-			if err != nil {
-				fmt.Println("error when publish")
-			}
+	//var resChan = make(<-chan etcdstorage.WatchRes)
+
+	//data, _ := json.Marshal("sewgwq")
+	_, _ = s.store.Watch("2")
+	//err := s.publisher.Publish("/testwatch", data, "application/json")
+
+	//go func(resChan <-chan etcdstorage.WatchRes) {
+	//	for res := range resChan {
+	//		fmt.Println("watched something")
+	//		data, err := json.Marshal(res)
+	//		if err != nil {
+	//			fmt.Println("error when watch etcd")
+	//		}
+	//		err = s.publisher.Publish("1", data, "application/json")
+	//		if err != nil {
+	//			fmt.Println("error when publish")
+	//		}
+	//	}
+	//}(resChan)
+}
+
+func (s *APIServer) watch(ctx *gin.Context) {
+	//key := ctx.Request.URL.Path
+	ticketStr, status := ctx.GetPostForm("ticket")
+	fmt.Println(ticketStr, status)
+	if !status {
+		t := Ticket{}
+		t.T = s.ticketSeller.Add(1)
+		data, _ := json.Marshal(t)
+		//s.watcherChan <- watchOpt{key: key, withPrefix: false, ticket: t.T}
+		ctx.Data(http.StatusOK, "application/json", data)
+	} else {
+		s.watcherMtx.Lock()
+		ticket, err := strconv.ParseUint(ticketStr, 10, 64)
+		if err != nil {
+			fmt.Println(err)
+			ctx.AbortWithStatus(http.StatusBadRequest)
+		} else {
+			//if s.watcherMap[key] != nil {
+			//	s.watcherMap[key].set.Remove(ticket)
+			//	if s.watcherMap[key].set.Equal(mapset.NewSet[uint64]()) {
+			//		s.watcherMap[key].cancel()
+			//		s.watcherMap[key] = nil
+			//		klog.Infof("Cancel the watcher of key %s\n", key)
+			//	}
+			//}
+			fmt.Println(ticket, "ok")
+			ctx.Status(http.StatusOK)
 		}
-	}(resChan)
+		s.watcherMtx.Unlock()
+	}
 }
