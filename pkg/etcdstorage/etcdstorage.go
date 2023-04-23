@@ -17,6 +17,16 @@ type KVStore struct {
 	client *clientv3.Client
 }
 
+type WatchRes struct {
+	ResType         int
+	ResourceVersion int64
+	CreateVersion   int64
+	IsCreate        bool // true when ResType == PUT and the key is new
+	IsModify        bool // true when ResType == PUT and the key is old
+	Key             string
+	ValueBytes      []byte
+}
+
 // ref https://blog.csdn.net/wohu1104/article/details/108552649
 
 func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
