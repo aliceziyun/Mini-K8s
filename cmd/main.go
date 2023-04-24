@@ -1,72 +1,86 @@
-// package main
+package main
 
-// import (
-// 	"Mini-K8s/pkg/etcdstorage"
-// 	o "Mini-K8s/pkg/object"
-// 	"encoding/json"
-// 	"fmt"
-// 	"time"
-// )
+import (
+	"Mini-K8s/pkg/etcdstorage"
+	o "Mini-K8s/pkg/object"
+	"Mini-K8s/pkg/tcp"
+	"encoding/json"
+	"fmt"
+	"time"
+)
 
-// func main() {
+func main() {
+	if false {
+		//go udp.Server()
+		time.Sleep(500 * time.Millisecond)
+		//go udp.Client()
+	} else {
+		go tcp.Server("127.0.0.1:8080")
+		time.Sleep(500 * time.Millisecond)
+		go tcp.Client("127.0.0.1:8080", "Client 1")
+	}
+	time.Sleep(3 * time.Second)
+}
 
-// 	store, err0 := etcdstorage.InitKVStore([]string{"127.0.0.1:2379"}, time.Second)
-// 	if err0 != nil {
-// 		return
-// 	}
+func mainForEtcd() {
 
-// 	container := o.Container{
-// 		Name:  "nginx",
-// 		Image: "nginx:stable-alpine",
-// 	}
+	store, err := etcdstorage.InitKVStore([]string{"127.0.0.1:2379"}, time.Second)
+	if err != nil {
+		return
+	}
 
-// 	pod := o.Pod{}
+	container := o.Container{
+		Name:  "nginx",
+		Image: "nginx:stable-alpine",
+	}
 
-// 	pod.Kind = "Pod"
-// 	pod.ApiVersion = 1
-// 	pod.Metadata.Name = "pod-example"
-// 	pod.Metadata.Namespace = "default"
+	pod := o.Pod{}
 
-// 	pod.Spec.Containers = append(pod.Spec.Containers, container)
+	pod.Kind = "Pod"
+	pod.ApiVersion = 1
+	pod.Metadata.Name = "pod-example"
+	pod.Metadata.Namespace = "default"
 
-// 	pod.Status.Phase = "Running"
+	pod.Spec.Containers = append(pod.Spec.Containers, container)
 
-// 	fmt.Println(pod)
+	pod.Status.Phase = "Running"
 
-// 	jsonBytes, err0 := json.Marshal(pod)
-// 	if err0 != nil {
-// 		return
-// 	}
+	fmt.Println(pod)
 
-// 	key := etcdstorage.EtcdPodPrefix + pod.Metadata.Namespace + "/" + pod.Metadata.Name
+	jsonBytes, err0 := json.Marshal(pod)
+	if err0 != nil {
+		return
+	}
 
-// 	go func() {
-// 		time.Sleep(1 * time.Second)
+	key := etcdstorage.EtcdPodPrefix + pod.Metadata.Namespace + "/" + pod.Metadata.Name
 
-// 		err1 := store.Put(key, string(jsonBytes))
-// 		if err1 != nil {
-// 			return
-// 		}
+	go func() {
+		time.Sleep(1 * time.Second)
 
-// 		value, err2 := store.Get(key)
-// 		if err2 != nil {
-// 			return
-// 		}
+		err1 := store.Put(key, string(jsonBytes))
+		if err1 != nil {
+			return
+		}
 
-// 		err3 := store.Del(key)
-// 		if err3 != nil {
-// 			return
-// 		}
+		value, err2 := store.Get(key)
+		if err2 != nil {
+			return
+		}
 
-// 		podPtr := &o.Pod{}
-// 		err4 := json.Unmarshal([]byte(value), podPtr)
-// 		if err4 != nil {
-// 			return
-// 		}
+		err3 := store.Del(key)
+		if err3 != nil {
+			return
+		}
 
-// 		fmt.Println(*podPtr)
-// 	}()
+		podPtr := &o.Pod{}
+		err4 := json.Unmarshal([]byte(value), podPtr)
+		if err4 != nil {
+			return
+		}
 
-// 	store.Watch(key)
+		fmt.Println(*podPtr)
+	}()
 
-// }
+	store.Watch(key)
+
+}
