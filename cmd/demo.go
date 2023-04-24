@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func main() {
+func mainForTcp() {
 	if false {
 		//go udp.Server()
 		time.Sleep(500 * time.Millisecond)
@@ -81,6 +81,10 @@ func mainForEtcd() {
 		fmt.Println(*podPtr)
 	}()
 
-	store.Watch(key)
+	go func() {
+		store.Watch(key)
+	}()
+
+	time.Sleep(5 * time.Second)
 
 }
