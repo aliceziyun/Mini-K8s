@@ -17,8 +17,6 @@ type KVStore struct {
 	client *clientv3.Client
 }
 
-// ref https://blog.csdn.net/wohu1104/article/details/108552649
-
 func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
 	fmt.Print("\n")
 	config := clientv3.Config{

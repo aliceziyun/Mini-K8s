@@ -12,6 +12,8 @@ go get -u -x google.golang.org/grpc@v1.26.0
 
 此外，如果想要运行使用etcd功能，应该在本机安装etcd，并且运行起来，保证其端口与代码中一致（默认值是一致的）。
 
+pod的保存路径：`/registry/pods/{namespace}/{pod-name}`
+
 ## Pod Structure
 
 位置：`./pkg/object/object.go`
