@@ -51,7 +51,7 @@ func (sched *Scheduler) Run(ctx context.Context) {
 }
 
 func (sched *Scheduler) register() {
-	podConfig := "/testpod"
+	podConfig := "/testwatch"
 	err := sched.ls.Watch(podConfig, sched.watchNewPod, sched.stopChannel)
 	if err != nil {
 		fmt.Println(err)

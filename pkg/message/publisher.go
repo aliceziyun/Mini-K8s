@@ -35,7 +35,7 @@ func NewPublisher(config *QConfig) (*Publisher, error) {
 }
 
 func (p *Publisher) Publish(exchangeName string, body []byte, contentType string) error {
-
+	fmt.Println(exchangeName)
 	ch, err := p.conn.Channel()
 	if err != nil {
 		return err

@@ -36,6 +36,7 @@ func NewSubscriber(config *QConfig) (*Subscriber, error) {
 }
 
 func (s *Subscriber) Subscribe(exchangeName string, handler HandleFunc, stopChannelCh <-chan struct{}) error {
+	fmt.Println("begin subscribe with name", exchangeName)
 	ch, err := s.Conn.Channel()
 	if err != nil {
 		return err

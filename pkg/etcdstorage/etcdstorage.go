@@ -1,7 +1,9 @@
 package etcdstorage
 
 import (
+	"Mini-K8s/pkg/message"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"time"
@@ -95,24 +97,39 @@ func (kvs *KVStore) Del(key string) error {
 	return err
 }
 
-func (kvs *KVStore) Watch(key string) {
+func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 	fmt.Println("etcd start watch", key)
 
+	watchResChan := make(chan WatchRes)
+
 	watcher := clientv3.NewWatcher(kvs.client)
+	ctx, cancel := context.WithCancel(context.TODO())
 
-	watchRespChan := watcher.Watch(context.Background(), key)
-	fmt.Println(watchRespChan)
-
-	// 处理kv变化事件
-	for watchResp := range watchRespChan {
-		for _, event := range watchResp.Events {
-			fmt.Print("[WATCH]")
-			switch event.Type {
-			case mvccpb.PUT:
-				fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
-			case mvccpb.DELETE:
-				fmt.Println("Delete\tRevision:", event.Kv.ModRevision)
+	watch := func(c chan<- WatchRes) {
+		//fmt.Println("watch again")
+		watchRespChan := watcher.Watch(ctx, key)
+		// 处理kv变化事件
+		for watchResp := range watchRespChan {
+			var res WatchRes
+			for _, event := range watchResp.Events {
+				fmt.Print("[WATCH]")
+				switch event.Type {
+				case mvccpb.PUT:
+					fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
+					data, _ := json.Marshal("sewgwq")
+					publisher, _ := message.NewPublisher(message.DefaultQConfig())
+					publisher.Publish("/testwatch", data, "application/json")
+				case mvccpb.DELETE:
+					fmt.Println("Delete\tRevision:", event.Kv.ModRevision)
+				}
 			}
+			c <- res
 		}
+		fmt.Println("etcd close watcher with key", key)
+		close(c)
 	}
+
+	go watch(watchResChan)
+
+	return cancel, watchResChan
 }
