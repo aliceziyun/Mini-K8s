@@ -1,59 +1,57 @@
-//暂时用来参考
+// 暂时用来参考
 package kubelet
 
-// import (
-// 	// "Mini-K8s/pkg/client"
-// 	// "Mini-K8s/pkg/kubelet/monitor"
-// 	// "Mini-K8s/pkg/kubelet/podConfig"
-// 	"Mini-K8s/pkg/kubelet/podManager"
-// 	"Mini-K8s/pkg/object"
+import (
+	// "Mini-K8s/pkg/client"
+	// "Mini-K8s/pkg/kubelet/monitor"
+	"Mini-K8s/pkg/client"
+	"Mini-K8s/pkg/kubelet/podConfig"
+	"Mini-K8s/pkg/kubelet/podManager"
+	"fmt"
+	// "Mini-K8s/pkg/kubeproxy"
+	// "Mini-K8s/pkg/listerwatcher"
+	// "Mini-K8s/pkg/netSupport"
+)
 
-// 	// "Mini-K8s/pkg/kubeproxy"
-// 	// "Mini-K8s/pkg/listerwatcher"
-// 	// "Mini-K8s/pkg/netSupport"
-// 	"context"
-// 	"fmt"
-// 	"time"
-// )
+type Kubelet struct {
+	podManager *podManager.PodManager
+	PodConfig  *podConfig.PodConfig
+	// podMonitor     *monitor.DockerMonitor
+	// kubeNetSupport *netSupport.KubeNetSupport
+	// kubeProxy      *kubeproxy.KubeProxy
+	// ls          *listerwatcher.ListerWatcher
+	// stopChannel <-chan struct{}
+	Client client.RESTClient
+	Err    error
+}
 
-// type Kubelet struct {
-// 	podManager     *podManager.PodManager
-// 	PodConfig      *podConfig.PodConfig
-// 	podMonitor     *monitor.DockerMonitor
-// 	kubeNetSupport *netSupport.KubeNetSupport
-// 	kubeProxy      *kubeproxy.KubeProxy
-// 	ls             *listerwatcher.ListerWatcher
-// 	stopChannel    <-chan struct{}
-// 	Client         client.RESTClient
-// 	Err            error
-// }
+func NewKubelet(lsConfig *listerwatcher.Config, clientConfig string, node *object.Node) *Kubelet {
+	kubelet := &Kubelet{}
+	kubelet.podManager = podManager.NewPodManager(clientConfig)
+	restClient := client.RESTClient{
+		Base: "http://" + clientConfig,
+	}
+	kubelet.Client = restClient
 
-// func NewKubelet(lsConfig *listerwatcher.Config, clientConfig string, node *object.Node) *Kubelet {
-// 	kubelet := &Kubelet{}
-// 	kubelet.podManager = podManager.NewPodManager(clientConfig)
-// 	restClient := client.RESTClient{
-// 		Base: "http://" + clientConfig,
-// 	}
-// 	kubelet.Client = restClient
+	// initialize list watch
+	// ls, err := listerwatcher.NewListerWatcher(lsConfig)
+	// if err != nil {
+	// 	fmt.Printf("[NewKubelet] list watch start fail...")
+	// }
+	// kubelet.ls = ls
+	// kubelet.kubeNetSupport, err = netSupport.NewKubeNetSupport(lsConfig, clientConfig, node)
+	if err != nil {
+		fmt.Printf("[NewKubelet] new kubeNetSupport fail")
+	}
+	// kubelet.kubeProxy = kubeproxy.NewKubeProxy(lsConfig, clientConfig)
+	// initialize pod podConfig
+	kubelet.PodConfig = podConfig.NewPodConfig()
 
-// 	// initialize list watch
-// 	ls, err := listerwatcher.NewListerWatcher(lsConfig)
-// 	if err != nil {
-// 		fmt.Printf("[NewKubelet] list watch start fail...")
-// 	}
-// 	kubelet.ls = ls
-// 	kubelet.kubeNetSupport, err = netSupport.NewKubeNetSupport(lsConfig, clientConfig, node)
-// 	if err != nil {
-// 		fmt.Printf("[NewKubelet] new kubeNetSupport fail")
-// 	}
-// 	kubelet.kubeProxy = kubeproxy.NewKubeProxy(lsConfig, clientConfig)
-// 	// initialize pod podConfig
-// 	kubelet.PodConfig = podConfig.NewPodConfig()
+	// kubelet.podMonitor = monitor.NewDockerMonitor()
 
-// 	kubelet.podMonitor = monitor.NewDockerMonitor()
+	return kubelet
+}
 
-// 	return kubelet
-// }
 // func (kl *Kubelet) Run() {
 // 	kl.kubeNetSupport.StartKubeNetSupport()
 // 	kl.kubeProxy.StartKubeProxy()

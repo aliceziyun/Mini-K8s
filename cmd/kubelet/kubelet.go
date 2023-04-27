@@ -1,4 +1,4 @@
-//有些暂时用来参考
+// 有些暂时用来参考
 package main
 
 import (
@@ -23,25 +23,25 @@ const MasterIp = "10.119.11.108"
 //	return node
 //}
 
-//func main() {
-//	//var node *object.Node
-//	node := &object.Node{}
-//	masterIp := MasterIp
-//	if len(os.Args) != 1 {
-//		//参数应该为yaml文件路径,进行解析
-//		//node = parseConfigFile(os.Args[1])
+//	func main() {
+//		//var node *object.Node
+//		node := &object.Node{}
+//		masterIp := MasterIp
+//		if len(os.Args) != 1 {
+//			//参数应该为yaml文件路径,进行解析
+//			//node = parseConfigFile(os.Args[1])
 //
-//		if node != nil {
-//			masterIp = node.MasterIp
+//			if node != nil {
+//				masterIp = node.MasterIp
+//			}
 //		}
+//		//clientConfig := client.Config{Host: masterIp + ":8080"}
+//		clientConfig := masterIp + ":8080"
+//		kube := kubelet.NewKubelet(listerwatcher.GetLsConfig(masterIp), clientConfig, node)
+//		kube.Run()
+//		//fmt.Printf("kube run emd...\n")
+//		select {}
 //	}
-//	//clientConfig := client.Config{Host: masterIp + ":8080"}
-//	clientConfig := masterIp + ":8080"
-//	kube := kubelet.NewKubelet(listerwatcher.GetLsConfig(masterIp), clientConfig, node)
-//	kube.Run()
-//	//fmt.Printf("kube run emd...\n")
-//	select {}
-//}
 func main() {
 	//var node *object.Node
 	//node := &object.Node{}
@@ -59,16 +59,16 @@ func main() {
 	// }
 	containers := []object.Container{
 		{
-			Name:    "container1",
-			Image:   "img1",
+			Name:    "nginx",
+			Image:   "nginx",
 			Ports:   nil,
 			Env:     nil,
 			Command: nil,
 			Args:    nil,
 		},
 		{
-			Name:    "container2",
-			Image:   "img2",
+			Name:    "ghost",
+			Image:   "ghost",
 			Ports:   nil,
 			Env:     nil,
 			Command: nil,
@@ -84,10 +84,11 @@ func main() {
 		},
 	}
 	dockerClient.Main(containers)
+
 	//clientConfig := client.Config{Host: masterIp + ":8080"}
 	//clientConfig := masterIp + ":8080"
 	//kube := kubelet.NewKubelet(listerwatcher.GetLsConfig(masterIp), clientConfig, node)
 	//kube.Run()
 	//fmt.Printf("kube run emd...\n")
-	select {}
+	// select {}
 }

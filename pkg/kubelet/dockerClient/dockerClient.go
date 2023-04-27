@@ -1,4 +1,3 @@
-//有些暂时用来参考
 package dockerClient
 
 import (
@@ -16,8 +15,25 @@ import (
 
 const ServiceDns string = "10.10.10.10"
 
+// 获取一个新Client。可以被外部引用。
 func GetNewClient() (*client.Client, error) {
 	return client.NewClientWithOpts()
+}
+
+func getAllContainers() ([]types.Container, error) {
+	cli, err := GetNewClient()
+	if err != nil {
+		fmt.Println("error")
+	}
+	return cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+}
+
+func getRunningContainers() ([]types.Container, error) {
+	cli, err := GetNewClient()
+	if err != nil {
+		fmt.Println("error")
+	}
+	return cli.ContainerList(context.Background(), types.ContainerListOptions{})
 }
 
 func startContainer(containerId string) error {
@@ -31,17 +47,26 @@ func startContainer(containerId string) error {
 	return err
 }
 
-//创建pause容器
+func stopContainer(containerId string) error {
+	cli, err := GetNewClient()
+	if err != nil {
+		return err
+	}
+	err = cli.ContainerStop(context.Background(), containerId, nil)
+	return err
+}
+
+// 创建pause容器
 func createPause(ports []object.ContainerPort, name string) (container.ContainerCreateCreatedBody, error) {
 	fmt.Println("createPause:")
 	cli, err2 := GetNewClient()
-	//cli, err2 := client.NewClientWithOpts()
 	if err2 != nil {
+		fmt.Println("error on creating Pause Container")
 		return container.ContainerCreateCreatedBody{}, err2
 	}
-	var exports nat.PortSet
-	exports = make(nat.PortSet, len(ports))
+	var exports nat.PortSet = make(nat.PortSet, len(ports))
 	for _, port := range ports {
+		//默认是tcp
 		if port.Protocol == "" || port.Protocol == "tcp" || port.Protocol == "all" {
 			p, err := nat.NewPort("tcp", port.ContainerPort)
 			if err != nil {
@@ -59,7 +84,7 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 	}
 	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 		Image:        "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.6",
-		ExposedPorts: exports,
+		ExposedPorts: exports, //所有暴露的接口
 	}, &container.HostConfig{
 		IpcMode: container.IpcMode("shareable"),
 		//DNS:     []string{netconfig.ServiceDns},
@@ -69,9 +94,9 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 	return resp, err
 }
 
-//查找是否存在，存在就删除
-func deleteExitedContainers(names []string) error {
-	fmt.Println("deleteExitedContainers:")
+// 查找是否存在，存在就把原来的删除，之后统一创建新的
+func deleteExistedContainers(names []string) error {
+	fmt.Println("deleteExistedContainers:")
 	cli, err2 := GetNewClient()
 	if err2 != nil {
 		return err2
@@ -80,11 +105,12 @@ func deleteExitedContainers(names []string) error {
 		_, err := cli.ContainerInspect(context.Background(), value)
 		if err == nil {
 			//需要先停止container
-			//err = cli.ContainerStop(context.Background(), value, nil)
-			err = cli.ContainerStop(context.Background(), value, container.StopOptions{})
+			err = cli.ContainerStop(context.Background(), value, nil)
+			// err = cli.ContainerStop(context.Background(), value, container.StopOptions{})
 			if err != nil {
 				return err
 			}
+			//删除容器
 			err = cli.ContainerRemove(context.Background(), value, types.ContainerRemoveOptions{})
 			if err != nil {
 				return err
@@ -108,7 +134,7 @@ func isImageExist(a string, tags []string) bool {
 	return false
 }
 
-//注意， 调用ImagePull 函数， 拉取进程在后台运行，因此要保证前台挂起足够时间保证拉取成功
+// 注意， 调用ImagePull 函数， 拉取进程在后台运行，因此要保证前台挂起足够时间保证拉取成功
 func dockerClientPullSingleImage(image string) error {
 	fmt.Printf("[PullSingleImage] Prepare pull image:%s\n", image)
 	cli, err2 := GetNewClient()
@@ -138,7 +164,7 @@ func dockerClientPullImages(images []string) error {
 	}
 	var filter []string
 	for _, value := range images {
-		flag := false
+		flag := false //此镜像是否已在本地
 		for _, it := range resp {
 			if isImageExist(value, it.RepoTags) {
 				flag = true
@@ -150,12 +176,12 @@ func dockerClientPullImages(images []string) error {
 		}
 		filter = append(filter, value)
 	}
-	if filter != nil {
-		for _, value := range filter {
-			err := dockerClientPullSingleImage(value)
-			if err != nil {
-				return err
-			}
+	// 剩下的是本地还不存在的，要单独拉取
+	// if filter != nil {
+	for _, value := range filter {
+		err := dockerClientPullSingleImage(value)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -176,15 +202,17 @@ func runContainers(containerIds []object.ContainerMeta) error {
 	return nil
 }
 func getContainerNetInfo(name string) (*types.NetworkSettings, error) {
-	//cli, err2 := getNewClient()
-	//if err2 != nil {
-	//	return nil, err2
-	//}
-	//res, err := cli.ContainerInspect(context.Background(), name)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return res.NetworkSettings, nil
+	cli, err1 := GetNewClient()
+	if err1 != nil {
+		fmt.Println("error")
+		return nil, err1
+	}
+	res, err := cli.ContainerInspect(context.Background(), name)
+	if err != nil {
+		fmt.Println("error")
+		return nil, err
+	}
+	return res.NetworkSettings, nil
 	return nil, nil
 }
 func createContainersOfPod(containers []object.Container) ([]object.ContainerMeta, *types.NetworkSettings, error) {
@@ -203,19 +231,24 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 	var names []string
 	pauseName := "pause"
 	for _, value := range containers {
+		//pause容器名字附带当前容器的名字
 		pauseName += "_" + value.Name
+		//名字列表加入当前容器的名字
 		names = append(names, value.Name)
+		//镜像列表加上当前镜像
 		images = append(images, value.Image)
 		for _, port := range value.Ports {
+			//添加到暴露的所有端口中
 			totalPort = append(totalPort, port)
 		}
 	}
 	names = append(names, pauseName)
-	err3 := deleteExitedContainers(names)
+	//先将列表中之前存在的容器删掉，之后再统一启动（？）s
+	err3 := deleteExistedContainers(names)
 	if err3 != nil {
 		return nil, nil, err3
 	}
-	//拉取所有镜像（分别拉取单个镜像）
+	//拉取所有镜像（先把本地的拉取，再分别单个拉取不在本地的镜像）
 	err := dockerClientPullImages(images)
 	if err != nil {
 		return nil, nil, err
@@ -257,6 +290,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		//if value.Limits.Memory != "" {
 		//	resourceConfig.Memory = getMemory(value.Limits.Memory)
 		//}
+		//创建容器
 		fmt.Println("ContainerCreate")
 		resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 			Image:      value.Image,
@@ -291,13 +325,36 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 	return result, netSetting, nil
 }
 
+// 删除指定容器
+func deleteContainers(containerIds []string) error {
+	cli, err2 := GetNewClient()
+	if err2 != nil {
+		return err2
+	}
+	//需要先停止containers
+	for _, value := range containerIds {
+		err := cli.ContainerStop(context.Background(), value, nil)
+		if err != nil {
+			return err
+		}
+	}
+	//停止后删除
+	for _, value := range containerIds {
+		err := cli.ContainerRemove(context.Background(), value, types.ContainerRemoveOptions{})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func Main(Group []object.Container) {
 	//p := (*message.CommandWithConfig)(unsafe.Pointer(command))
 	//Group := []object.Container{}
 	//res, netSetting, err := createContainersOfPod(p.Group)
 	res, netSetting, err := createContainersOfPod(Group)
-	if res == nil || netSetting == nil || err == nil {
-
+	if res == nil || netSetting == nil || err != nil {
+		fmt.Println(".......")
 	}
 	//var result message.ResponseWithContainIds
 	//result.Err = err
