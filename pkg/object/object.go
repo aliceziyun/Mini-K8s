@@ -8,6 +8,7 @@ type ObjMetadata struct {
 }
 
 type Pod struct {
+	Name       string      `json:"name" yaml:"name"`
 	ApiVersion int         `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string      `json:"kind" yaml:"kind"`
 	Metadata   ObjMetadata `json:"metadata" yaml:"metadata"`
@@ -52,4 +53,7 @@ type Condition struct {
 	LastTransitionTime string `json:"lastTransitionTime" yaml:"lastTransitionTime"`
 	Status             string `json:"status" yaml:"status"`
 	Type               string `json:"type" yaml:"type"`
+}
+
+type Scheduler struct {
 }
