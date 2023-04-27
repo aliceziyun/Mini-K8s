@@ -38,6 +38,9 @@ type Container struct {
 	Command []string        `json:"command" yaml:"command"`
 	Args    []string        `json:"args" yaml:"args"`
 }
+type Containers struct {
+	Containers []Container `json:"containers" yaml:"containers"`
+}
 
 // ContainerMeta added
 type ContainerMeta struct {

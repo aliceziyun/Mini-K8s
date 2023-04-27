@@ -7,7 +7,6 @@ import (
 	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/kubelet/podConfig"
 	"Mini-K8s/pkg/kubelet/podManager"
-	"fmt"
 	// "Mini-K8s/pkg/kubeproxy"
 	// "Mini-K8s/pkg/listerwatcher"
 	// "Mini-K8s/pkg/netSupport"
@@ -40,9 +39,9 @@ func NewKubelet(lsConfig *listerwatcher.Config, clientConfig string, node *objec
 	// }
 	// kubelet.ls = ls
 	// kubelet.kubeNetSupport, err = netSupport.NewKubeNetSupport(lsConfig, clientConfig, node)
-	if err != nil {
-		fmt.Printf("[NewKubelet] new kubeNetSupport fail")
-	}
+	// if err != nil {
+	// 	fmt.Printf("[NewKubelet] new kubeNetSupport fail")
+	// }
 	// kubelet.kubeProxy = kubeproxy.NewKubeProxy(lsConfig, clientConfig)
 	// initialize pod podConfig
 	kubelet.PodConfig = podConfig.NewPodConfig()
