@@ -43,16 +43,16 @@ func (t *IPTable) runWithOutput(args []string, stdout io.Writer) error {
 	//		args = append(args, strconv.Itoa(t.timeout))
 	//	}
 	//} else {
-	//	fmu, err := newXtablesFileLock()
-	//	if err != nil {
-	//		return err
-	//	}
-	//	ul, err := fmu.tryLock()
-	//	if err != nil {
-	//		syscall.Close(fmu.fd)
-	//		return err
-	//	}
-	//	defer ul.Unlock()
+	//fmu, err := newXtablesFileLock()
+	//if err != nil {
+	//	return err
+	//}
+	//ul, err := fmu.tryLock()
+	//if err != nil {
+	//	syscall.Close(fmu.fd)
+	//	return err
+	//}
+	//defer ul.Unlock()
 	//}
 
 	var stderr bytes.Buffer
