@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	EtcdPodPrefix string = "/registry/pods/"
+	EtcdPodPrefix     string = "/registry/pods/"
+	EtcdServicePrefix string = "/registry/services/"
 )
 
 type KVStore struct {
@@ -28,8 +29,6 @@ type WatchRes struct {
 	Key             string
 	ValueBytes      []byte
 }
-
-// ref https://blog.csdn.net/wohu1104/article/details/108552649
 
 func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
 	fmt.Print("\n")

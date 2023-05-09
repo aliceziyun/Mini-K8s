@@ -14,45 +14,19 @@ func NewKubeProxy() *KubeProxy {
 
 func (kubeProxy *KubeProxy) Run() {
 
-	//ipt, _ := iptable.New()
-	//exist, _ := ipt.isChainExist()
-	//
-	//if exist {
-	//	return
-	//}
-	//
-	//_ = ipt.NewChain()
-	//_ = ipt.Insert()
-	//_ = ipt.Insert()
-
-	//先判断services链存不存在
-	ipt, err := iptable.New()
+	ipt, err := iptables.New()
 	if err != nil {
 		fmt.Println("[chain] Boot error")
 		fmt.Println(err)
 	}
-	exist, err2 := ipt.IsChainExist("nat", "SERVICE")
-	if err2 != nil {
-		fmt.Println("[chain] Boot error")
+
+	//fmt.Println("iptables -t nat -A PREROUTING -p tcp --dport 8080 -j REDIRECT --to-ports 8000") // 外网转发
+
+	fmt.Println("iptables -t nat -A OUTPUT -p tcp --dport 8000 -j REDIRECT --to-ports 8080") // 内网转发
+	err = ipt.Append("nat", "OUTPUT", "-p", "tcp", "--dport", "8001", "-j", "REDIRECT", "--to-ports", "8080")
+	if err != nil {
 		fmt.Println(err)
-	}
-	if exist {
 		return
 	}
-	//创建该链并做处理
-	err = ipt.NewChain("nat", "SERVICE")
-	if err != nil {
-		fmt.Println("[chain] Boot error")
-		fmt.Println(err)
-	}
-	err = ipt.Insert("nat", "OUTPUT", 1, "-j", "SERVICE", "-s", "0/0", "-d", "0/0", "-p", "all")
-	if err != nil {
-		fmt.Println("[chain] Boot error")
-		fmt.Println(err)
-	}
-	err = ipt.Insert("nat", "PREROUTING", 1, "-j", "SERVICE", "-s", "0/0", "-d", "0/0", "-p", "all")
-	if err != nil {
-		fmt.Println("[chain] Boot error")
-		fmt.Println(err)
-	}
+
 }
