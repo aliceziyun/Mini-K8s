@@ -2,10 +2,10 @@ package message
 
 import (
 	"fmt"
-	"sync"
-	"time"
 
 	"github.com/streadway/amqp"
+	"sync"
+	"time"
 )
 
 type Publisher struct {
