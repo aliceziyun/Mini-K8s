@@ -62,23 +62,62 @@ type Service struct {
 	Status     ServiceStatus `json:"status" yaml:"status"`
 }
 
+// main原来的版本
+// type Container struct {
+// 	Name    string        `json:"name" yaml:"name"`
+// 	Image   string        `json:"image" yaml:"image"`
+// 	Ports   ContainerPort `json:"ports" yaml:"ports"`
+// 	Env     ContainerEnv  `json:"env" yaml:"env"`
+// 	Command string        `json:"command" yaml:"command"`
+// 	Args    string        `json:"args" yaml:"args"`
+
+// ymz merge===============================================
 type Container struct {
-	Name    string        `json:"name" yaml:"name"`
-	Image   string        `json:"image" yaml:"image"`
-	Ports   ContainerPort `json:"ports" yaml:"ports"`
-	Env     ContainerEnv  `json:"env" yaml:"env"`
-	Command string        `json:"command" yaml:"command"`
-	Args    string        `json:"args" yaml:"args"`
+	Name    string          `json:"name" yaml:"name"`
+	Image   string          `json:"image" yaml:"image"`
+	Ports   []ContainerPort `json:"ports" yaml:"ports"`
+	Env     []ContainerEnv  `json:"env" yaml:"env"`
+	Command []string        `json:"command" yaml:"command"`
+	Args    []string        `json:"args" yaml:"args"`
 }
+type Containers struct {
+	Containers []Container `json:"containers" yaml:"containers"`
+}
+
+// ContainerMeta (added)
+type ContainerMeta struct {
+	OriginName  string
+	RealName    string
+	ContainerId string
+}
+
+//ymz merge===============================================
 
 type Volume struct {
 }
 
+// main原来的版本
+// type ContainerEnv struct {
+// }
+// type ContainerEnv struct {
+// }
+
+// ymz merge-------------------------------
 type ContainerPort struct {
+	//added ?
+	Name          string `json:"name" yaml:"name"`
+	ContainerPort string `json:"containerPort" yaml:"containerPort"`
+	HostPort      string `json:"hostPort" yaml:"hostPort"`
+	//类型有三种 tcp, udp, all.      默认为tcp, all的话两种都开
+	Protocol string `json:"protocol" yaml:"protocol"`
+	//?
+}
+type ContainerEnv struct {
+	Name  string `json:"name" yaml:"name"`
+	Value string `json:"value" yaml:"value"`
 }
 
-type ContainerEnv struct {
-}
+//ymz merge-------------------------------
 
 type Condition struct {
 	LastProbeTime      string `json:"lastProbeTime" yaml:"lastProbeTime"`
