@@ -19,6 +19,13 @@ type KVStore struct {
 	client *clientv3.Client
 }
 
+type ListRes struct {
+	ResourceVersion int64
+	CreateVersion   int64
+	Key             string
+	ValueBytes      []byte
+}
+
 type WatchRes struct {
 	ResType         int
 	ResourceVersion int64

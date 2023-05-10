@@ -1,4 +1,4 @@
-package listener
+package listwatcher
 
 import (
 	"Mini-K8s/pkg/etcdstorage"
@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/streadway/amqp"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -15,26 +16,54 @@ import (
 
 type WatchHandler func(res etcdstorage.WatchRes)
 
-type Listener struct {
+type ListWatcher struct {
 	Subscriber *message.Subscriber //指向subscriber的指针
 	RootURL    string
 }
 
-// NewListener :创建listener和与其绑定的subscriber
-func NewListener(c *Config) (*Listener, error) {
+// NewListWatcher :创建List和与其绑定的subscriber
+func NewListWatcher(c *Config) (*ListWatcher, error) {
 	s, err := message.NewSubscriber(c.QueueConfig)
 	if err != nil {
 		return nil, err
 	}
-	ls := &Listener{
+	ls := &ListWatcher{
 		Subscriber: s,
 		RootURL:    fmt.Sprintf("http://%s:%d", c.Host, c.Port),
 	}
 	return ls, nil
 }
 
-// Watch : 监听某url绑定的操作，当对方有回复时，便调用watchHandler中的函数
-func (l *Listener) Watch(key string, handler WatchHandler, stopChannel <-chan struct{}) error {
+// List : 向API-Server发送一个http短链接请求，罗列所有目标资源的对象。
+func (ls *ListWatcher) List(key string) ([]etcdstorage.ListRes, error) {
+	resourceURL := ls.RootURL + key
+	request, err := http.NewRequest("GET", resourceURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	//向api-server发送请求
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return nil, errors.New("StatusCode not 200")
+	}
+	reader := response.Body
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	var resList []etcdstorage.ListRes
+	err = json.Unmarshal(data, &resList)
+	if err != nil {
+		return nil, err
+	}
+	return resList, nil
+}
+
+// Watch : 与某url长链接，监听某url绑定的操作，当对方有回复时，便调用watchHandler中的函数
+func (l *ListWatcher) Watch(key string, handler WatchHandler, stopChannel <-chan struct{}) error {
 	// 向对应url发起http请求
 	resourceURL := l.RootURL + key
 	fmt.Println(resourceURL)
