@@ -1,6 +1,7 @@
 package message
 
 import (
+	"Mini-K8s/pkg/message/config"
 	"fmt"
 	"github.com/streadway/amqp"
 )
@@ -13,7 +14,7 @@ type Subscriber struct {
 	MaxRetry int
 }
 
-func NewSubscriber(config *QConfig) (*Subscriber, error) {
+func NewSubscriber(config *config.QConfig) (*Subscriber, error) {
 	url := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", config.User, config.Password, config.Host, config.Port, config.VHost)
 	var err error
 
@@ -28,8 +29,6 @@ func NewSubscriber(config *QConfig) (*Subscriber, error) {
 	}
 
 	errCh := make(chan *amqp.Error)
-
-	//go s.rerun(errCh)
 
 	s.Conn.NotifyClose(errCh)
 	return s, nil

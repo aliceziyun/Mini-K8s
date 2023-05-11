@@ -2,6 +2,7 @@ package etcdstorage
 
 import (
 	"Mini-K8s/pkg/message"
+	"Mini-K8s/pkg/message/config"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -123,7 +124,7 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 				case mvccpb.PUT:
 					fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
 					data, _ := json.Marshal("sewgwq")
-					publisher, _ := message.NewPublisher(message.DefaultQConfig())
+					publisher, _ := message.NewPublisher(config.DefaultQConfig())
 					publisher.Publish("/testwatch", data, "application/json")
 				case mvccpb.DELETE:
 					fmt.Println("Delete\tRevision:", event.Kv.ModRevision)

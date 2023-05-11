@@ -4,6 +4,7 @@ import (
 	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listwatcher"
+	"Mini-K8s/pkg/listwatcher/config"
 	"Mini-K8s/pkg/object"
 	"Mini-K8s/third_party/queue"
 	"context"
@@ -20,7 +21,7 @@ type Scheduler struct {
 	Client      client.RESTClient
 }
 
-func NewScheduler(lsConfig *listwatcher.Config, clientConfig client.Config, selectType string) *Scheduler {
+func NewScheduler(lsConfig *config.Config, clientConfig client.Config, selectType string) *Scheduler {
 	println("scheduler create")
 
 	ls, err := listwatcher.NewListWatcher(lsConfig)

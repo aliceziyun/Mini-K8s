@@ -2,6 +2,7 @@ package listwatcher
 
 import (
 	"Mini-K8s/pkg/etcdstorage"
+	"Mini-K8s/pkg/listwatcher/config"
 	"Mini-K8s/pkg/message"
 	"encoding/json"
 	"errors"
@@ -21,8 +22,8 @@ type ListWatcher struct {
 	RootURL    string
 }
 
-// NewListWatcher :创建List和与其绑定的subscriber
-func NewListWatcher(c *Config) (*ListWatcher, error) {
+// NewListWatcher :创建List-Watcher和与其绑定的subscriber
+func NewListWatcher(c *config.Config) (*ListWatcher, error) {
 	s, err := message.NewSubscriber(c.QueueConfig)
 	if err != nil {
 		return nil, err
@@ -113,11 +114,11 @@ func (l *ListWatcher) Watch(key string, handler WatchHandler, stopChannel <-chan
 	stop := make(chan struct{})
 	amqpHandler := func(d amqp.Delivery) {
 		var res etcdstorage.WatchRes
-		_ = json.Unmarshal(d.Body, &res)
-		//if err != nil {
-		//	fmt.Println("error")
-		//	return
-		//}
+		err = json.Unmarshal(d.Body, &res)
+		if err != nil {
+			fmt.Println("marshal error")
+			return
+		}
 		handler(res)
 	}
 

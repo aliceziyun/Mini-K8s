@@ -1,6 +1,10 @@
-package app
+package controller
 
-import "fmt"
+import (
+	"Mini-K8s/pkg/controller/deployment"
+	"context"
+	"fmt"
+)
 
 func startDeploymentController(ctx context.Context, controllerContext ControllerContext) (controller.Interface, bool, error) {
 	dc, err := deployment.NewDeploymentController(
