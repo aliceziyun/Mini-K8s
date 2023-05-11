@@ -3,6 +3,7 @@ package message
 import (
 	"Mini-K8s/pkg/message/config"
 	"fmt"
+
 	"github.com/streadway/amqp"
 	"sync"
 	"time"

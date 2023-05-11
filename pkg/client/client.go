@@ -27,3 +27,4 @@ func DefaultClientConfig() Config {
 		Host: "127.0.0.1:8080",
 	}
 }
+
