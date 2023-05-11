@@ -2,6 +2,7 @@ package listwatcher
 
 import "Mini-K8s/pkg/message"
 
+// Config :list-watch机制的config
 type Config struct {
 	Host        string
 	Port        int
