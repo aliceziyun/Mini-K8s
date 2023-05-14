@@ -1,6 +1,5 @@
 package etcdstorage
 
-
 import (
 	"Mini-K8s/pkg/message"
 	"context"
@@ -32,7 +31,6 @@ type WatchRes struct {
 }
 
 func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
-	fmt.Print("\n")
 	config := clientv3.Config{
 		Endpoints:   endpoints,
 		DialTimeout: timeout,
@@ -76,12 +74,11 @@ func (kvs *KVStore) GetPrefix(key string) error {
 	} else {
 		fmt.Println("-> Get result: Empty")
 	}
-	fmt.Print("\n")
 	return nil
 }
 
 func (kvs *KVStore) Put(key string, val string) error {
-	fmt.Println("put a new pod", key, val)
+	fmt.Println("[ETCD] PUT\n", key, val)
 	kv := clientv3.NewKV(kvs.client)
 	_, err := kv.Put(context.TODO(), key, val)
 	if err != nil {
@@ -91,14 +88,14 @@ func (kvs *KVStore) Put(key string, val string) error {
 }
 
 func (kvs *KVStore) Del(key string) error {
-	fmt.Println("delete a new pod", key)
+	fmt.Println("[ETCD] DELETE\n", key)
 	kv := clientv3.NewKV(kvs.client)
 	_, err := kv.Delete(context.TODO(), key)
 	return err
 }
 
 func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
-	fmt.Println("etcd start watch", key)
+	fmt.Println("[ETCD] WATCH\n", key)
 
 	watchResChan := make(chan WatchRes)
 
@@ -112,7 +109,7 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 		for watchResp := range watchRespChan {
 			var res WatchRes
 			for _, event := range watchResp.Events {
-				fmt.Print("[WATCH]")
+				fmt.Print("[WATCH-RESULT]")
 				switch event.Type {
 				case mvccpb.PUT:
 					fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)

@@ -2,6 +2,7 @@ package kubeproxy
 
 import (
 	"Mini-K8s/pkg/iptable"
+	o "Mini-K8s/pkg/object"
 	"fmt"
 )
 
@@ -12,7 +13,31 @@ func NewKubeProxy() *KubeProxy {
 	return kubeProxy
 }
 
-func (kubeProxy *KubeProxy) Run() {
+func (kubeProxy *KubeProxy) Run(service o.Service) {
+	initService(service)
+}
+
+func initService(service o.Service) {
+
+	//ipt, err := iptables.New()
+	//if err != nil {
+	//	fmt.Println("[chain] Boot error")
+	//	fmt.Println(err)
+	//}
+
+	fmt.Println("iptables -I FORWARD -i ens3 -j ACCEPT")
+	fmt.Println("iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE")
+
+	// 将所有发往10.0.0.1的包改为发往192.168.1.4
+	fmt.Println("iptables -A OUTPUT -t nat -d", service.Spec.ClusterIp, "-j DNAT --to-destination", service.Spec.PodNameAndIps[0].Ip)
+	//err = ipt.Append("nat", "OUTPUT", "-d", service.Spec.ClusterIp, "-j", "DNAT", "--to-destination", service.Spec.PodNameAndIps[0].Ip)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//}
+}
+
+func testIpt() {
 
 	ipt, err := iptables.New()
 	if err != nil {
@@ -59,4 +84,9 @@ func (kubeProxy *KubeProxy) Run() {
 		return
 	}
 
+	fmt.Println("iptables -t nat -A OUTPUT -p tcp --dport 8000 -m statistic --mode random --probability 0.5 -j REDIRECT --to-ports 8080\niptables -t nat -A OUTPUT -p tcp --dport 8000 -j REDIRECT --to-ports 8081")
+}
+
+func serviceChangeHandler() {
+	// watch handler
 }
