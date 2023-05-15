@@ -11,3 +11,6 @@ go mod edit -require=google.golang.org/grpc@v1.26.0
 go get -u -x google.golang.org/grpc@v1.26.0 
 ```
 安装完成后执行`go mod tidy`可能会出现报错或警告，但不影响运行，无需担心。
+
+etcd集群的service位于 `/etc/systemd/system/etcdcluster.service`
+
