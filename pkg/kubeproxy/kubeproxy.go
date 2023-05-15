@@ -35,6 +35,10 @@ func initService(service o.Service) {
 	//	fmt.Println(err)
 	//	return
 	//}
+
+	// 将本机（192.168.1.6）发往 10.10.0.2:8081 的包均匀地转发给 192.168.1.15:6666 和 192.168.1.4:8082
+	fmt.Println("iptables -t nat -A OUTPUT --dst 10.10.0.2 -p tcp --dport 8081 -m statistic --mode random --probability 0.5 -j DNAT --to-destination 192.168.1.15:6666")
+	fmt.Println("iptables -t nat -A OUTPUT --dst 10.10.0.2 -p tcp --dport 8081 -j DNAT --to-destination 192.168.1.4:8082")
 }
 
 func testIpt() {
