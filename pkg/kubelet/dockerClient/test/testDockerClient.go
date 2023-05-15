@@ -43,8 +43,12 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 			//添加到暴露的所有端口中
 			totalPort = append(totalPort, port)
 		}
+		//
+		// fmt.Printf("name=%s\n", value.Name)
+
 	}
 	names = append(names, pauseName)
+
 	//先将列表中之前存在的容器删掉，之后再统一启动（？）s
 	err3 := deleteExistedContainers(names)
 	if err3 != nil {
@@ -315,12 +319,15 @@ func dockerClientPullSingleImage(image string) error {
 func dockerClientPullImages(images []string) error {
 	fmt.Println("dockerClientPullImages:")
 	//先统一拉取镜像，确认是否已经存在于本地
+	fmt.Println("	先统一拉取镜像，确定是否已经在本地:")
 	cli, err2 := GetNewClient()
 	if err2 != nil {
+		fmt.Println("err2?")
 		return err2
 	}
 	resp, err := cli.ImageList(context.Background(), types.ImageListOptions{All: true})
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	var filter []string
@@ -338,6 +345,7 @@ func dockerClientPullImages(images []string) error {
 		filter = append(filter, value)
 	}
 	// 剩下的是本地还不存在的，要单独拉取
+	fmt.Println("	剩下的是本地还不存在的，要单独拉取:")
 	// if filter != nil {
 	for _, value := range filter {
 		err := dockerClientPullSingleImage(value)
