@@ -9,4 +9,5 @@ const (
 const (
 	EtcdPodPrefix     string = "/registry/pods/"
 	EtcdServicePrefix string = "/registry/services/"
+	AllPodPrefix      string = "/registry/pod/default"
 )

@@ -1,12 +1,20 @@
 package object
 
 type ObjMetadata struct {
-	Name      string            `json:"name" yaml:"name"`
-	Labels    map[string]string `json:"labels" yaml:"labels"`
-	Uid       string            `json:"uid" yaml:"uid"`
-	Namespace string            `json:"namespace" yaml:"namespace"`
+	Name           string            `json:"name" yaml:"name"`
+	Labels         map[string]string `json:"labels" yaml:"labels"`
+	Uid            string            `json:"uid" yaml:"uid"`
+	Namespace      string            `json:"namespace" yaml:"namespace"`
+	OwnerReference []OwnerReference  `json:"ownerReferences" yaml:"ownerReferences"`
 }
 
+type OwnerReference struct {
+	Kind string `json:"kind" yaml:"kind"`
+	Name string `json:"name" yaml:"name"`
+	UID  string `json:"uid" yaml:"uid"`
+}
+
+// ---------------------Pod-----------------------
 type Pod struct {
 	Name       string      `json:"name" yaml:"name"`
 	ApiVersion int         `json:"apiVersion" yaml:"apiVersion"`
@@ -30,6 +38,28 @@ type PodStatus struct {
 type PodNodeSelector struct {
 }
 
+type PodNameAndIp struct {
+	Name string `json:"name"`
+	Ip   string `json:"ip"`
+}
+
+// ---------------------ReplicaSet----------------------
+type ReplicaSet struct {
+	ObjMetadata `json:"metadata" yaml:"metadata"`
+	Spec        ReplicaSetSpec   `json:"spec" yaml:"spec"`
+	Status      ReplicaSetStatus `json:"status" yaml:"status"`
+}
+
+type ReplicaSetSpec struct {
+	Replicas int32 `json:"replicas" yaml:"replicas"`
+	pods     Pod   `json:"template" yaml:"template"`
+}
+
+type ReplicaSetStatus struct {
+	ReplicaStatus int32 `json:"replicas" yaml:"replicas"` //是否符合对replica的期待
+}
+
+// --------------------Service---------------------------
 type ServiceSpec struct {
 	Type          string            `json:"type" yaml:"type"`           //service 的类型，有ClusterIp和 NodePort类型,默认为ClusterIp,暂时只支持ClusterIp
 	ClusterIp     string            `json:"clusterIp" yaml:"clusterIp"` //虚拟服务Ip地址， 可以手工指定或者由系统进行分配
@@ -43,11 +73,6 @@ type ServicePort struct {
 	Port       string `json:"port" yaml:"port"`             //服务监听的端口号
 	TargetPort string `json:"targetPort" yaml:"targetPort"` //需要转发到后端Pod的端口号
 	NodePort   string `json:"nodePort" yaml:"nodePort"`     //当service类型为NodePort时，指定映射到物理机的端口号
-}
-
-type PodNameAndIp struct {
-	Name string `json:"name"`
-	Ip   string `json:"ip"`
 }
 
 type ServiceStatus struct {
@@ -112,7 +137,4 @@ type Condition struct {
 	LastTransitionTime string `json:"lastTransitionTime" yaml:"lastTransitionTime"`
 	Status             string `json:"status" yaml:"status"`
 	Type               string `json:"type" yaml:"type"`
-}
-
-type Scheduler struct {
 }

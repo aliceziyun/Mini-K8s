@@ -1,6 +1,9 @@
 package controller
 
-import "context"
+import (
+	"Mini-K8s/pkg/controller/replicaset"
+	"context"
+)
 
 //func startDeploymentController(ctx context.Context, controllerContext ControllerContext) (controller.Interface, bool, error) {
 //	dc, err := deployment.NewDeploymentController(
@@ -18,6 +21,6 @@ import "context"
 //}
 
 func startReplicaSetController(ctx context.Context, controllerContext ControllerContext) error {
-	//go replicaset.NewReplicaSetController(controllerCtx).Run(ctx)
+	go replicaset.NewReplicaSetController(controllerContext).Run(ctx)
 	return nil
 }

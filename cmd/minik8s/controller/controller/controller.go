@@ -10,5 +10,5 @@ type ControllerContext struct {
 	MasterIP       string
 	HttpServerPort string
 	PromServerPort string
-	Config         *config.CompletedConfig
+	Config         *controller.CompletedConfig
 }

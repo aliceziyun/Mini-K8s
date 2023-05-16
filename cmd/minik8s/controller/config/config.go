@@ -1,10 +1,13 @@
-package config
+package controller
 
-import "Mini-K8s/pkg/controller/deployment/config"
+import (
+	"Mini-K8s/pkg/controller/deployment/config"
+	"Mini-K8s/pkg/controller/replicaset/config"
+)
 
 type Config struct {
-	*config.DeploymentControllerOptions
-	//*controllers.AutoscalerControllerOptions
+	*replicaset.ReplicaSetControllerOptions
+	*deployment.DeploymentControllerOptions
 }
 
 type CompletedConfig struct {
@@ -12,6 +15,5 @@ type CompletedConfig struct {
 }
 
 func (c *Config) Complete() *CompletedConfig {
-	// TODO : complete podConfig
 	return &CompletedConfig{c}
 }
