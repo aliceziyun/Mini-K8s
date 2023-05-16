@@ -5,36 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/build/Pod/testPod.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/kubelet/PodUpdate/PodUpdate.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/apiserver/pods/pod_create.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/apiserver.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/test.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/api-server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller/apps.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller/apps.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/getContainersByYaml/getContainersByYaml.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/util/getPodByYaml.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/getContainersByYaml/testPod.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/testDockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/testDockerClient.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/testPod.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/message/massage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/message/massage.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/pod/pod.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/pod/pod.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/podConfig/podConfig.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/podConfig/podConfig.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/podWorker/podWorker.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/podWorker/podWorker.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/listwatcher/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/listwatcher/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/listwatcher/listwatcher.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/listwatcher/listwatcher.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/object/object.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/object.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/scheduler/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/scheduler/scheduler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +62,7 @@
       <window_info anchor="bottom" id="File Transfer" order="1" />
       <window_info anchor="bottom" id="Database Changes" order="2" />
       <window_info anchor="bottom" id="Problems View" order="3" weight="0.3295331" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="4" visible="true" weight="0.50108576" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="4" visible="true" weight="0.5054289" />
       <window_info anchor="bottom" id="TypeScript" order="5" />
       <window_info anchor="bottom" id="Services" order="6" weight="0.3295331" />
       <window_info anchor="bottom" id="Run" order="7" show_stripe_button="false" weight="0.49239957" />
@@ -112,6 +83,14 @@
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build kubelet.go">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="Mini-K8s" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build kubelet.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="Mini-K8s" />
       <working_directory value="$PROJECT_DIR$" />
@@ -128,6 +107,15 @@
       <package value="Mini-K8s" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="DIRECTORY" />
+      <package value="Mini-K8s" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
       <method v="2" />
     </configuration>
     <recent_temporary>
