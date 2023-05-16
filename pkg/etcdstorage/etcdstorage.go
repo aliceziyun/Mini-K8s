@@ -86,10 +86,7 @@ func (kvs *KVStore) GetPrefix(key string) error {
 }
 
 func (kvs *KVStore) Put(key string, val string) error {
-<<<<<<< HEAD
-=======
 	fmt.Println("[ETCD] PUT\n", key, val)
->>>>>>> 22c9598c726809453582ec62946941ca15843c80
 	kv := clientv3.NewKV(kvs.client)
 	_, err := kv.Put(context.TODO(), key, val)
 	if err != nil {
@@ -114,7 +111,6 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 	watcher := clientv3.NewWatcher(kvs.client)
 	ctx, cancel := context.WithCancel(context.TODO())
 
-<<<<<<< HEAD
 	val, _ := kvs.client.Get(ctx, key)
 
 	watchStartRevision := val.Header.Revision + 1 //获取revision,观察这个revision之后的变化
@@ -147,25 +143,6 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 				res.ResType = DELETE
 				fmt.Println("Delete\tRevision:", event.Kv.ModRevision)
 				break
-=======
-	watch := func(c chan<- WatchRes) {
-		//fmt.Println("watch again")
-		watchRespChan := watcher.Watch(ctx, key)
-		// 处理kv变化事件
-		for watchResp := range watchRespChan {
-			var res WatchRes
-			for _, event := range watchResp.Events {
-				fmt.Print("[WATCH-RESULT]")
-				switch event.Type {
-				case mvccpb.PUT:
-					fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
-					data, _ := json.Marshal("sewgwq")
-					publisher, _ := message.NewPublisher(message.DefaultQConfig())
-					publisher.Publish("/testwatch", data, "application/json")
-				case mvccpb.DELETE:
-					fmt.Println("Delete\tRevision:", event.Kv.ModRevision)
-				}
->>>>>>> 22c9598c726809453582ec62946941ca15843c80
 			}
 		}
 	}
