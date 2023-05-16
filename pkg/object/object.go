@@ -86,15 +86,6 @@ type ContainerMeta struct {
 type Volume struct {
 }
 
-<<<<<<< HEAD
-// main原来的版本
-// type ContainerEnv struct {
-// }
-// type ContainerEnv struct {
-// }
-
-=======
->>>>>>> 22c9598c726809453582ec62946941ca15843c80
 type ContainerPort struct {
 	//added ?
 	Name          string `json:"name" yaml:"name"`

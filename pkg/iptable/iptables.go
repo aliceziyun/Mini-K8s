@@ -107,7 +107,7 @@ func New(opts ...option) (*IPTables, error) {
 	return ipt, nil
 }
 
-// New creates a new IPTables for the given proto.
+// NewWithProtocol creates a new IPTables for the given proto.
 // The proto will determine which command is used, either "iptables" or "ip6tables".
 func NewWithProtocol(proto Protocol) (*IPTables, error) {
 	return New(IPFamily(proto), Timeout(0))
@@ -137,9 +137,19 @@ func (ipt *IPTables) Exists(table, chain string, rulespec ...string) (bool, erro
 	}
 }
 
+func (ipt *IPTables) InsertWithoutTable(chain string, rulespec ...string) error {
+	cmd := append([]string{"-I", chain}, rulespec...)
+	return ipt.run(cmd...)
+}
+
 // Insert inserts rulespec to specified table/chain (in specified pos)
 func (ipt *IPTables) Insert(table, chain string, pos int, rulespec ...string) error {
 	cmd := append([]string{"-t", table, "-I", chain, strconv.Itoa(pos)}, rulespec...)
+	return ipt.run(cmd...)
+}
+
+func (ipt *IPTables) AppendNAT(chain string, rulespec ...string) error {
+	cmd := append([]string{"-t", "nat", "-A", chain}, rulespec...)
 	return ipt.run(cmd...)
 }
 
@@ -183,7 +193,7 @@ func (ipt *IPTables) List(table, chain string) ([]string, error) {
 	return ipt.executeList(args)
 }
 
-// List rules (with counters) in specified table/chain
+// ListWithCounters  rules (with counters) in specified table/chain
 func (ipt *IPTables) ListWithCounters(table, chain string) ([]string, error) {
 	args := []string{"-t", table, "-v", "-S", chain}
 	return ipt.executeList(args)
@@ -577,7 +587,7 @@ func iptablesHasWaitCommand(v1 int, v2 int, v3 int) bool {
 	return false
 }
 
-// Checks if an iptablse version is after 1.6.0, when --wait support second
+// Checks if an iptables version is after 1.6.0, when --wait support second
 func iptablesWaitSupportSecond(v1 int, v2 int, v3 int) bool {
 	if v1 > 1 {
 		return true

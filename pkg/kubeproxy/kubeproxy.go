@@ -3,7 +3,7 @@ package kubeproxy
 import (
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/iptable"
-	"Mini-K8s/pkg/listener"
+	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
 	"encoding/json"
 	"fmt"
@@ -11,7 +11,7 @@ import (
 )
 
 type KubeProxy struct {
-	ls          *listener.Listener
+	ls          *listwatcher.ListWatcher
 	stopChannel <-chan struct{}
 }
 
@@ -21,10 +21,28 @@ func NewKubeProxy() *KubeProxy {
 }
 
 func (kubeProxy *KubeProxy) Run() {
-	initService()
+	ipt, err := iptables.New()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//fmt.Println("iptables -I FORWARD -i ens3 -j ACCEPT")
+	//fmt.Println("iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE")
+	err = ipt.InsertWithoutTable("FORWARD", "-i", "ens3", "-j", "ACCEPT")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = ipt.AppendNAT("POSTROUTING", "-o", "ens3", "-j", "MASQUERADE")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	watchService := func() {
 		for {
-			err := kubeProxy.ls.Watch(etcdstorage.EtcdServicePrefix, kubeProxy.serviceChangeHandler, kubeProxy.stopChannel)
+			err := kubeProxy.ls.Watch("/service", kubeProxy.serviceChangeHandler, kubeProxy.stopChannel)
 			if err != nil {
 				fmt.Println("[KubeProxy] watch error" + err.Error())
 				time.Sleep(1 * time.Second)
@@ -36,16 +54,53 @@ func (kubeProxy *KubeProxy) Run() {
 	go watchService()
 }
 
-func initService() {
+func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
+	if res.ResType == etcdstorage.DELETE {
+		// delete service
+	} else {
+		// assume only exist CREAT
+		service := &object.Service{}
+		err := json.Unmarshal(res.ValueBytes, service)
+		if err != nil {
+			fmt.Println("[kubeProxy] Unmarshall fail" + err.Error())
+			return
+		}
+		fmt.Println(service)
 
-	//ipt, err := iptables.New()
-	//if err != nil {
-	//	fmt.Println("[chain] Boot error")
-	//	fmt.Println(err)
-	//}
+		if len(service.Spec.PodNameAndIps) != 2 || len(service.Spec.Ports) != 1 {
+			return
+		}
 
-	//fmt.Println("iptables -I FORWARD -i ens3 -j ACCEPT")
-	//fmt.Println("iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE")
+		ipt, err := iptables.New()
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		dst1 := service.Spec.PodNameAndIps[0].Ip + ":" + service.Spec.Ports[0].TargetPort
+		dst2 := service.Spec.PodNameAndIps[1].Ip + ":" + service.Spec.Ports[0].TargetPort
+
+		fmt.Println("iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
+			" -p tcp --dport " + service.Spec.Ports[0].Port +
+			" -m statistic --mode random --probability 0.5" +
+			" -j DNAT --to-destination " + dst1)
+		fmt.Println("iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
+			" -p tcp --dport " + service.Spec.Ports[0].Port +
+			" -j DNAT --to-destination " + dst2)
+
+		err = ipt.Append("OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+			"-m", "statistic", "--mode", "random", "--probability", "0.5",
+			"-j", "DNAT", "--to-destination", dst1)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		err = ipt.Append("OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+			"-j", "DNAT", "--to-destination", dst2)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
 }
 
 func testIpt() {
@@ -76,12 +131,14 @@ func testIpt() {
 	// 将所有发往192.168.1.6:8081（本机）的包转发给192.168.1.4:6666
 	fmt.Println("iptables -t nat -A PREROUTING --dst 192.168.1.6 -p tcp --dport 8081 -j DNAT --to-destination 192.168.1.4:6666")
 	fmt.Println("iptables -t nat -A POSTROUTING --dst 192.168.1.4 -p tcp --dport 6666 -j SNAT --to-source 192.168.1.6")
-	err = ipt.Append("nat", "PREROUTING", "--dst", "192.168.1.6", "-p", "tcp", "--dport", "8081", "-j", "DNAT", "--to-destination", "192.168.1.4:6666")
+	err = ipt.Append("nat", "PREROUTING", "--dst", "192.168.1.6", "-p", "tcp", "--dport", "8081",
+		"-j", "DNAT", "--to-destination", "192.168.1.4:6666")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	err = ipt.Append("nat", "POSTROUTING", "--dst", "192.168.1.4", "-p", "tcp", "--dport", "6666", "-j", "SNAT", "--to-source", "192.168.1.6")
+	err = ipt.Append("nat", "POSTROUTING", "--dst", "192.168.1.4", "-p", "tcp", "--dport", "6666",
+		"-j", "SNAT", "--to-source", "192.168.1.6")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -95,56 +152,8 @@ func testIpt() {
 		return
 	}
 
-	fmt.Println("iptables -t nat -A OUTPUT -p tcp --dport 8000 -m statistic --mode random --probability 0.5 -j REDIRECT --to-ports 8080\niptables -t nat -A OUTPUT -p tcp --dport 8000 -j REDIRECT --to-ports 8081")
-}
-
-func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
-	if res.ResType == 0 {
-		// delete service
-	} else {
-		// assume only exist CREAT
-		service := &object.Service{}
-		err := json.Unmarshal(res.ValueBytes, service)
-		if err != nil {
-			fmt.Println("[kubeProxy] Unmarshall fail" + err.Error())
-			return
-		}
-		fmt.Println(service)
-
-		ipt, err := iptables.New()
-		if err != nil {
-			fmt.Println("[chain] Boot error")
-			fmt.Println(err)
-		}
-
-		dst1 := service.Spec.PodNameAndIps[0].Ip + ":" + service.Spec.Ports[0].TargetPort
-		dst2 := service.Spec.PodNameAndIps[1].Ip + ":" + service.Spec.Ports[0].TargetPort
-
-		// 将本机发往 10.10.0.2:8081 的包均匀地转发给 192.168.1.15:6666 和 192.168.1.4:8082
-		fmt.Println("iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
-			" -p tcp --dport " + service.Spec.Ports[0].Port +
-			" -m statistic --mode random --probability 0.5" +
-			" -j DNAT --to-destination " + dst1)
-		fmt.Println("iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
-			" -p tcp --dport " + service.Spec.Ports[0].Port +
-			" -j DNAT --to-destination " + dst2)
-
-		err = ipt.Append("nat", "OUTPUT",
-			"--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
-			"-m", "statistic", "--mode", "random", "--probability", "0.5",
-			"-j", "DNAT", "--to-destination", dst1)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		err = ipt.Append("nat", "OUTPUT",
-			"--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
-			"-j", "DNAT", "--to-destination", dst2)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
+	fmt.Println("iptables -t nat -A OUTPUT -p tcp --dport 8000 -m statistic --mode random --probability 0.5 -j REDIRECT --to-ports 8080\n" +
+		"iptables -t nat -A OUTPUT -p tcp --dport 8000 -j REDIRECT --to-ports 8081")
 }
 
 func TestService(service object.Service) {
