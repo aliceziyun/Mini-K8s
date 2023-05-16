@@ -44,10 +44,12 @@ type ServicePort struct {
 	TargetPort string `json:"targetPort" yaml:"targetPort"` //需要转发到后端Pod的端口号
 	NodePort   string `json:"nodePort" yaml:"nodePort"`     //当service类型为NodePort时，指定映射到物理机的端口号
 }
+
 type PodNameAndIp struct {
 	Name string `json:"name"`
 	Ip   string `json:"ip"`
 }
+
 type ServiceStatus struct {
 	Phase          string            `json:"phase" yaml:"phase"`
 	Pods2IpAndPort map[string]string `json:"pods2IpAndPort" yaml:"pods2IpAndPort"` //pod name到 podIp:port的映射
@@ -69,6 +71,7 @@ type Container struct {
 	Command []string        `json:"command" yaml:"command"`
 	Args    []string        `json:"args" yaml:"args"`
 }
+
 type Containers struct {
 	Containers []Container `json:"containers" yaml:"containers"`
 }
@@ -83,6 +86,15 @@ type ContainerMeta struct {
 type Volume struct {
 }
 
+<<<<<<< HEAD
+// main原来的版本
+// type ContainerEnv struct {
+// }
+// type ContainerEnv struct {
+// }
+
+=======
+>>>>>>> 22c9598c726809453582ec62946941ca15843c80
 type ContainerPort struct {
 	//added ?
 	Name          string `json:"name" yaml:"name"`

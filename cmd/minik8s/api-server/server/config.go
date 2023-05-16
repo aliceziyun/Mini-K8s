@@ -1,7 +1,7 @@
 package apiserver
 
 import (
-	"Mini-K8s/pkg/message"
+	"Mini-K8s/pkg/message/config"
 	"time"
 )
 
@@ -10,7 +10,7 @@ type ServerConfig struct {
 	ValidResources []string // 合法的resource
 	EtcdEndpoints  []string // etcd集群每一个节点的ip和端口
 	EtcdTimeout    time.Duration
-	QueueConfig    *message.QConfig
+	QueueConfig    *config.QConfig
 	Recover        bool
 }
 
@@ -22,7 +22,7 @@ func DefaultServerConfig() *ServerConfig {
 		ValidResources: defaultValidResources,
 		EtcdEndpoints:  []string{"localhost:2379"}, //设置etcd的端口号
 		EtcdTimeout:    5 * time.Second,
-		QueueConfig:    message.DefaultQConfig(),
+		QueueConfig:    config.DefaultQConfig(),
 		Recover:        false,
 	}
 }

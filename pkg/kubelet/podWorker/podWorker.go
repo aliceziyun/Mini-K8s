@@ -1,6 +1,7 @@
 package podWorker
 
 import (
+	"Mini-K8s/pkg/kubelet/dockerClient"
 	"Mini-K8s/pkg/kubelet/message"
 )
 
@@ -9,18 +10,18 @@ type PodWorker struct {
 }
 
 func (podWorker *PodWorker) SyncLoop(commands <-chan message.PodCommand, responses chan<- message.PodResponse) {
-	// for {
-	// 	select {
-	// 	case command, ok := <-commands:
-	// 		if !ok {
-	// 			return
-	// 		}
-	// 		res := dockerClient.HandleCommand(command.ContainerCommand)
-	// 		result := message.PodResponse{
-	// 			ContainerResponse: res,
-	// 			PodResponseType:   command.PodCommandType,
-	// 		}
-	// 		responses <- result
-	// 	}
-	// }
+	for {
+		select {
+		case command, ok := <-commands:
+			if !ok {
+				return
+			}
+			res := dockerClient.HandleCommand(command.ContainerCommand)
+			result := message.PodResponse{
+				ContainerResponse: res,
+				PodResponseType:   command.PodCommandType,
+			}
+			responses <- result
+		}
+	}
 }

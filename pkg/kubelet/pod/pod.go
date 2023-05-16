@@ -99,6 +99,7 @@ func (p *Pod) setError(err error) {
 	// p.configPod.Status.Err = err.Error()
 }
 
+// Pod: 通知etcdPod被创建
 func (p *Pod) uploadPod() {
 	// err := p.client.UpdateRuntimePod(p.configPod)
 	// if err != nil {
@@ -131,7 +132,8 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 	})
 	pauseRealName := "pause"
 	for index, value := range config.Spec.Containers {
-		realName := config.Name + "_" + value.Name
+		//realName := config.Name + "_" + value.Name
+		realName := config.Name + value.Name
 		newPod.containers = append(newPod.containers, object.ContainerMeta{
 			OriginName: value.Name,
 			RealName:   realName,
@@ -187,7 +189,7 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 }
 
 func (p *Pod) StartPod() {
-	go p.podWorker.SyncLoop(p.commandChan, p.responseChan)
+	go p.podWorker.SyncLoop(p.commandChan, p.responseChan) //每个Pod有一个对应的worker
 	go p.listeningResponse()
 	p.canProbeWork = true
 	p.StartProbe()
@@ -390,7 +392,7 @@ func (p *Pod) DeletePod() {
 		ContainerCommand: &(command.Command),
 	}
 	p.commandChan <- podCommand
-	p.client.DeleteRuntimePod(p.GetName()) //return nil
+	//p.client.DeleteRuntimePod(p.GetName()) //return nil
 	p.rwLock.Unlock()
 }
 
