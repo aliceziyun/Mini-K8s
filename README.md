@@ -10,27 +10,4 @@ go get -v github.com/coreos/etcd/clientv3
 go mod edit -require=google.golang.org/grpc@v1.26.0
 go get -u -x google.golang.org/grpc@v1.26.0 
 ```
-
-pod的保存路径：`/registry/pods/{namespace}/{pod-name}`
-
-## Pod Structure
-
-位置：`./pkg/object/object.go`
-
-- Pod
-  - apiVersion
-  - kind
-  - metadata
-    - name
-    - labels
-    - uid
-    - namespace
-  - spec
-    - containers
-    - volumes
-    - nodeSelector
-  - status
-    - phase
-    - conditions
-
-目前，`Pod` 类型可以导出为 `json` 或者 `yaml`。
+安装完成后执行`go mod tidy`可能会出现报错或警告，但不影响运行，无需担心。
