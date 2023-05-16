@@ -1,5 +1,7 @@
 package controller
 
+import "context"
+
 //func startDeploymentController(ctx context.Context, controllerContext ControllerContext) (controller.Interface, bool, error) {
 //	dc, err := deployment.NewDeploymentController(
 //		ctx,
@@ -14,3 +16,8 @@ package controller
 //	go dc.Run(ctx, int(controllerContext.ComponentConfig.DeploymentController.ConcurrentDeploymentSyncs))
 //	return nil, true, nil
 //}
+
+func startReplicaSetController(ctx context.Context, controllerContext ControllerContext) error {
+	//go replicaset.NewReplicaSetController(controllerCtx).Run(ctx)
+	return nil
+}

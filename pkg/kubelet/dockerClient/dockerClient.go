@@ -1,11 +1,13 @@
 package dockerClient
 
 import (
+	"Mini-K8s/pkg/kubelet/message"
 	"Mini-K8s/pkg/object"
 	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"unsafe"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -105,7 +107,7 @@ func deleteExistedContainers(names []string) error {
 		_, err := cli.ContainerInspect(context.Background(), value)
 		if err == nil {
 			//需要先停止container
-			err = cli.ContainerStop(context.Background(), value, nil)
+			//err = cli.ContainerStop(context.Background(), value, nil)
 			// err = cli.ContainerStop(context.Background(), value, container.StopOptions{})
 			if err != nil {
 				return err
@@ -187,8 +189,9 @@ func dockerClientPullImages(images []string) error {
 
 	return nil
 }
+
 func runContainers(containerIds []object.ContainerMeta) error {
-	fmt.Println("runContainers:")
+	fmt.Println("[dockerClient] runContainers: ", containerIds)
 	cli, err2 := GetNewClient()
 	if err2 != nil {
 		return err2
@@ -201,6 +204,7 @@ func runContainers(containerIds []object.ContainerMeta) error {
 	}
 	return nil
 }
+
 func getContainerNetInfo(name string) (*types.NetworkSettings, error) {
 	cli, err1 := GetNewClient()
 	if err1 != nil {
@@ -213,11 +217,9 @@ func getContainerNetInfo(name string) (*types.NetworkSettings, error) {
 		return nil, err
 	}
 	return res.NetworkSettings, nil
-	return nil, nil
 }
 func createContainersOfPod(containers []object.Container) ([]object.ContainerMeta, *types.NetworkSettings, error) {
-	fmt.Println("createContainersOfPod:")
-	//cli, err2 := getNewClient()
+	fmt.Println("[dockerClient] createContainersOfPod")
 	cli, err2 := client.NewClientWithOpts()
 	if err2 != nil {
 		return nil, nil, err2
@@ -255,6 +257,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 	}
 	//创建pause容器
 	pause, err := createPause(totalPort, pauseName)
+	fmt.Println("pausename:", pauseName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -264,6 +267,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		ContainerId: firstContainerId,
 	})
 	for _, value := range containers {
+		fmt.Println("containerName:", value.Name)
 		//var mounts []mount.Mount
 		//if value.VolumeMounts != nil {
 		//	for _, it := range value.VolumeMounts {
@@ -291,7 +295,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		//	resourceConfig.Memory = getMemory(value.Limits.Memory)
 		//}
 		//创建容器
-		fmt.Println("ContainerCreate")
+		fmt.Println("[dockerClient] ContainerCreate")
 		resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 			Image:      value.Image,
 			Entrypoint: value.Command,
@@ -361,4 +365,19 @@ func Main(Group []object.Container) {
 	//result.CommandType = message.COMMAND_BUILD_CONTAINERS_OF_POD
 	//result.Containers = res
 	//result.NetWorkInfos = netSetting
+}
+
+func HandleCommand(command *message.Command) *message.Response {
+	switch command.CommandType {
+	case message.COMMAND_BUILD_CONTAINERS_OF_POD:
+		p := (*message.CommandWithConfig)(unsafe.Pointer(command))
+		res, netSetting, err := createContainersOfPod(p.Group)
+		var result message.ResponseWithContainIds
+		result.Err = err
+		result.CommandType = message.COMMAND_BUILD_CONTAINERS_OF_POD
+		result.Containers = res
+		result.NetWorkInfos = netSetting
+		return &(result.Response)
+	}
+	return nil
 }

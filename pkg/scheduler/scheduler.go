@@ -76,6 +76,7 @@ func (sched *Scheduler) worker(ctx context.Context) {
 
 // watch the change of new pods
 func (sched *Scheduler) watchNewPod(res etcdstorage.WatchRes) {
+	fmt.Printf("Scheduler WatchNewPod")
 	pod := &object.Pod{}
 	err := json.Unmarshal(res.ValueBytes, pod)
 	if err != nil {

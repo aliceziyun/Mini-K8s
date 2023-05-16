@@ -1,4 +1,4 @@
-package config
+package listwatcher
 
 import (
 	"Mini-K8s/pkg/message/config"

@@ -5,20 +5,48 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Mini-K8s.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/kubelet/kubelet.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/build/Pod/testPod.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/kubelet/PodUpdate/PodUpdate.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/apiserver/pods/pod_create.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/apiserver.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/test.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/api-server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller/apps.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller/apps.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/getContainersByYaml/getContainersByYaml.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/util/getPodByYaml.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/getContainersByYaml/testPod.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/testDockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/testDockerClient.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/testPod.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/message/massage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/message/massage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/pod/pod.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/pod/pod.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/podConfig/podConfig.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/podConfig/podConfig.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/podWorker/podWorker.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/podWorker/podWorker.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/listwatcher/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/listwatcher/config.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/listwatcher/listwatcher.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/listwatcher/listwatcher.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/object/object.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/object.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/scheduler/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/scheduler/scheduler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
   </component>
   <component name="GOROOT" url="file:///usr/local/go" />
   <component name="Git.Settings">
@@ -32,42 +60,82 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/root"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/root&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;
   }
-}]]></component>
+}</component>
   <component name="RdControllerToolWindowsLayoutState" isNewUi="false">
     <layout>
       <window_info id="Commit_Guest" />
       <window_info id="Space Code Reviews" order="0" />
-      <window_info id="Bookmarks" order="0" side_tool="true" />
-      <window_info id="Pull Requests" order="0" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2502604" />
-      <window_info id="Commit" order="0" />
-      <window_info id="Learn" order="0" show_stripe_button="false" />
-      <window_info id="Structure" order="0" side_tool="true" />
+      <window_info id="Bookmarks" order="1" side_tool="true" />
+      <window_info id="Pull Requests" order="2" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.222415" />
+      <window_info id="Commit" order="4" />
+      <window_info id="Learn" order="5" show_stripe_button="false" />
+      <window_info id="Structure" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Find" weight="0.3295331" />
       <window_info anchor="bottom" id="Version Control" order="0" />
-      <window_info anchor="bottom" id="Database Changes" order="4" />
-      <window_info anchor="bottom" id="File Transfer" order="4" />
-      <window_info anchor="bottom" id="Problems View" order="4" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="4" visible="true" weight="0.33028847" />
-      <window_info anchor="bottom" id="TypeScript" order="4" />
-      <window_info anchor="bottom" id="Services" order="4" />
-      <window_info anchor="bottom" id="Dependency Checker" order="4" />
+      <window_info anchor="bottom" id="File Transfer" order="1" />
+      <window_info anchor="bottom" id="Database Changes" order="2" />
+      <window_info anchor="bottom" id="Problems View" order="3" weight="0.3295331" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="4" visible="true" weight="0.50108576" />
+      <window_info anchor="bottom" id="TypeScript" order="5" />
+      <window_info anchor="bottom" id="Services" order="6" weight="0.3295331" />
+      <window_info anchor="bottom" id="Run" order="7" show_stripe_button="false" weight="0.49239957" />
+      <window_info anchor="bottom" id="Dependency Checker" order="8" />
       <window_info anchor="right" id="Endpoints" order="0" show_stripe_button="false" />
-      <window_info anchor="right" id="Database" order="0" />
-      <window_info anchor="right" id="Notifications" order="0" weight="0.25" />
-      <window_info anchor="right" id="make" order="0" side_tool="true" />
+      <window_info anchor="right" id="Database" order="1" />
+      <window_info anchor="right" id="Notifications" order="2" weight="0.25017348" />
+      <window_info anchor="right" id="make" order="3" side_tool="true" />
     </layout>
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cmd/const" />
+      <recent name="$PROJECT_DIR$/third_party/util" />
+      <recent name="$PROJECT_DIR$/build/Pod" />
+      <recent name="$PROJECT_DIR$/pkg/listwatcher" />
+      <recent name="$PROJECT_DIR$/cmd/minik8s" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build kubelet.go">
+    <configuration name="go build kubelet.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="Mini-K8s" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="Mini-K8s" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build scheduler.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="Mini-K8s" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="Mini-K8s" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build kubelet.go" />
+        <item itemvalue="Go Build.go build scheduler.go" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">

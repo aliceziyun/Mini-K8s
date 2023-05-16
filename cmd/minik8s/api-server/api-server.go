@@ -6,6 +6,7 @@ func main() {
 	RunApiServer()
 }
 
+// RunApiServer : 创建新API-Server
 func RunApiServer() {
 	serverConfig := apiserver.DefaultServerConfig()
 	server, _ := apiserver.NewServer(serverConfig)

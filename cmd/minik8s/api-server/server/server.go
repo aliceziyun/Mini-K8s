@@ -3,13 +3,9 @@ package apiserver
 import (
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/message"
-	"Mini-K8s/pkg/object"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/atomic"
-	"net/http"
-	"strconv"
 	"sync"
 )
 
@@ -35,6 +31,11 @@ type APIServer struct {
 	ticketSeller *atomic.Uint64
 }
 
+// NewServer :
+// 1.连接etcd和amqp
+// 2.创建新API-server
+// 3.注册函数
+// 4.监听
 func NewServer(c *ServerConfig) (*APIServer, error) {
 	engine := gin.Default()
 	store, err := etcdstorage.InitKVStore(c.EtcdEndpoints, c.EtcdTimeout)
@@ -49,6 +50,7 @@ func NewServer(c *ServerConfig) (*APIServer, error) {
 		fmt.Println(err.Error())
 		return nil, err
 	}
+
 	watcherChan := make(chan watchOpt)
 
 	s := &APIServer{
@@ -63,8 +65,7 @@ func NewServer(c *ServerConfig) (*APIServer, error) {
 		//kubeNetSupport: kubeNetSupport,
 	}
 
-	engine.PUT("/testpod", s.addPodTest)
-	engine.POST("/testwatch", s.watch)
+	registerWebFunc(engine, s)
 
 	go s.daemon(watcherChan)
 
@@ -80,24 +81,10 @@ func (s *APIServer) Run() error {
 	return err
 }
 
-func (s *APIServer) addPodTest(ctx *gin.Context) {
-	key := "2"
-	pod := object.Pod{}
-	fmt.Printf("key:%v\n", key)
-
-	pod.Kind = "Pod"
-	pod.ApiVersion = 1
-	pod.Metadata.Name = "pod-example"
-	pod.Metadata.Namespace = "default"
-
-	pod.Status.Phase = "Running"
-
-	body, _ := json.Marshal(pod)
-
-	err := s.store.Put(key, string(body))
-	if err != nil {
-		return
-	}
+// registerWebFunc: 将API方法名和方法绑定
+func registerWebFunc(engine *gin.Engine, s *APIServer) {
+	engine.PUT("/testAddPod", s.addPodTest)
+	engine.POST("/testwatch", s.watch)
 }
 
 func (s *APIServer) daemon(listening <-chan watchOpt) {
@@ -105,7 +92,7 @@ func (s *APIServer) daemon(listening <-chan watchOpt) {
 	//var resChan = make(<-chan etcdstorage.WatchRes)
 
 	//data, _ := json.Marshal("sewgwq")
-	_, _ = s.store.Watch("2")
+	_, _ = s.store.Watch("test")
 	//err := s.publisher.Publish("/testwatch", data, "application/json")
 
 	//go func(resChan <-chan etcdstorage.WatchRes) {
@@ -121,36 +108,4 @@ func (s *APIServer) daemon(listening <-chan watchOpt) {
 	//		}
 	//	}
 	//}(resChan)
-}
-
-func (s *APIServer) watch(ctx *gin.Context) {
-	//key := ctx.Request.URL.Path
-	ticketStr, status := ctx.GetPostForm("ticket")
-	fmt.Println(ticketStr, status)
-	if !status {
-		t := Ticket{}
-		t.T = s.ticketSeller.Add(1)
-		data, _ := json.Marshal(t)
-		//s.watcherChan <- watchOpt{key: key, withPrefix: false, ticket: t.T}
-		ctx.Data(http.StatusOK, "application/json", data)
-	} else {
-		s.watcherMtx.Lock()
-		ticket, err := strconv.ParseUint(ticketStr, 10, 64)
-		if err != nil {
-			fmt.Println(err)
-			ctx.AbortWithStatus(http.StatusBadRequest)
-		} else {
-			//if s.watcherMap[key] != nil {
-			//	s.watcherMap[key].set.Remove(ticket)
-			//	if s.watcherMap[key].set.Equal(mapset.NewSet[uint64]()) {
-			//		s.watcherMap[key].cancel()
-			//		s.watcherMap[key] = nil
-			//		klog.Infof("Cancel the watcher of key %s\n", key)
-			//	}
-			//}
-			fmt.Println(ticket, "ok")
-			ctx.Status(http.StatusOK)
-		}
-		s.watcherMtx.Unlock()
-	}
 }

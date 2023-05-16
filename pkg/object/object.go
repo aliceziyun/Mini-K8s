@@ -44,10 +44,12 @@ type ServicePort struct {
 	TargetPort string `json:"targetPort" yaml:"targetPort"` //需要转发到后端Pod的端口号
 	NodePort   string `json:"nodePort" yaml:"nodePort"`     //当service类型为NodePort时，指定映射到物理机的端口号
 }
+
 type PodNameAndIp struct {
 	Name string `json:"name"`
 	Ip   string `json:"ip"`
 }
+
 type ServiceStatus struct {
 	Phase          string            `json:"phase" yaml:"phase"`
 	Pods2IpAndPort map[string]string `json:"pods2IpAndPort" yaml:"pods2IpAndPort"` //pod name到 podIp:port的映射
@@ -62,16 +64,6 @@ type Service struct {
 	Status     ServiceStatus `json:"status" yaml:"status"`
 }
 
-// main原来的版本
-// type Container struct {
-// 	Name    string        `json:"name" yaml:"name"`
-// 	Image   string        `json:"image" yaml:"image"`
-// 	Ports   ContainerPort `json:"ports" yaml:"ports"`
-// 	Env     ContainerEnv  `json:"env" yaml:"env"`
-// 	Command string        `json:"command" yaml:"command"`
-// 	Args    string        `json:"args" yaml:"args"`
-
-// ymz merge===============================================
 type Container struct {
 	Name    string          `json:"name" yaml:"name"`
 	Image   string          `json:"image" yaml:"image"`
@@ -80,6 +72,7 @@ type Container struct {
 	Command []string        `json:"command" yaml:"command"`
 	Args    []string        `json:"args" yaml:"args"`
 }
+
 type Containers struct {
 	Containers []Container `json:"containers" yaml:"containers"`
 }
@@ -91,8 +84,6 @@ type ContainerMeta struct {
 	ContainerId string
 }
 
-//ymz merge===============================================
-
 type Volume struct {
 }
 
@@ -102,7 +93,6 @@ type Volume struct {
 // type ContainerEnv struct {
 // }
 
-// ymz merge-------------------------------
 type ContainerPort struct {
 	//added ?
 	Name          string `json:"name" yaml:"name"`
@@ -116,8 +106,6 @@ type ContainerEnv struct {
 	Name  string `json:"name" yaml:"name"`
 	Value string `json:"value" yaml:"value"`
 }
-
-//ymz merge-------------------------------
 
 type Condition struct {
 	LastProbeTime      string `json:"lastProbeTime" yaml:"lastProbeTime"`

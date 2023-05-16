@@ -1,9 +1,8 @@
 package main
 
 import (
-	// kubl "Mini-K8s/pkg/kubelet/dockerClient"
-	parseYaml "Mini-K8s/pkg/kubelet/dockerClient/test/getContainersByYaml"
 	"Mini-K8s/pkg/object"
+	parseYaml "Mini-K8s/third_party/util"
 	"context"
 	"fmt"
 	"io"
@@ -374,10 +373,7 @@ func getContainerNetInfo(name string) (*types.NetworkSettings, error) {
 		return nil, err
 	}
 	return res.NetworkSettings, nil
-	return nil, nil
 }
-
-const yamlPath = "testPod.yaml"
 
 func main() {
 	containers := parseYaml.GetContainersByFile(yamlPath)
