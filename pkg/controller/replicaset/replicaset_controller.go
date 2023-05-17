@@ -36,7 +36,6 @@ func NewReplicaSetController(controllerContext controller.ControllerContext) *Re
 
 func (rsc *ReplicaSetController) Run(ctx context.Context) {
 	fmt.Println("[ReplicaSet] start run ...")
-	//rsUpdate := rsc.config.GetUpdates()
 
 	go rsc.register()
 	go rsc.worker() //单worker，足够
@@ -173,7 +172,12 @@ func (rsc *ReplicaSetController) updateReplicaSetStatus(rs *object.ReplicaSet, n
 		return rs, nil
 	}
 	rs.Status = newStatus
-	err := UpdateStatus(rs)
+	var err error
+	if rs.Status.ReplicaStatus == 0 {
+		err = DeleteRS(rs.Name)
+	} else {
+		err = UpdateStatus(rs)
+	}
 	return rs, err
 }
 

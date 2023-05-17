@@ -12,3 +12,7 @@ type ControllerContext struct {
 	PromServerPort string
 	Config         *controller.CompletedConfig
 }
+
+func startEndpointController(ctx ControllerContext) {
+
+}

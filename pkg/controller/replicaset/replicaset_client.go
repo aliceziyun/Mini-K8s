@@ -94,8 +94,25 @@ func UpdateStatus(rs *object.ReplicaSet) error {
 	if err != nil {
 		return err
 	}
+
 	if resp.StatusCode != 200 {
 		return errors.New("[ReplicaSet Controller] StatusCode not 200")
+	}
+	return nil
+}
+
+func DeleteRS(name string) error {
+	suffix := _const.RS_PREFIX + name
+	request, err := http.NewRequest("DELETE", _const.BASE_URI+suffix, nil)
+	if err != nil {
+		return err
+	}
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != http.StatusOK {
+		return errors.New("StatusCode not 200")
 	}
 	return nil
 }
