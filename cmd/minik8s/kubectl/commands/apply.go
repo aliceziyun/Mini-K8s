@@ -24,7 +24,7 @@ func NewApplyCommand() cli.Command {
 }
 
 func CreatePod() {
-	pod := util.GetPodByFile(_const.PodFile)
+	pod := util.GetPodByFile(_const.PODFILE)
 
 	podRaw, _ := json.Marshal(pod)
 	reqBody := bytes.NewBuffer(podRaw)

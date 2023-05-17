@@ -1,5 +1,11 @@
 package object
 
+const (
+	// kind
+	POD        string = "POD"
+	REPLICASET string = "REPLICASET"
+)
+
 type ObjMetadata struct {
 	Name           string            `json:"name" yaml:"name"`
 	Labels         map[string]string `json:"labels" yaml:"labels"`
@@ -9,9 +15,10 @@ type ObjMetadata struct {
 }
 
 type OwnerReference struct {
-	Kind string `json:"kind" yaml:"kind"`
-	Name string `json:"name" yaml:"name"`
-	UID  string `json:"uid" yaml:"uid"`
+	Kind       string `json:"kind" yaml:"kind"`
+	Name       string `json:"name" yaml:"name"`
+	UID        string `json:"uid" yaml:"uid"`
+	Controller bool   `json:"controller" yaml:"controller"` //指向controller的指针
 }
 
 // ---------------------Pod-----------------------
@@ -52,7 +59,7 @@ type ReplicaSet struct {
 
 type ReplicaSetSpec struct {
 	Replicas int32 `json:"replicas" yaml:"replicas"`
-	pods     Pod   `json:"template" yaml:"template"`
+	Pods     Pod   `json:"template" yaml:"template"`
 }
 
 type ReplicaSetStatus struct {

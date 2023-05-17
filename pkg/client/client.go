@@ -9,6 +9,7 @@ type Config struct {
 	Host string // ip and port
 }
 
+// 比较RESTful的
 type RESTClient struct {
 	Base string // url = base+resource+name
 }
@@ -27,4 +28,3 @@ func DefaultClientConfig() Config {
 		Host: "127.0.0.1:8080",
 	}
 }
-
