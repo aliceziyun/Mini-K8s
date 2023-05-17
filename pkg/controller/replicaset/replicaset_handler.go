@@ -13,8 +13,19 @@ func (rsc *ReplicaSetController) handlePod(res etcdstorage.WatchRes) {
 		return
 	}
 
-	// 判断该pod是否有上层controller,有则调用查询该pod所属的replicaset是否存在
+	pod := &object.Pod{}
+	err := json.Unmarshal(res.ValueBytes, pod)
+	if err != nil {
+		fmt.Printf("[ReplicaSetController] get wrong message when handle Pod \n")
+		return
+	}
+	fmt.Printf("[ReplicaSetController] get new Pod \n")
 
+	// 获取该pod对应的rs
+	rs := GetReplicaSetOf(pod, rsc)
+	key := getKey(rs)
+	rsc.hashMap.Put(key, rs)
+	rsc.queue.Enqueue(key)
 }
 
 func (rsc *ReplicaSetController) handleRS(res etcdstorage.WatchRes) {

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"net/http"
 )
@@ -45,6 +46,55 @@ func DeletePod(podName string) error {
 		return err
 	}
 	if response.StatusCode != http.StatusOK {
+		return errors.New("[ReplicaSet Controller] StatusCode not 200")
+	}
+	return nil
+}
+
+func GetReplicaSetOf(pod *object.Pod, rsc *ReplicaSetController) *object.ReplicaSet {
+	ownerReferences := pod.Metadata.OwnerReference
+	if len(ownerReferences) == 0 {
+		return nil
+	}
+	for _, owner := range ownerReferences {
+		if owner.Kind == object.REPLICASET {
+			// 有上层ReplicaSet，查询该pod所属的replicaset是否存在
+			suffix := _const.RS_PREFIX + owner.Name
+			rsRaw, err := rsc.ls.List(suffix)
+			if err != nil {
+				fmt.Println("[ReplicaSet Controller] fail to get pod's rs")
+				return nil
+			}
+			rs := &object.ReplicaSet{}
+			err = json.Unmarshal(rsRaw[0].ValueBytes, rs)
+			if err != nil {
+				fmt.Println("[ReplicaSet Controller] get rs with wrong message")
+				return nil
+			}
+			return rs
+		}
+	}
+	return nil
+}
+
+func UpdateStatus(rs *object.ReplicaSet) error {
+	suffix := _const.RS_PREFIX + rs.Name
+	body, err := json.Marshal(rs)
+	if err != nil {
+		return err
+	}
+
+	reqBody := bytes.NewBuffer(body)
+	req, err := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
 		return errors.New("[ReplicaSet Controller] StatusCode not 200")
 	}
 	return nil

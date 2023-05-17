@@ -3,9 +3,7 @@ package replicaset
 import (
 	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/cmd/minik8s/controller/controller"
-	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/controller/replicaset/RSConfig"
-	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
 	_map "Mini-K8s/third_party/map"
@@ -13,7 +11,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/golang/glog"
 )
 
 const (
@@ -42,7 +39,7 @@ func (rsc *ReplicaSetController) Run(ctx context.Context) {
 	//rsUpdate := rsc.config.GetUpdates()
 
 	go rsc.register()
-	go rsc.worker()			//单worker，足够
+	go rsc.worker() //单worker，足够
 
 }
 
@@ -53,14 +50,16 @@ func (rsc *ReplicaSetController) register() {
 		err := rsc.ls.Watch(_const.RS_CONFIG_PREFIX, rsc.handlePod, rsc.stopChannel)
 		if err != nil {
 			fmt.Println("[ReplicaSetController] list watch RS handler init fail...")
-		}}()
+		}
+	}()
 
 	// register Pod handler
 	go func() {
 		err := rsc.ls.Watch(_const.POD_CONFIG_PREFIX, rsc.handleRS, rsc.stopChannel)
 		if err != nil {
 			fmt.Println("[ReplicaSetController] list watch Pod handler init fail...")
-		}}()
+		}
+	}()
 }
 
 func (rsc *ReplicaSetController) worker() {
@@ -68,12 +67,17 @@ func (rsc *ReplicaSetController) worker() {
 	if !rsc.queue.Empty() {
 		key := rsc.queue.Front()
 		rsc.queue.Dequeue()
-		go rsc.syncReplicaSet(key.(string))
+		go func() {
+			err := rsc.syncReplicaSet(key.(string))
+			if err != nil {
+				fmt.Println("[ReplicaSet Controller] worker error")
+			}
+		}()
 	}
 }
 
-
 func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
+	// TODO: 如果同步Pod状态还比较好理解，如果删除或者增加RS要怎么操作呢
 	fmt.Println("[ReplicaSet Controller] start sync ...")
 
 	// 获取replicaset对象以及关联的pod对象列表
@@ -103,19 +107,21 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 		}
 
 		// 调用rsc.manageReplicas增删Pod
-		manageReplicasErr := rsc.manageReplicas(pods, rs)
+		err := rsc.manageReplicas(pods, rs)
+		if err != nil {
+			fmt.Println("[ReplicaSet Controller] manageReplicas fail!")
+		}
 
 		// 调用calculateStatus计算replicaset的status，并更新
+		newStatus := rsc.calculateStatus(rs, pods)
+		_, statusErr := rsc.updateReplicaSetStatus(rs, newStatus)
+		return statusErr
 	}
-}
-
-func (rsc *ReplicaSetController) testAddRS(res etcdstorage.WatchRes)
-
 }
 
 func (rsc *ReplicaSetController) manageReplicas(filteredPods []*object.Pod, rs *object.ReplicaSet) error {
 	diff := len(filteredPods) - int(rs.Spec.Replicas)
-	if diff < 0{
+	if diff < 0 {
 		diff *= -1
 		// 超过了一次最多可以创建的数量上限，修正
 		if diff > BurstReplicas {
@@ -126,43 +132,60 @@ func (rsc *ReplicaSetController) manageReplicas(filteredPods []*object.Pod, rs *
 		//rsc.expectations.ExpectCreations(rsKey, diff)
 
 		//原来K8s是指数级增长创建Pod，现在直接循环创建
-		successfulCreations, err := rsc.slowStartBatch(diff,rs)
+		successfulCreations, err := rsc.slowStartBatch(diff, rs)
 		//有些pod没有创建成功，下次再创建
 		if skippedPods := diff - successfulCreations; skippedPods > 0 {
-			fmt.Printf("[ReplicaSet Controller] creation skipped of %d pods \n",skippedPods)
+			fmt.Printf("[ReplicaSet Controller] creation skipped of %d pods \n", skippedPods)
 			for i := 0; i < skippedPods; i++ {
 				//TODO:补上expectation
 				//rsc.expectations.CreationObserved(rsKey)
 			}
 		}
 		return err
-	}else{
+	} else {
 		if diff > BurstReplicas {
 			diff = BurstReplicas
 		}
 		podsToDelete := filteredPods[:diff]
 		//TODO:expectation
 		//rsc.expectations.ExpectDeletions(rsKey, getPodKeys(podsToDelete))
-		for _, pod := range podsToDelete{
-			if err := DeletePod(pod.Name); err != nil{
+		for _, pod := range podsToDelete {
+			if err := DeletePod(pod.Name); err != nil {
 				//podKey := controller.PodKey(targetPod)
 				//rsc.expectations.DeletionObserved(rsKey, podKey)
-				fmt.Printf("[ReplicaSet Controller] deletion skipped of pods %v \n",pod.Name)
+				fmt.Printf("[ReplicaSet Controller] deletion skipped of pods %v \n", pod.Name)
 			}
 		}
 	}
 	return nil
 }
 
-func (rsc *ReplicaSetController) slowStartBatch(diff int,rs *object.ReplicaSet) (int, error) {
+// 计算并返回replicaset对象的status
+func (rsc *ReplicaSetController) calculateStatus(rs *object.ReplicaSet, filteredPods []*object.Pod) object.ReplicaSetStatus {
+	newStatus := rs.Status
+	newStatus.ReplicaStatus = int32(len(filteredPods))
+	return newStatus
+}
+
+// 判断新计算出来的status是否与现存replicaset对象的status中的一致
+func (rsc *ReplicaSetController) updateReplicaSetStatus(rs *object.ReplicaSet, newStatus object.ReplicaSetStatus) (*object.ReplicaSet, error) {
+	if rs.Status.ReplicaStatus == newStatus.ReplicaStatus {
+		return rs, nil
+	}
+	rs.Status = newStatus
+	err := UpdateStatus(rs)
+	return rs, err
+}
+
+func (rsc *ReplicaSetController) slowStartBatch(diff int, rs *object.ReplicaSet) (int, error) {
 	var success int
-	for i := 0;i < diff; i++{
+	for i := 0; i < diff; i++ {
 		err := CreatePod(rs)
-		if err != nil{
+		if err != nil {
 			success++
 		}
 	}
-	return success,nil
+	return success, nil
 }
 
 func isOwner(ownerReferences []object.OwnerReference, name string, UID string) bool {

@@ -12,7 +12,8 @@ const (
 
 	POD_CONFIG_PREFIX string = "/registry/pod/default"
 
-	RS_CONFIG_PREFIX = "/registry/rsConfig/default"
+	RS_CONFIG_PREFIX string = "/registry/rsConfig/default"
+	RS_PREFIX        string = "/registry/rs/default"
 )
 
 // api-server
