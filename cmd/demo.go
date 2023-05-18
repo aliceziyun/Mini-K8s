@@ -6,6 +6,10 @@ import (
 )
 
 func main() {
+	kubeproxy.TestDns()
+}
+
+func tmain() {
 
 	kubeProxy := kubeproxy.NewKubeProxy()
 	kubeProxy.Run()

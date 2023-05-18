@@ -13,10 +13,18 @@ import (
 type KubeProxy struct {
 	ls          *listwatcher.ListWatcher
 	stopChannel <-chan struct{}
+	dnsConfig   *DNSConfig
 }
 
 func NewKubeProxy() *KubeProxy {
 	kubeProxy := &KubeProxy{}
+	ls, err := listwatcher.NewListWatcher(nil)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	kubeProxy.ls = ls
+	kubeProxy.dnsConfig = NewDNSConfig()
 	return kubeProxy
 }
 
@@ -58,7 +66,7 @@ func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 	if res.ResType == etcdstorage.DELETE {
 		// delete service
 	} else {
-		// assume only exist CREAT
+		// now, we assume only exist CREAT
 		service := &object.Service{}
 		err := json.Unmarshal(res.ValueBytes, service)
 		if err != nil {
