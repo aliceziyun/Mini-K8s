@@ -3,7 +3,7 @@ module Mini-K8s
 go 1.20
 
 require (
-	github.com/docker/docker v23.0.6+incompatible
+	github.com/docker/docker v20.10.16+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/streadway/amqp v1.0.0
@@ -44,6 +44,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
