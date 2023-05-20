@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 )
 
 const (
@@ -71,14 +72,14 @@ func (rsc *ReplicaSetController) worker() {
 		if !rsc.queue.Empty() {
 			key := rsc.queue.Front()
 			rsc.queue.Dequeue()
-			go func() {
-				m.Lock()
-				err := rsc.syncReplicaSet(key.(string))
-				if err != nil {
-					fmt.Println("[ReplicaSet Controller] worker error")
-				}
-				m.Unlock()
-			}()
+			m.Lock()
+			err := rsc.syncReplicaSet(key.(string))
+			if err != nil {
+				fmt.Println("[ReplicaSet Controller] worker error")
+			}
+			m.Unlock()
+		} else {
+			time.Sleep(time.Second)
 		}
 	}
 
@@ -101,6 +102,7 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 		//列出该rs所有的Pods
 		var pods []*object.Pod
 		podLists, _ := rsc.ls.List(_const.POD_CONFIG_PREFIX)
+		fmt.Println(len(podLists))
 		for _, eachPod := range podLists {
 			pod := &object.Pod{}
 			err := json.Unmarshal(eachPod.ValueBytes, &pod)
@@ -109,12 +111,14 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 				break
 			}
 			// 列出所有有owner且active的pod
-			if isOwner(pod.Metadata.OwnerReference, rs.Name, pod.Metadata.Uid) && isActive(pod.Status) {
+			if isOwner(pod.Metadata.OwnerReference, rs.Name) && isActive(pod.Status) {
 				pods = append(pods, pod)
 			}
 		}
 
-		// 调用rsc.manageReplicas增删Pod
+		fmt.Println(len(pods))
+
+		//调用rsc.manageReplicas增删Pod
 		err := rsc.manageReplicas(pods, rs)
 		if err != nil {
 			fmt.Println("[ReplicaSet Controller] manageReplicas fail!")
@@ -125,10 +129,14 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 		_, statusErr := rsc.updateReplicaSetStatus(rs, newStatus)
 		return statusErr
 	}
+	return nil
 }
 
 func (rsc *ReplicaSetController) manageReplicas(filteredPods []*object.Pod, rs *object.ReplicaSet) error {
 	diff := len(filteredPods) - int(rs.Spec.Replicas)
+	if diff == 0 {
+		return nil
+	}
 	if diff < 0 {
 		diff *= -1
 		// 超过了一次最多可以创建的数量上限，修正
@@ -201,9 +209,10 @@ func (rsc *ReplicaSetController) slowStartBatch(diff int, rs *object.ReplicaSet)
 	return success, nil
 }
 
-func isOwner(ownerReferences []object.OwnerReference, name string, UID string) bool {
+func isOwner(ownerReferences []object.OwnerReference, name string) bool {
+	//TODO: 疑似需要对UID进行判断
 	for _, owner := range ownerReferences {
-		if owner.Name == name && owner.UID == UID {
+		if owner.Name == name {
 			return true
 		}
 	}
@@ -211,8 +220,8 @@ func isOwner(ownerReferences []object.OwnerReference, name string, UID string) b
 }
 
 func isActive(status object.PodStatus) bool {
-	if status.Phase == "Running" {
-		return true
-	}
-	return false
+	//if status.Phase == "Running" {
+	return true
+	//}
+	//return false
 }

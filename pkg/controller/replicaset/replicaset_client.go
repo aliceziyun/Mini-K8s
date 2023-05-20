@@ -82,7 +82,7 @@ func GetReplicaSetOf(pod *object.Pod, rsc *ReplicaSetController) *object.Replica
 }
 
 func UpdateStatus(rs *object.ReplicaSet) error {
-	suffix := _const.RS_CONFIG_PREFIX + rs.Name
+	suffix := _const.RS_CONFIG_PREFIX + "/" + rs.Name
 	body, err := json.Marshal(rs)
 	if err != nil {
 		return err

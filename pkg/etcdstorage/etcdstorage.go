@@ -52,6 +52,7 @@ func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
 }
 
 func (kvs *KVStore) Get(key string) ([]ListRes, error) {
+	fmt.Println("wtf", key)
 	kv := clientv3.NewKV(kvs.client)
 	response, err := kv.Get(context.TODO(), key)
 	if err != nil {
@@ -72,23 +73,23 @@ func (kvs *KVStore) Get(key string) ([]ListRes, error) {
 	}
 }
 
-func (kvs *KVStore) GetPrefix(key string) error {
+func (kvs *KVStore) GetPrefix(key string) ([]ListRes, error) {
 	kv := clientv3.NewKV(kvs.client)
 	response, err := kv.Get(context.TODO(), key, clientv3.WithPrefix())
 	if err != nil {
-		return err
+		return []ListRes{}, err
 	}
-
-	if len(response.Kvs) != 0 {
-		fmt.Print("-> Get result:\n")
-		for _, resp := range response.Kvs {
-			fmt.Printf("\tkey: %s, value: %s\n", string(resp.Key), string(resp.Value))
+	var ret []ListRes
+	for _, kv := range response.Kvs {
+		res := ListRes{
+			ResourceVersion: kv.ModRevision,
+			CreateVersion:   kv.CreateRevision,
+			Key:             string(kv.Key),
+			ValueBytes:      kv.Value,
 		}
-	} else {
-		fmt.Println("-> Get result: Empty")
+		ret = append(ret, res)
 	}
-	fmt.Print("\n")
-	return nil
+	return ret, nil
 }
 
 func (kvs *KVStore) Put(key string, val string) error {

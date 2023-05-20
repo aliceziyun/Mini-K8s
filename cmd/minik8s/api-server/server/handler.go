@@ -69,3 +69,13 @@ func (s *APIServer) get(ctx *gin.Context) {
 	data, err := json.Marshal(listRes)
 	ctx.Data(http.StatusOK, "application/json", data)
 }
+
+func (s *APIServer) getByPrefix(ctx *gin.Context) {
+	key := ctx.Request.URL.Path
+	listRes, err := s.store.GetPrefix(key)
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+	data, err := json.Marshal(listRes)
+	ctx.Data(http.StatusOK, "application/json", data)
+}

@@ -87,12 +87,12 @@ func (s *APIServer) Run() error {
 func registerWebFunc(engine *gin.Engine, s *APIServer) {
 	engine.POST(_const.PATH, s.watch)
 	engine.PUT(_const.POD_CONFIG, s.addPod)
-	engine.GET(_const.POD_CONFIG_PREFIX, s.get)
+	engine.GET(_const.POD_CONFIG_PREFIX, s.getByPrefix)
 
 	engine.PUT(_const.RS_CONFIG, s.addRS)
 	engine.GET(_const.RS_CONFIG, s.get)
 
-	engine.GET(_const.RS_CONFIG_PREFIX, s.get)
+	engine.GET(_const.RS_CONFIG_PREFIX, s.getByPrefix)
 
 }
 
