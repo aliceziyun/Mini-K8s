@@ -14,9 +14,9 @@ type DNSConfig struct {
 	stopChannel <-chan struct{}
 }
 
-func NewDNSConfig() *DNSConfig {
+func NewDNSConfig(lsConfig *listwatcher.Config) *DNSConfig {
 	dnsConfig := &DNSConfig{}
-	ls, err := listwatcher.NewListWatcher(nil)
+	ls, err := listwatcher.NewListWatcher(lsConfig)
 	if err != nil {
 		fmt.Println(err)
 		return nil

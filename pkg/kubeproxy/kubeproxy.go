@@ -16,15 +16,15 @@ type KubeProxy struct {
 	dnsConfig   *DNSConfig
 }
 
-func NewKubeProxy() *KubeProxy {
+func NewKubeProxy(lsConfig *listwatcher.Config) *KubeProxy {
 	kubeProxy := &KubeProxy{}
-	ls, err := listwatcher.NewListWatcher(nil)
+	ls, err := listwatcher.NewListWatcher(lsConfig)
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
 	kubeProxy.ls = ls
-	kubeProxy.dnsConfig = NewDNSConfig()
+	kubeProxy.dnsConfig = NewDNSConfig(lsConfig)
 	return kubeProxy
 }
 

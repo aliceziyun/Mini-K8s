@@ -1,9 +1,11 @@
 package service
 
 import (
+	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
 	"encoding/json"
+	"time"
 )
 
 type ServRuntime struct {
@@ -17,7 +19,7 @@ func (r *ServRuntime) podSelector() {
 
 	res, err := r.ls.List("PodRuntimePrefix")
 	if err != nil {
-		return err
+		return
 	}
 
 	var allPods []*object.Pod
@@ -60,7 +62,10 @@ func (r *ServRuntime) podSelector() {
 	}
 	r.service.Spec.PodNameAndIps = newPodsInfo
 
-	// TODO write back to etcd
+	data, _ := json.Marshal(r.service)
+
+	store, _ := etcdstorage.InitKVStore([]string{"localhost:2379"}, 5*time.Second)
+	store.Put("/service", string(data))
 }
 
 func NewService(serv *object.Service, ls listwatcher.ListWatcher) *ServRuntime {

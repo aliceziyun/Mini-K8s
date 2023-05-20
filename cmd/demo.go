@@ -11,7 +11,7 @@ func main() {
 
 func tmain() {
 
-	kubeProxy := kubeproxy.NewKubeProxy()
+	kubeProxy := kubeproxy.NewKubeProxy(nil)
 	kubeProxy.Run()
 
 	pnip1 := o.PodNameAndIp{
