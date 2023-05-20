@@ -13,10 +13,14 @@ import (
 
 func CreatePod(rs *object.ReplicaSet) error {
 	podUID, _ := uuid.NewUUID()
-	suffix := _const.ETCD_POD_PREFIX + "/" + rs.Name + podUID.String()
+	suffix := _const.POD_CONFIG_PREFIX + "/" + rs.Name + podUID.String()
+
+	fmt.Printf("[ReplicaSet Controller] Create New Pod with UID %s... \n", podUID)
 
 	//get pod infomation
 	pod := &object.Pod{}
+	pod.Name = rs.Name + podUID.String()
+	pod.Kind = object.POD
 	pod.Spec = rs.Spec.Pods.Spec
 	owner := object.OwnerReference{
 		Kind:       object.REPLICASET,
@@ -59,10 +63,10 @@ func GetReplicaSetOf(pod *object.Pod, rsc *ReplicaSetController) *object.Replica
 	for _, owner := range ownerReferences {
 		if owner.Kind == object.REPLICASET {
 			// 有上层ReplicaSet，查询该pod所属的replicaset是否存在
-			suffix := _const.RS_PREFIX + owner.Name
+			suffix := _const.RS_CONFIG_PREFIX + "/" + owner.Name
 			rsRaw, err := rsc.ls.List(suffix)
 			if err != nil {
-				fmt.Println("[ReplicaSet Controller] fail to get pod's rs")
+				fmt.Println("[ReplicaSet Controller]", err)
 				return nil
 			}
 			rs := &object.ReplicaSet{}
@@ -78,7 +82,7 @@ func GetReplicaSetOf(pod *object.Pod, rsc *ReplicaSetController) *object.Replica
 }
 
 func UpdateStatus(rs *object.ReplicaSet) error {
-	suffix := _const.RS_PREFIX + rs.Name
+	suffix := _const.RS_CONFIG_PREFIX + rs.Name
 	body, err := json.Marshal(rs)
 	if err != nil {
 		return err
@@ -102,7 +106,7 @@ func UpdateStatus(rs *object.ReplicaSet) error {
 }
 
 func DeleteRS(name string) error {
-	suffix := _const.RS_PREFIX + name
+	suffix := _const.RS_CONFIG_PREFIX + name
 	request, err := http.NewRequest("DELETE", _const.BASE_URI+suffix, nil)
 	if err != nil {
 		return err

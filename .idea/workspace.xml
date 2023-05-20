@@ -5,13 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pkg/controller/endpoint/endpoint-controller.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/ReplicaSet/rsTest.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/ReplicaSet/testRS.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/const/const.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter/starter.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter/starter.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller/controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller/controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/endpoint/endpoint-controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/endpoint/endpoint-controller.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_controller.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/third_party/cache/store.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/cache/store.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/listwatcher/listwatcher.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/listwatcher/listwatcher.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/object/object.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/object.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/third_party/util/getPodByYaml.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/util/getObjByYaml.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +61,8 @@
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/root&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
 }</component>
   <component name="RdControllerToolWindowsLayoutState" isNewUi="false">
@@ -59,7 +70,7 @@
       <window_info id="Commit_Guest" />
       <window_info id="Space Code Reviews" order="0" />
       <window_info id="Bookmarks" order="1" side_tool="true" />
-      <window_info id="Pull Requests" order="2" />
+      <window_info id="Pull Requests" order="2" weight="0.32997918" />
       <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.2203331" />
       <window_info id="Commit" order="4" />
       <window_info id="Learn" order="5" show_stripe_button="false" />
@@ -72,7 +83,7 @@
       <window_info anchor="bottom" id="Terminal" order="4" weight="0.5054289" />
       <window_info anchor="bottom" id="TypeScript" order="5" />
       <window_info anchor="bottom" id="Services" order="6" weight="0.3295331" />
-      <window_info anchor="bottom" id="Run" order="7" show_stripe_button="false" weight="0.49239957" />
+      <window_info active="true" anchor="bottom" id="Run" order="7" visible="true" weight="0.4087948" />
       <window_info anchor="bottom" id="Dependency Checker" order="8" />
       <window_info anchor="right" id="Endpoints" order="0" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="1" />
@@ -82,11 +93,11 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter" />
+      <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-start" />
       <recent name="$PROJECT_DIR$/cmd/const" />
       <recent name="$PROJECT_DIR$/third_party/util" />
       <recent name="$PROJECT_DIR$/build/Pod" />
-      <recent name="$PROJECT_DIR$/pkg/listwatcher" />
-      <recent name="$PROJECT_DIR$/cmd/minik8s" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build kubelet.go">
@@ -97,6 +108,24 @@
       <package value="Mini-K8s" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build Mini-K8s/cmd/minik8s/api-server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="Mini-K8s" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="Mini-K8s/cmd/minik8s/api-server" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/api-server/api-server.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build Mini-K8s/cmd/minik8s/controller" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="Mini-K8s" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="Mini-K8s/cmd/minik8s/controller" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" />
       <method v="2" />
     </configuration>
     <configuration name="go build kubelet.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
@@ -129,6 +158,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/controller" />
         <item itemvalue="Go Build.go build kubelet.go" />
         <item itemvalue="Go Build.go build scheduler.go" />
       </list>

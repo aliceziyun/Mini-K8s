@@ -4,6 +4,7 @@ const (
 	// kind
 	POD        string = "POD"
 	REPLICASET string = "REPLICASET"
+	SERVICE    string = "SERVICE"
 )
 
 type ObjMetadata struct {
@@ -67,6 +68,15 @@ type ReplicaSetStatus struct {
 }
 
 // --------------------Service---------------------------
+type Service struct {
+	Name       string        `json:"name" yaml:"name"`
+	ApiVersion int           `json:"apiVersion" yaml:"apiVersion"`
+	Kind       string        `json:"kind" yaml:"kind"`
+	Metadata   ObjMetadata   `json:"metadata" yaml:"metadata"`
+	Spec       ServiceSpec   `json:"spec" yaml:"spec"`
+	Status     ServiceStatus `json:"status" yaml:"status"`
+}
+
 type ServiceSpec struct {
 	Type          string            `json:"type" yaml:"type"`           //service 的类型，有ClusterIp和 NodePort类型,默认为ClusterIp,暂时只支持ClusterIp
 	ClusterIp     string            `json:"clusterIp" yaml:"clusterIp"` //虚拟服务Ip地址， 可以手工指定或者由系统进行分配
@@ -74,6 +84,7 @@ type ServiceSpec struct {
 	Selector      map[string]string `json:"selector" yaml:"selector"`
 	PodNameAndIps []PodNameAndIp    `json:"podNameAndIps"` //选取的podsIp
 }
+
 type ServicePort struct {
 	Name       string `json:"name" yaml:"name"`
 	Protocol   string `json:"protocol" yaml:"protocol"`     //端口协议, 支持TCP和UDP, 默认TCP
@@ -85,15 +96,6 @@ type ServicePort struct {
 type ServiceStatus struct {
 	Phase          string            `json:"phase" yaml:"phase"`
 	Pods2IpAndPort map[string]string `json:"pods2IpAndPort" yaml:"pods2IpAndPort"` //pod name到 podIp:port的映射
-}
-
-type Service struct {
-	Name       string        `json:"name" yaml:"name"`
-	ApiVersion int           `json:"apiVersion" yaml:"apiVersion"`
-	Kind       string        `json:"kind" yaml:"kind"`
-	Metadata   ObjMetadata   `json:"metadata" yaml:"metadata"`
-	Spec       ServiceSpec   `json:"spec" yaml:"spec"`
-	Status     ServiceStatus `json:"status" yaml:"status"`
 }
 
 type Container struct {

@@ -9,8 +9,13 @@ import (
 
 //TODO: 现在如果没有channel控制，就跑不起来
 
-func startReplicaSetController(ctx context.Context, controllerContext controller_context.ControllerContext) error {
+func StartReplicaSetController(ctx context.Context, controllerContext controller_context.ControllerContext) error {
+	ch := make(chan int)
+
 	go replicaset.NewReplicaSetController(controllerContext).Run(ctx)
+
+	<-ch
+
 	return nil
 }
 

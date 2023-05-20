@@ -4,11 +4,6 @@ metadata:    # 元数据
   name: RS
 spec:
   replicas: 3    # 副本数量
-  selector:    # 选择器，通过它指定该控制器管理哪些pod
-    matchLabels:    # label匹配规则
-      app: nginx-pod
-    matchExpressions:   # Expression匹配规则
-      - {key: app, operator: In, values: [nginx-pod]}
   template:  # 模板，当副本数量不足时，会根据下面的额模板创建pod副本
     metadata:
       labels:

@@ -1,6 +1,7 @@
 package kubelet
 
 import (
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/kubelet/PodUpdate"
@@ -74,7 +75,7 @@ func (kl *Kubelet) Run() {
 
 	go func() {
 		fmt.Println("[kubelet] start watch...")
-		err := kl.ls.Watch("/testAddPod", kl.testAddPod, kl.stopChannel)
+		err := kl.ls.Watch(_const.POD_CONFIG_PREFIX, kl.AddPod, kl.stopChannel)
 		if err != nil {
 			fmt.Printf("[kubelet] watch podConfig error " + err.Error())
 		} else {
@@ -118,7 +119,7 @@ func (kl *Kubelet) HandlePodAdd(pods []*object.Pod) {
 	}
 }
 
-func (kl *Kubelet) testAddPod(res etcdstorage.WatchRes) {
+func (kl *Kubelet) AddPod(res etcdstorage.WatchRes) {
 	fmt.Println("test Add Pod success")
 	pod := &object.Pod{}
 	err := json.Unmarshal(res.ValueBytes, pod)

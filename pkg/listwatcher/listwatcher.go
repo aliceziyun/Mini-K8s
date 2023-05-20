@@ -33,6 +33,7 @@ func NewListWatcher(c *Config) (*ListWatcher, error) {
 
 // List : 向API-Server发送一个http短链接请求，罗列所有目标资源的对象。
 func (ls *ListWatcher) List(key string) ([]etcdstorage.ListRes, error) {
+	fmt.Printf("[list watcher] list %s \n", key)
 	resourceURL := ls.RootURL + key
 	request, err := http.NewRequest("GET", resourceURL, nil)
 	if err != nil {
@@ -61,7 +62,19 @@ func (ls *ListWatcher) List(key string) ([]etcdstorage.ListRes, error) {
 
 // Watch : 与某url长链接，监听某url绑定的操作，当对方有回复时，便调用watchHandler中的函数
 func (l *ListWatcher) Watch(key string, handler WatchHandler, stopChannel <-chan struct{}) error {
-	fmt.Println("[list watcher]start watch ...")
+	fmt.Printf("[list watcher] start watch %s \n", key)
+	resourceURL := l.RootURL + key
+	request, err := http.NewRequest("POST", resourceURL, nil)
+	if err != nil {
+		return err
+	}
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != http.StatusOK {
+		return errors.New("[list watcher] StatusCode not 200")
+	}
 
 	// 收到server的回复，开始监听
 	stop := make(chan struct{})
@@ -75,7 +88,7 @@ func (l *ListWatcher) Watch(key string, handler WatchHandler, stopChannel <-chan
 		handler(res)
 	}
 
-	err := l.Subscriber.Subscribe(key, amqpHandler, stop)
+	err = l.Subscriber.Subscribe(key, amqpHandler, stop)
 	if err != nil {
 		return err
 	}

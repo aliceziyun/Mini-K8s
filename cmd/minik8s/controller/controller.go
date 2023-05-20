@@ -13,7 +13,8 @@ func main() {
 	// only for test
 	fmt.Println("[Controller] test start")
 	controllerCtx := getControllerContext()
-	err := controller_starter.StartEndpointController(context.TODO(), *controllerCtx)
+	//err := controller_starter.StartEndpointController(context.TODO(), *controllerCtx)
+	err := controller_starter.StartReplicaSetController(context.TODO(), *controllerCtx)
 	if err != nil {
 		fmt.Println("[Controller] start fail")
 		return

@@ -2,7 +2,7 @@ package replicaset
 
 import (
 	_const "Mini-K8s/cmd/const"
-	"Mini-K8s/cmd/minik8s/controller/controller"
+	"Mini-K8s/cmd/minik8s/controller/controller-context"
 	"Mini-K8s/pkg/controller/replicaset/RSConfig"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 )
 
 const (
@@ -22,20 +23,22 @@ type ReplicaSetController struct {
 	config      *RSConfig.RSConfig
 	stopChannel <-chan struct{}
 	queue       queue.ConcurrentQueue
-	hashMap     _map.ConcurrentMap
+	hashMap     *_map.ConcurrentMap
 }
 
-func NewReplicaSetController(controllerContext controller.ControllerContext) *ReplicaSetController {
+func NewReplicaSetController(controllerContext controller_context.ControllerContext) *ReplicaSetController {
 	rsConfig := RSConfig.NewRSConfig()
+	hash := _map.NewConcurrentMap()
 	rsc := &ReplicaSetController{
-		ls:     controllerContext.Ls,
-		config: rsConfig,
+		ls:      controllerContext.Ls,
+		config:  rsConfig,
+		hashMap: hash,
 	}
 	return rsc
 }
 
 func (rsc *ReplicaSetController) Run(ctx context.Context) {
-	fmt.Println("[ReplicaSet] start run ...")
+	fmt.Println("[ReplicaSet Controller] start run ...")
 
 	go rsc.register()
 	go rsc.worker() //单worker，足够
@@ -46,33 +49,39 @@ func (rsc *ReplicaSetController) Run(ctx context.Context) {
 func (rsc *ReplicaSetController) register() {
 	// register RS handler
 	go func() {
-		err := rsc.ls.Watch(_const.RS_CONFIG_PREFIX, rsc.handlePod, rsc.stopChannel)
+		err := rsc.ls.Watch(_const.RS_CONFIG_PREFIX, rsc.handleRS, rsc.stopChannel)
 		if err != nil {
-			fmt.Println("[ReplicaSetController] list watch RS handler init fail...")
+			fmt.Println("[ReplicaSet Controller] list watch RS handler init fail...")
 		}
 	}()
 
-	// register Pod handler
+	//register Pod handler
 	go func() {
-		err := rsc.ls.Watch(_const.POD_CONFIG_PREFIX, rsc.handleRS, rsc.stopChannel)
+		err := rsc.ls.Watch(_const.POD_CONFIG_PREFIX, rsc.handlePod, rsc.stopChannel)
 		if err != nil {
-			fmt.Println("[ReplicaSetController] list watch Pod handler init fail...")
+			fmt.Println("[ReplicaSet Controller] list watch Pod handler init fail...")
 		}
 	}()
 }
 
 func (rsc *ReplicaSetController) worker() {
-	// 接受到新消息，开始处理
-	if !rsc.queue.Empty() {
-		key := rsc.queue.Front()
-		rsc.queue.Dequeue()
-		go func() {
-			err := rsc.syncReplicaSet(key.(string))
-			if err != nil {
-				fmt.Println("[ReplicaSet Controller] worker error")
-			}
-		}()
+	var m sync.Mutex //这个锁很重要，保证一次同步操作是原子的
+	for {
+		// 接受到新消息，开始处理
+		if !rsc.queue.Empty() {
+			key := rsc.queue.Front()
+			rsc.queue.Dequeue()
+			go func() {
+				m.Lock()
+				err := rsc.syncReplicaSet(key.(string))
+				if err != nil {
+					fmt.Println("[ReplicaSet Controller] worker error")
+				}
+				m.Unlock()
+			}()
+		}
 	}
+
 }
 
 func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
@@ -185,7 +194,7 @@ func (rsc *ReplicaSetController) slowStartBatch(diff int, rs *object.ReplicaSet)
 	var success int
 	for i := 0; i < diff; i++ {
 		err := CreatePod(rs)
-		if err != nil {
+		if err == nil {
 			success++
 		}
 	}

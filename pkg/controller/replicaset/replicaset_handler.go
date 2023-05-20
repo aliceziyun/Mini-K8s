@@ -16,10 +16,10 @@ func (rsc *ReplicaSetController) handlePod(res etcdstorage.WatchRes) {
 	pod := &object.Pod{}
 	err := json.Unmarshal(res.ValueBytes, pod)
 	if err != nil {
-		fmt.Printf("[ReplicaSetController] get wrong message when handle Pod \n")
+		fmt.Printf("[ReplicaSet Controller] get wrong message when handle Pod \n")
 		return
 	}
-	fmt.Printf("[ReplicaSetController] get new Pod \n")
+	fmt.Printf("[ReplicaSet Controller] get new Pod \n")
 
 	// 获取该pod对应的rs
 	rs := GetReplicaSetOf(pod, rsc)
@@ -29,6 +29,7 @@ func (rsc *ReplicaSetController) handlePod(res etcdstorage.WatchRes) {
 }
 
 func (rsc *ReplicaSetController) handleRS(res etcdstorage.WatchRes) {
+	fmt.Printf("[Replica SetController] get new RS \n")
 	if res.ResType == etcdstorage.DELETE {
 		return
 	}
@@ -36,11 +37,9 @@ func (rsc *ReplicaSetController) handleRS(res etcdstorage.WatchRes) {
 	rs := &object.ReplicaSet{}
 	err := json.Unmarshal(res.ValueBytes, rs)
 	if err != nil {
-		fmt.Printf("[ReplicaSetController] get wrong message when handle RS \n")
+		fmt.Printf("[Replica SetController] get wrong message when handle RS \n")
 		return
 	}
-
-	fmt.Printf("[ReplicaSetController] get new RS \n")
 
 	// 将key和rs绑定
 	key := getKey(rs)

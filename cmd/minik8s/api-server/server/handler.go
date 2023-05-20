@@ -1,48 +1,24 @@
 package apiserver
 
 import (
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/object"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 )
 
 func (s *APIServer) watch(ctx *gin.Context) {
-	//key := ctx.Request.URL.Path
-	ticketStr, status := ctx.GetPostForm("ticket")
-	fmt.Println(ticketStr, status)
-	if !status {
-		t := Ticket{}
-		t.T = s.ticketSeller.Add(1)
-		data, _ := json.Marshal(t)
-		//s.watcherChan <- watchOpt{key: key, withPrefix: false, ticket: t.T}
-		ctx.Data(http.StatusOK, "application/json", data)
-	} else {
-		s.watcherMtx.Lock()
-		ticket, err := strconv.ParseUint(ticketStr, 10, 64)
-		if err != nil {
-			fmt.Println(err)
-			ctx.AbortWithStatus(http.StatusBadRequest)
-		} else {
-			//if s.watcherMap[key] != nil {
-			//	s.watcherMap[key].set.Remove(ticket)
-			//	if s.watcherMap[key].set.Equal(mapset.NewSet[uint64]()) {
-			//		s.watcherMap[key].cancel()
-			//		s.watcherMap[key] = nil
-			//		klog.Infof("Cancel the watcher of key %s\n", key)
-			//	}
-			//}
-			fmt.Println(ticket, "ok")
-			ctx.Status(http.StatusOK)
-		}
-		s.watcherMtx.Unlock()
-	}
+	//TODO: 现在是超简化版本
+	key := ctx.Request.URL.Path
+	fmt.Printf("[API-Server] receive watch request with key %s \n", key)
+	s.watcherChan <- watchOpt{key: key, withPrefix: false}
+	ctx.Data(http.StatusOK, "application/json", nil)
 }
 
-func (s *APIServer) addPodTest(ctx *gin.Context) {
+func (s *APIServer) addPod(ctx *gin.Context) {
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	pod := &object.Pod{}
 	err = json.Unmarshal(body, pod)
@@ -52,7 +28,7 @@ func (s *APIServer) addPodTest(ctx *gin.Context) {
 		return
 	}
 
-	key := "test"
+	key := _const.POD_CONFIG_PREFIX + "/" + pod.Name
 	fmt.Printf("key:%v\n", key)
 
 	body, _ = json.Marshal(pod)
@@ -61,4 +37,35 @@ func (s *APIServer) addPodTest(ctx *gin.Context) {
 	if err != nil {
 		return
 	}
+}
+
+func (s *APIServer) addRS(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	rs := &object.ReplicaSet{}
+	err = json.Unmarshal(body, rs)
+	if err != nil {
+		fmt.Println("[AddService] service unmarshal fail")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	key := _const.RS_CONFIG_PREFIX + "/" + rs.Name
+	fmt.Printf("key:%v\n", key)
+
+	body, _ = json.Marshal(rs)
+
+	err = s.store.Put(key, string(body))
+	if err != nil {
+		return
+	}
+}
+
+func (s *APIServer) get(ctx *gin.Context) {
+	key := ctx.Request.URL.Path
+	listRes, err := s.store.Get(key)
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+	data, err := json.Marshal(listRes)
+	ctx.Data(http.StatusOK, "application/json", data)
 }
