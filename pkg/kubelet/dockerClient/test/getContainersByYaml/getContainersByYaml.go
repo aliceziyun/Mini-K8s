@@ -1,4 +1,5 @@
 // package main
+
 package parseYaml
 
 import (
@@ -79,7 +80,10 @@ func test() {
 
 func main() {
 	// test()
-	containers := getContainersByFile("testPod.yaml")
+	path := "testPod.yaml"
+	// path := "../../build/pod/testPod.yaml"
+
+	containers := getContainersByFile(path)
 	for _, value := range containers {
 		fmt.Printf(
 			"========Container Info:======== \nname=%s\nimage=%s\n",

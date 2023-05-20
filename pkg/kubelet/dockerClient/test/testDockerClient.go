@@ -85,7 +85,8 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		resourceConfig := container.Resources{}
 
 		//创建容器
-		fmt.Println("ContainerCreate")
+		fmt.Println("ContainerCreate:")
+		fmt.Printf("name=%s, image=%s\n\n", value.Name, value.Image)
 		resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 			Image:      value.Image,
 			Entrypoint: value.Command,
@@ -99,6 +100,8 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 			Resources: resourceConfig,
 		}, nil, nil, value.Name)
 		if err != nil {
+			fmt.Println("??")
+			fmt.Println(err)
 			return nil, nil, err
 		}
 		tmpContainers = append(tmpContainers, resp)
@@ -285,6 +288,8 @@ func deleteExistedContainers(names []string) error {
 	return nil
 }
 func isImageExist(a string, tags []string) bool {
+	fmt.Printf("[isImageExist]:\n")
+	fmt.Printf("Local image:%v Target image:%s\n", tags, a)
 	for _, b := range tags {
 		if a == b {
 			return true
@@ -392,17 +397,18 @@ func main() {
 
 	createContainersOfPod(containers)
 
-	fmt.Println("======delete test=====")
-	tmp, err := getAllContainers()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("----------------\nthis is the container to be deleted: ")
-	fmt.Printf("image=%s,id=%s\n", tmp[1].Image, tmp[1].ID)
-	fmt.Println("----------------")
-	deleteContainerById(tmp[1].ID)
+	// fmt.Println("======delete test=====")
 	getAllContainers()
-	fmt.Println("======delete test=====")
+	// tmp, err := getAllContainers()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println("----------------\nthis is the container to be deleted: ")
+	// fmt.Printf("image=%s,id=%s\n", tmp[3].Image, tmp[3].ID)
+	// fmt.Println("----------------")
+	// deleteContainerById(tmp[3].ID)
+	// getAllContainers()
+	// fmt.Println("======delete test=====")
 
 	// cl, err := client.NewEnvClient()
 	// if err != nil {
