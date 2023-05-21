@@ -73,5 +73,6 @@ func NewService(serv *object.Service, ls listwatcher.ListWatcher) *ServRuntime {
 	servRuntime.service = serv
 	servRuntime.ls = ls
 	servRuntime.podSelector()
+	// TODO need to watch the change of pods
 	return servRuntime
 }

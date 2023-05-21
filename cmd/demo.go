@@ -2,36 +2,42 @@ package main
 
 import (
 	"Mini-K8s/pkg/kubeproxy"
+	"Mini-K8s/pkg/listwatcher"
 	o "Mini-K8s/pkg/object"
+	"encoding/json"
+	"fmt"
+	"time"
 )
 
 func main() {
-	kubeproxy.TestDns()
+	kubeproxy.TestIpt()
 }
 
-func tmain() {
+func nmain() {
 
-	kubeProxy := kubeproxy.NewKubeProxy(nil)
+	kubeProxy := kubeproxy.NewKubeProxy(listwatcher.DefaultConfig())
 	kubeProxy.Run()
+
+	time.Sleep(1 * time.Second)
 
 	pnip1 := o.PodNameAndIp{
 		Name: "pod1",
-		Ip:   "192.168.1.100",
+		Ip:   "192.168.1.15",
 	}
 	pnip2 := o.PodNameAndIp{
 		Name: "pod2",
-		Ip:   "192.168.1.101",
+		Ip:   "192.168.1.6",
 	}
 
 	servPort := o.ServicePort{
 		Name:       "sp",
 		Port:       "8000",
-		TargetPort: "8080",
+		TargetPort: "8081",
 	}
 
 	serviceSpec := o.ServiceSpec{
 		Type:      "ClusterIp",
-		ClusterIp: "10.10.0.1",
+		ClusterIp: "10.10.0.5",
 	}
 	serviceSpec.PodNameAndIps = append(serviceSpec.PodNameAndIps, pnip1, pnip2)
 	serviceSpec.Ports = append(serviceSpec.Ports, servPort)
@@ -45,47 +51,13 @@ func tmain() {
 
 	service.Spec = serviceSpec
 
-	kubeproxy.TestService(service)
-
 	//fmt.Println(service)
 
-	//jsonBytes, err0 := json.Marshal(service)
-	//if err0 != nil {
-	//	return
-	//}
-	//
-	//store, err := etcdstorage.InitKVStore([]string{"127.0.0.1:2379"}, time.Second)
-	//if err != nil {
-	//	return
-	//}
-	//key := etcdstorage.EtcdServicePrefix + service.Metadata.Namespace + "/" + service.Metadata.Name
-	//
-	//servPtr := &o.Service{}
-	//err1 := store.Put(key, string(jsonBytes))
-	//if err1 != nil {
-	//	return
-	//}
-	//
-	//go func() {
-	//	store.Watch(key)
-	//}()
-	//time.Sleep(1 * time.Second)
-	//
-	//value, err2 := store.Get(key)
-	//if err2 != nil {
-	//	return
-	//}
-	//
-	//err3 := store.Del(key)
-	//if err3 != nil {
-	//	return
-	//}
-	//
-	//err4 := json.Unmarshal([]byte(value), servPtr)
-	//if err4 != nil {
-	//	return
-	//}
-	//
-	//fmt.Println(*servPtr)
+	jsonBytes, err0 := json.Marshal(service)
+	if err0 != nil {
+		return
+	}
 
+	// todo put
+	fmt.Println(jsonBytes)
 }

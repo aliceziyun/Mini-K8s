@@ -137,6 +137,20 @@ func (ipt *IPTables) Exists(table, chain string, rulespec ...string) (bool, erro
 	}
 }
 
+func (ipt *IPTables) MyExist(chain string, rulespec ...string) (bool, error) {
+	cmd := append([]string{"-C", chain}, rulespec...)
+	err1 := ipt.run(cmd...)
+	err2, eok := err1.(*Error)
+	switch {
+	case err1 == nil:
+		return true, nil
+	case eok && err2.ExitStatus() == 1:
+		return false, nil
+	default:
+		return false, err1
+	}
+}
+
 func (ipt *IPTables) InsertWithoutTable(chain string, rulespec ...string) error {
 	cmd := append([]string{"-I", chain}, rulespec...)
 	return ipt.run(cmd...)

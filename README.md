@@ -31,3 +31,9 @@ https://www.0758q.com/zixun/1913.html
    kubectl apply
 ```
 稍等片刻便能看到build文件夹下的文件被读入并创建pod
+
+## Service
+创建service的逻辑：
+1. service controller 读取yaml文件，调用NewService()，传递Service对象
+2. NewService 调用 selector，将符合的pod选出，填入Service对象并写回etcd
+3. kubeproxy watch 发现新service，调用处理函数，修改iptables

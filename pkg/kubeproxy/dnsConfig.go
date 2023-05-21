@@ -14,7 +14,7 @@ type DNSConfig struct {
 	stopChannel <-chan struct{}
 }
 
-func NewDNSConfig(lsConfig *listwatcher.Config) *DNSConfig {
+func RunDNS(lsConfig *listwatcher.Config) *DNSConfig {
 	dnsConfig := &DNSConfig{}
 	ls, err := listwatcher.NewListWatcher(lsConfig)
 	if err != nil {
@@ -24,7 +24,7 @@ func NewDNSConfig(lsConfig *listwatcher.Config) *DNSConfig {
 	dnsConfig.ls = ls
 	watchFunc := func() {
 		for {
-			err := dnsConfig.ls.Watch("", dnsConfig.watchDNSChange, dnsConfig.stopChannel)
+			err := dnsConfig.ls.Watch("/dnsConfig", dnsConfig.watchDNSChange, dnsConfig.stopChannel)
 			if err != nil {
 				fmt.Println("[dnsConfig] watch error" + err.Error())
 				time.Sleep(10 * time.Second)
