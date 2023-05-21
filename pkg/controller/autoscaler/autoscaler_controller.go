@@ -92,5 +92,31 @@ func (asc *AutoScaleController) reconcileAutoscaler(autoscaler *object.Autoscale
 	if err != nil {
 		return err
 	}
+
+	var desiredReplicas int32
+	currentReplicas := rs.Status.ReplicaStatus
+	minReplicas := autoscaler.Spec.MinReplicas
+	maxReplicas := autoscaler.Spec.MaxReplicas
+
+	//副本数为0，不启动自动扩缩容
+	if rs.Spec.Replicas == 0 && minReplicas != 0 {
+		//TODO: disabled
+		desiredReplicas = 0
+		return nil
+	} else if currentReplicas > maxReplicas { //感觉有一种和replicaSet冲突的美
+		desiredReplicas = maxReplicas
+	} else if currentReplicas < minReplicas {
+		desiredReplicas = minReplicas
+	} else {
+		metricDesiredReplicas, metricName, metricStatuses, metricTimestamp, err := asc.computeReplicasForMetrics(autoscaler, rs, autoscaler.Spec.Metrics)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+//根据实际情况计算到底需要多少个Replica
+func (asc *AutoScaleController) computeReplicasForMetrics(autoscaler *object.Autoscaler, rs *object.ReplicaSet, metrics []object.Metric) (replicas int32, metric string, statuses []object.Metric, timestamp time.Time, err error) {
+	
 }
