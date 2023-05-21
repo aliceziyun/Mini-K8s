@@ -127,5 +127,5 @@ func (asc *AutoScaleController) computeReplicasForMetrics(autoscaler *object.Aut
 // 根据某项metric计算需要多少个replica
 func (asc *AutoScaleController) computeReplicasForMetric(autoscaler *object.Autoscaler, metric object.Metric,
 	rs *object.ReplicaSet) (replicaCountProposal int, metricNameProposal string, timestampProposal time.Time, err error) {
-
+	
 }

@@ -28,3 +28,17 @@ func DefaultClientConfig() Config {
 		Host: "127.0.0.1:8080",
 	}
 }
+
+type QueryRes struct {
+	Status string `json:"status"`
+	Data   Data   `json:"data"`
+}
+
+type Data struct {
+	ResultType  string   `json:"resultType"`
+	ResultArray []Result `json:"result"`
+}
+
+type Result struct {
+	Value []interface{} `json:"value"`
+}
