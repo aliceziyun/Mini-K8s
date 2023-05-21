@@ -43,7 +43,6 @@ func (rsc *ReplicaSetController) Run(ctx context.Context) {
 
 	go rsc.register()
 	go rsc.worker() //单worker，足够
-
 }
 
 // 绑定watch，当资源发生变化时，通知controller
@@ -129,7 +128,6 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 		_, statusErr := rsc.updateReplicaSetStatus(rs, newStatus)
 		return statusErr
 	}
-	return nil
 }
 
 func (rsc *ReplicaSetController) manageReplicas(filteredPods []*object.Pod, rs *object.ReplicaSet) error {

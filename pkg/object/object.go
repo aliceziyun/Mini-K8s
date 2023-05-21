@@ -5,6 +5,7 @@ const (
 	POD        string = "POD"
 	REPLICASET string = "REPLICASET"
 	SERVICE    string = "SERVICE"
+	HPA        string = "HPA"
 )
 
 type ObjMetadata struct {
@@ -67,6 +68,31 @@ type ReplicaSetStatus struct {
 	ReplicaStatus int32 `json:"replicas" yaml:"replicas"` //是否符合对replica的期待
 }
 
+// --------------------AutoScaler---------------------------
+type Autoscaler struct {
+	Metadata ObjMetadata `json:"metadata" yaml:"metadata"`
+	Spec     HPASpec     `json:"spec" yaml:"spec"`
+}
+
+type HPASpec struct {
+	ScaleTargetRef HPARef   `json:"scaleTargetRef" yaml:"scaleTargetRef"`
+	MinReplicas    int32    `json:"minReplicas" yaml:"minReplicas"`
+	MaxReplicas    int32    `json:"maxReplicas" yaml:"maxReplicas"`
+	ScaleInterval  int32    `json:"scaleInterval" yaml:"scaleInterval"`
+	Metrics        []Metric `json:"metrics" yaml:"metrics"`
+}
+
+type HPARef struct {
+	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
+	Kind       string `json:"kind" yaml:"kind"`
+	Name       string `json:"name" yaml:"name"`
+}
+
+type Metric struct {
+	Name   string `json:"name" yaml:"name"`
+	Target string `json:"target" yaml:"target"`
+}
+
 // --------------------Service---------------------------
 type Service struct {
 	Name       string        `json:"name" yaml:"name"`
@@ -120,12 +146,6 @@ type ContainerMeta struct {
 
 type Volume struct {
 }
-
-// main原来的版本
-// type ContainerEnv struct {
-// }
-// type ContainerEnv struct {
-// }
 
 type ContainerPort struct {
 	//added ?
