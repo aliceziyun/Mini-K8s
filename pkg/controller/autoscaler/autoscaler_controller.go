@@ -108,7 +108,7 @@ func (asc *AutoScaleController) reconcileAutoscaler(autoscaler *object.Autoscale
 	} else if currentReplicas < minReplicas {
 		desiredReplicas = minReplicas
 	} else {
-		metricDesiredReplicas, metricName, metricStatuses, metricTimestamp, err := asc.computeReplicasForMetrics(autoscaler, rs, autoscaler.Spec.Metrics)
+		metricDesiredReplicas, metricName, metricTimestamp, err := asc.computeReplicasForMetrics(autoscaler, rs, autoscaler.Spec.Metrics)
 		if err != nil {
 			return err
 		}
@@ -116,7 +116,16 @@ func (asc *AutoScaleController) reconcileAutoscaler(autoscaler *object.Autoscale
 	return nil
 }
 
-//根据实际情况计算到底需要多少个Replica
-func (asc *AutoScaleController) computeReplicasForMetrics(autoscaler *object.Autoscaler, rs *object.ReplicaSet, metrics []object.Metric) (replicas int32, metric string, statuses []object.Metric, timestamp time.Time, err error) {
-	
+// 根据实际情况计算到底需要多少个Replica
+func (asc *AutoScaleController) computeReplicasForMetrics(autoscaler *object.Autoscaler, rs *object.ReplicaSet,
+	metrics []object.Metric) (replicas int32, metric string, timestamp time.Time, err error) {
+	for _, metric := range metrics {
+		replicaCountProposal, metricNameProposal, timestampProposal, err := asc.computeReplicasForMetric(autoscaler, metric, rs)
+	}
+}
+
+// 根据某项metric计算需要多少个replica
+func (asc *AutoScaleController) computeReplicasForMetric(autoscaler *object.Autoscaler, metric object.Metric,
+	rs *object.ReplicaSet) (replicaCountProposal int, metricNameProposal string, timestampProposal time.Time, err error) {
+
 }
