@@ -101,7 +101,7 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 		//列出该rs所有的Pods
 		var pods []*object.Pod
 		podLists, _ := rsc.ls.List(_const.POD_CONFIG_PREFIX)
-		fmt.Println(len(podLists))
+		//fmt.Println(len(podLists))
 		for _, eachPod := range podLists {
 			pod := &object.Pod{}
 			err := json.Unmarshal(eachPod.ValueBytes, &pod)
