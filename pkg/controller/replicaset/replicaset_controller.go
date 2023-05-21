@@ -9,7 +9,6 @@ import (
 	_map "Mini-K8s/third_party/map"
 	"Mini-K8s/third_party/queue"
 	"context"
-	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -99,26 +98,13 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 		//rsNeedsSync := rsc.expectations.SatisfiedExpectations(key)
 
 		//列出该rs所有的Pods
-		var pods []*object.Pod
-		podLists, _ := rsc.ls.List(_const.POD_CONFIG_PREFIX)
-		//fmt.Println(len(podLists))
-		for _, eachPod := range podLists {
-			pod := &object.Pod{}
-			err := json.Unmarshal(eachPod.ValueBytes, &pod)
-			if err != nil {
-				fmt.Printf("[ReplicaSet Controller] getting pod fail \n")
-				break
-			}
-			// 列出所有有owner且active的pod
-			if isOwner(pod.Metadata.OwnerReference, rs.Name) && isActive(pod.Status) {
-				pods = append(pods, pod)
-			}
+		pods, err := GetAllPods(rsc.ls, rs.Name, rs.Uid)
+		if err != nil {
+			fmt.Println("[ReplicaSet Controller] ", err)
 		}
 
-		fmt.Println(len(pods))
-
 		//调用rsc.manageReplicas增删Pod
-		err := rsc.manageReplicas(pods, rs)
+		err = rsc.manageReplicas(pods, rs)
 		if err != nil {
 			fmt.Println("[ReplicaSet Controller] manageReplicas fail!")
 		}

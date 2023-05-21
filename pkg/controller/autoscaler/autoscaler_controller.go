@@ -4,14 +4,18 @@ import (
 	_const "Mini-K8s/cmd/const"
 	controller_context "Mini-K8s/cmd/minik8s/controller/controller-context"
 	"Mini-K8s/pkg/client"
+	"Mini-K8s/pkg/controller/replicaset"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
 	_map "Mini-K8s/third_party/map"
 	"Mini-K8s/third_party/queue"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -98,8 +102,8 @@ func (asc *AutoScaleController) reconcileAutoscaler(autoscaler *object.Autoscale
 	minReplicas := autoscaler.Spec.MinReplicas
 	maxReplicas := autoscaler.Spec.MaxReplicas
 
-	//副本数为0，不启动自动扩缩容
-	if rs.Spec.Replicas == 0 && minReplicas != 0 {
+	//计算所需的replica数量
+	if rs.Spec.Replicas == 0 && minReplicas != 0 { //副本数为0，不启动自动扩缩容
 		//TODO: disabled
 		desiredReplicas = 0
 		return nil
@@ -108,24 +112,106 @@ func (asc *AutoScaleController) reconcileAutoscaler(autoscaler *object.Autoscale
 	} else if currentReplicas < minReplicas {
 		desiredReplicas = minReplicas
 	} else {
-		metricDesiredReplicas, metricName, metricTimestamp, err := asc.computeReplicasForMetrics(autoscaler, rs, autoscaler.Spec.Metrics)
+		metricDesiredReplicas, metricName, err := asc.computeReplicasForMetrics(rs, autoscaler.Spec.Metrics)
 		if err != nil {
 			return err
 		}
+		if metricDesiredReplicas > maxReplicas {
+			desiredReplicas = maxReplicas
+		} else {
+			desiredReplicas = metricDesiredReplicas
+		}
+		fmt.Printf("[AutoScale Controller] choose %s as the metric with %d replicas \n", metricName, desiredReplicas)
 	}
+
+	//根据计算出的replica数量缩容扩容
+	err = asc.scaleReplica(desiredReplicas, rs)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // 根据实际情况计算到底需要多少个Replica
-func (asc *AutoScaleController) computeReplicasForMetrics(autoscaler *object.Autoscaler, rs *object.ReplicaSet,
-	metrics []object.Metric) (replicas int32, metric string, timestamp time.Time, err error) {
+func (asc *AutoScaleController) computeReplicasForMetrics(rs *object.ReplicaSet,
+	metrics []object.Metric) (replicas int32, metric string, err error) {
+	var maxValue int32 = 0
+	var metricName string
 	for _, metric := range metrics {
-		replicaCountProposal, metricNameProposal, timestampProposal, err := asc.computeReplicasForMetric(autoscaler, metric, rs)
+		replicaCount, err := asc.computeReplicasForMetric(metric, rs)
+		if err != nil {
+			fmt.Printf("[AutoScale Controller] count metric %s fail \n", metric.Name)
+		}
+		//取最大值
+		if replicaCount > maxValue {
+			maxValue = replicaCount
+			metricName = metric.Name
+		}
 	}
+	return maxValue, metricName, err
 }
 
 // 根据某项metric计算需要多少个replica
-func (asc *AutoScaleController) computeReplicasForMetric(autoscaler *object.Autoscaler, metric object.Metric,
-	rs *object.ReplicaSet) (replicaCountProposal int, metricNameProposal string, timestampProposal time.Time, err error) {
-	
+func (asc *AutoScaleController) computeReplicasForMetric(metric object.Metric, rs *object.ReplicaSet) (replicaCount int32, err error) {
+	//获取RS的全部pod
+	pods, err := replicaset.GetAllPods(asc.ls, rs.Name, rs.Uid)
+	if err != nil {
+		return -1, err
+	}
+
+	//获取Pod的全部资源列表
+	podResourceStatusList, err := asc.getPodResourceStatus(metric.Name, pods)
+	if err != nil {
+		return -1, err
+	}
+	for _, status := range podResourceStatusList {
+		fmt.Printf("[AutoScale Controller] metric %s status is %s \n", metric.Name, status)
+	}
+
+	//计算需要的replica数量
+	count, err := asc.computeReplicasCount(metric, podResourceStatusList)
+	if err != nil {
+		return -1, err
+	}
+	return count, err
+}
+
+func (asc *AutoScaleController) computeReplicasCount(metric object.Metric,
+	resourceList []resourceStatus) (replicaCount int32, err error) {
+	var allResource float64 = 0
+	target := metric.Target
+	for _, resource := range resourceList {
+		allResource += resource.res * 100
+	}
+	if target == 0 {
+		err := errors.New("[AutoScale Controller] target is 0")
+		return -1, err
+	}
+	count := allResource / float64(target)
+	return int32(math.Ceil(count)), nil
+}
+
+// 调整replicaSet中pod的数量
+func (asc *AutoScaleController) scaleReplica(desireCount int32, rs *object.ReplicaSet) error {
+	rs.Spec.Replicas = desireCount
+	url := _const.BASE_URI + _const.RS_CONFIG_PREFIX + rs.Name
+	payload, err := json.Marshal(rs)
+	if err != nil {
+		return err
+	}
+	reader := bytes.NewReader(payload)
+	request, err := http.NewRequest("PUT", url, reader)
+	if err != nil {
+		return err
+	}
+	request.Header.Add("Content-Type", "application/json")
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != http.StatusOK {
+		return errors.New("StatusCode not 200")
+	}
+	return nil
 }

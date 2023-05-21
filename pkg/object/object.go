@@ -90,7 +90,7 @@ type HPARef struct {
 
 type Metric struct {
 	Name   string `json:"name" yaml:"name"`
-	Target string `json:"target" yaml:"target"`
+	Target int    `json:"target" yaml:"target"`
 }
 
 // --------------------Service---------------------------

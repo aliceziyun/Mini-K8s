@@ -7,28 +7,34 @@ import (
 
 type resourceStatus struct {
 	metadata object.ObjMetadata
-	memory   float64
-	cpu      float64
+	name     string
+	res      float64
 }
 
-func (asc *AutoScaleController) getPodResourceStatus(pods []*object.Pod) ([]resourceStatus, error) {
+// 获取Pod某一项具体的resource的状况
+func (asc *AutoScaleController) getPodResourceStatus(resourceName string, pods []*object.Pod) ([]resourceStatus, error) {
 	var statusList []resourceStatus
 	for _, pod := range pods {
 		var status resourceStatus
 		status.metadata = pod.Metadata
+		status.name = resourceName
 
-		res, err := asc.metricClient.GetResource(resource.CPU, pod.Name, pod.Metadata.Uid)
-		if err != nil || res == nil {
-			return statusList, err
+		switch resourceName {
+		case "cpu":
+			res, err := asc.metricClient.GetResource(resource.CPU, pod.Name, pod.Metadata.Uid)
+			if err != nil || res == nil {
+				return statusList, err
+			}
+			status.res = *res
+			break
+		case "memory":
+			res, err := asc.metricClient.GetResource(resource.MEMORY, pod.Name, pod.Metadata.Uid)
+			if err != nil || res == nil {
+				return statusList, err
+			}
+			status.res = *res
+			break
 		}
-		status.cpu = *res
-
-		res, err = asc.metricClient.GetResource(resource.MEMORY, pod.Name, pod.Metadata.Uid)
-		if err != nil || res == nil {
-			return statusList, err
-		}
-		status.memory = *res
-
 		statusList = append(statusList, status)
 	}
 	return statusList, nil

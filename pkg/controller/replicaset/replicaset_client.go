@@ -2,6 +2,7 @@ package replicaset
 
 import (
 	_const "Mini-K8s/cmd/const"
+	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
 	"bytes"
 	"encoding/json"
@@ -119,4 +120,22 @@ func DeleteRS(name string) error {
 		return errors.New("StatusCode not 200")
 	}
 	return nil
+}
+
+func GetAllPods(ls *listwatcher.ListWatcher, name string, UID string) ([]*object.Pod, error) {
+	var pods []*object.Pod
+	podLists, err := ls.List(_const.POD_CONFIG_PREFIX)
+	for _, eachPod := range podLists {
+		pod := &object.Pod{}
+		err := json.Unmarshal(eachPod.ValueBytes, &pod)
+		if err != nil {
+			fmt.Printf("[ReplicaSet Controller] getting pod fail \n")
+			break
+		}
+		// 列出所有有owner且active的pod
+		if isOwner(pod.Metadata.OwnerReference, name) && isActive(pod.Status) {
+			pods = append(pods, pod)
+		}
+	}
+	return pods, err
 }
