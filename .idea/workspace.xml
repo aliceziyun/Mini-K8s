@@ -5,14 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/third_party/file/fileUtil.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/controller/job/job_controller.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Job/testJob.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/Job/testJob.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/const/const.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/object/job.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/job.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

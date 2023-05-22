@@ -15,6 +15,11 @@ type JobSpec struct {
 	App         AppTemplate `json:"template" yaml:"template"`
 }
 
+type JobStatus struct {
+	JID    string `json:"jid" yaml:"jid"`
+	Status string `json:"status" yaml:"status"`
+}
+
 type JobConfig struct {
 	JobName         string `json:"jobName" yaml:"jobName"`
 	Partition       string `json:"partition" yaml:"partition"`
