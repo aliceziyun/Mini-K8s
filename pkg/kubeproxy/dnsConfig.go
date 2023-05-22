@@ -51,11 +51,9 @@ func (dnsConfig *DNSConfig) watchDNSChange(res etcdstorage.WatchRes) {
 
 		w := bufio.NewWriter(f)
 
-		//lineStr := fmt.Sprintf("%s %s", , )
-		_, err = fmt.Fprintln(w, ".:53 {\n\tbind 127.0.0.1\n\thosts {\n\t\t127.0.0.1 example.lcz.com\n\t\tfallthrough\n\t}\n\tforward . /etc/resolv.conf\n}")
-		if err != nil {
-			return
-		}
+		fmt.Fprint(w, ".:53 {\n\tbind 127.0.0.1\n\thosts {\n\t\t")
+		fmt.Fprint(w, "127.0.0.1 example.lcz.com")
+		fmt.Fprint(w, "\n\t\tfallthrough\n\t}\n\tforward . /etc/resolv.conf\n}")
 
 		err = w.Flush()
 		if err != nil {
@@ -66,7 +64,7 @@ func (dnsConfig *DNSConfig) watchDNSChange(res etcdstorage.WatchRes) {
 }
 
 func TestDns() {
-	f, err := os.OpenFile("/root/Corefile", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	f, err := os.OpenFile("/home/lcz/Core", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	defer f.Close()
 	if err != nil {
 		fmt.Println(err)
@@ -75,11 +73,10 @@ func TestDns() {
 
 	w := bufio.NewWriter(f)
 
-	//lineStr := fmt.Sprintf("%s %s", , )
-	_, err = fmt.Fprintln(w, ".:53 {\n\tbind 127.0.0.1\n\thosts {\n\t\t127.0.0.1 example.lcz.com\n\t\tfallthrough\n\t}\n\tforward . /etc/resolv.conf\n}")
-	if err != nil {
-		return
-	}
+	fmt.Fprint(w, ".:53 {\n\tbind 127.0.0.1\n\thosts {\n")
+	fmt.Fprintln(w, "\t\t127.0.0.1 example.lcz.com")
+	fmt.Fprintln(w, "\t\t127.0.0.1 example.lcz")
+	fmt.Fprint(w, "\t\tfallthrough\n\t}\n\tforward . /etc/resolv.conf\n}")
 
 	err = w.Flush()
 	if err != nil {

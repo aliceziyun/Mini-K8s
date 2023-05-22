@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	kubeproxy.TestIpt()
+	kubeproxy.TestDns()
 }
 
 func nmain() {
