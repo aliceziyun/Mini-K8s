@@ -47,13 +47,21 @@ func applyFile() {
 		rs := &object.ReplicaSet{}
 		err = v2.Unmarshal([]byte(data), rs)
 		if err != nil {
-			fmt.Printf("file in %s unmarshal fail, use default config", path)
+			fmt.Println(err)
 		}
 		createNewRS(rs)
 		fmt.Println(rs)
 		break
+	case "Job":
+		job := &object.GPUJob{}
+		err = v2.Unmarshal([]byte(data), job)
+		if err != nil {
+			fmt.Println(err)
+		}
+		createNewJob(job)
+		fmt.Println(job)
+		break
 	}
-
 	return
 }
 
@@ -79,4 +87,8 @@ func createNewRS(rs *object.ReplicaSet) {
 	resp, _ := http.DefaultClient.Do(req)
 
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func createNewJob(job *object.GPUJob) {
+
 }
