@@ -1,8 +1,10 @@
 package apiserver
 
 import (
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/message"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/atomic"
@@ -83,29 +85,41 @@ func (s *APIServer) Run() error {
 
 // registerWebFunc: 将API方法名和方法绑定
 func registerWebFunc(engine *gin.Engine, s *APIServer) {
-	engine.PUT("/testAddPod", s.addPodTest)
-	engine.POST("/testwatch", s.watch)
+	engine.POST(_const.PATH, s.watch)
+	engine.PUT(_const.POD_CONFIG, s.addPod)
+	engine.GET(_const.POD_CONFIG_PREFIX, s.getByPrefix)
+
+	engine.PUT(_const.RS_CONFIG, s.addRS)
+	engine.GET(_const.RS_CONFIG, s.get)
+
+	engine.GET(_const.RS_CONFIG_PREFIX, s.getByPrefix)
+
 }
 
 func (s *APIServer) daemon(listening <-chan watchOpt) {
-	fmt.Println("start daemon")
-	//var resChan = make(<-chan etcdstorage.WatchRes)
+	fmt.Println("[API-Server] start daemon...")
+	for {
+		select {
+		case opt := <-listening:
+			fmt.Println("[API-Server] receive new watch Opt...")
+			key := opt.key
 
-	//data, _ := json.Marshal("sewgwq")
-	_, _ = s.store.Watch("test")
-	//err := s.publisher.Publish("/testwatch", data, "application/json")
+			s.watcherMtx.Lock()
+			var resChan <-chan etcdstorage.WatchRes
+			_, resChan = s.store.Watch(key)
 
-	//go func(resChan <-chan etcdstorage.WatchRes) {
-	//	for res := range resChan {
-	//		fmt.Println("watched something")
-	//		data, err := json.Marshal(res)
-	//		if err != nil {
-	//			fmt.Println("error when watch etcd")
-	//		}
-	//		err = s.publisher.Publish("1", data, "application/json")
-	//		if err != nil {
-	//			fmt.Println("error when publish")
-	//		}
-	//	}
-	//}(resChan)
+			go func(resChan <-chan etcdstorage.WatchRes) {
+				for res := range resChan {
+					fmt.Printf("[API-Server] publish %s... \n", key)
+					data, err := json.Marshal(res)
+					err = s.publisher.Publish(key, data, "application/json")
+					if err != nil {
+						fmt.Printf("[API-Server] publish %s fail \n", key)
+					}
+				}
+			}(resChan)
+
+			s.watcherMtx.Unlock()
+		}
+	}
 }

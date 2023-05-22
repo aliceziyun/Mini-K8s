@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: matrix-job
+spec:
+  slurm:
+    jobName: matrix
+    partition: dgx2
+    output: "j.out"
+    error: "j.err"
+    N: 1
+    ntasksPerNode: 1
+    cpusPerTask: 6
+    gres: gpu:1
+  template:
+    spec:
+      containers:
+        - name: test
+          image: nginx
+      command:
+        - "module load gcc/8.3.0-gcc-4.8.5 cuda/10.1.243-gcc-8.3.0"
+        - "nvcc Matrix.cu -o Matrix -lcublas"
+        - "./Matrix"
+      zipPath: "/home/GPUTest/test/gpu/Matrix.zip"
+      restartPolicy: Never

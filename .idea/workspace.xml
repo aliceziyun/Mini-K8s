@@ -8,6 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,11 +44,13 @@
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;szy&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/root&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
 }</component>
   <component name="RdControllerToolWindowsLayoutState" isNewUi="false">
@@ -55,8 +58,8 @@
       <window_info id="Commit_Guest" />
       <window_info id="Space Code Reviews" order="0" />
       <window_info id="Bookmarks" order="1" side_tool="true" />
-      <window_info id="Pull Requests" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.222415" />
+      <window_info id="Pull Requests" order="2" weight="0.32997918" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.2203331" />
       <window_info id="Commit" order="4" />
       <window_info id="Learn" order="5" show_stripe_button="false" />
       <window_info id="Structure" order="6" side_tool="true" />
@@ -66,9 +69,11 @@
       <window_info anchor="bottom" id="Database Changes" order="2" />
       <window_info active="true" anchor="bottom" id="Problems View" order="3" visible="true" weight="0.3295331" />
       <window_info anchor="bottom" id="Terminal" order="4" weight="0.5054289" />
+      <window_info anchor="bottom" id="Problems View" order="3" weight="0.33170468" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="4" visible="true" weight="0.033116177" />
       <window_info anchor="bottom" id="TypeScript" order="5" />
       <window_info anchor="bottom" id="Services" order="6" weight="0.3295331" />
-      <window_info anchor="bottom" id="Run" order="7" show_stripe_button="false" weight="0.49239957" />
+      <window_info anchor="bottom" id="Run" order="7" weight="0.4087948" />
       <window_info anchor="bottom" id="Dependency Checker" order="8" />
       <window_info anchor="right" id="Endpoints" order="0" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="1" />
@@ -78,20 +83,30 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pkg/controller/autoscaler/" />
+      <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter" />
+      <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-start" />
       <recent name="$PROJECT_DIR$/cmd/const" />
       <recent name="$PROJECT_DIR$/third_party/util" />
-      <recent name="$PROJECT_DIR$/build/Pod" />
-      <recent name="$PROJECT_DIR$/pkg/listwatcher" />
-      <recent name="$PROJECT_DIR$/cmd/minik8s" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build kubelet.go">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="Mini-K8s" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <package value="Mini-K8s" />
+      <package value="Mini-K8s/cmd/minik8s/api-server" />
       <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/api-server/api-server.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build Mini-K8s/cmd/minik8s/controller" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="Mini-K8s" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="Mini-K8s/cmd/minik8s/controller" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" />
       <method v="2" />
     </configuration>
     <configuration name="go build kubelet.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
@@ -113,6 +128,7 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="Mini-K8s" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="DIRECTORY" />
       <package value="Mini-K8s" />
@@ -123,7 +139,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/controller" />
         <item itemvalue="Go Build.go build kubelet.go" />
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
         <item itemvalue="Go Build.go build scheduler.go" />
       </list>
     </recent_temporary>

@@ -9,6 +9,7 @@ type Config struct {
 	Host string // ip and port
 }
 
+// 比较RESTful的
 type RESTClient struct {
 	Base string // url = base+resource+name
 }
@@ -28,3 +29,16 @@ func DefaultClientConfig() Config {
 	}
 }
 
+type QueryRes struct {
+	Status string `json:"status"`
+	Data   Data   `json:"data"`
+}
+
+type Data struct {
+	ResultType  string   `json:"resultType"`
+	ResultArray []Result `json:"result"`
+}
+
+type Result struct {
+	Value []interface{} `json:"value"`
+}

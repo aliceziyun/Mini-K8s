@@ -1,12 +1,29 @@
 package object
 
+const (
+	// kind
+	POD        string = "POD"
+	REPLICASET string = "REPLICASET"
+	SERVICE    string = "SERVICE"
+	HPA        string = "HPA"
+)
+
 type ObjMetadata struct {
-	Name      string            `json:"name" yaml:"name"`
-	Labels    map[string]string `json:"labels" yaml:"labels"`
-	Uid       string            `json:"uid" yaml:"uid"`
-	Namespace string            `json:"namespace" yaml:"namespace"`
+	Name           string            `json:"name" yaml:"name"`
+	Labels         map[string]string `json:"labels" yaml:"labels"`
+	Uid            string            `json:"uid" yaml:"uid"`
+	Namespace      string            `json:"namespace" yaml:"namespace"`
+	OwnerReference []OwnerReference  `json:"ownerReferences" yaml:"ownerReferences"`
 }
 
+type OwnerReference struct {
+	Kind       string `json:"kind" yaml:"kind"`
+	Name       string `json:"name" yaml:"name"`
+	UID        string `json:"uid" yaml:"uid"`
+	Controller bool   `json:"controller" yaml:"controller"` //指向controller的指针
+}
+
+// ---------------------Pod-----------------------
 type Pod struct {
 	Name       string      `json:"name" yaml:"name"`
 	ApiVersion int         `json:"apiVersion" yaml:"apiVersion"`
@@ -30,6 +47,62 @@ type PodStatus struct {
 type PodNodeSelector struct {
 }
 
+type PodNameAndIp struct {
+	Name string `json:"name"`
+	Ip   string `json:"ip"`
+}
+
+// ---------------------ReplicaSet----------------------
+type ReplicaSet struct {
+	ObjMetadata `json:"metadata" yaml:"metadata"`
+	Spec        ReplicaSetSpec   `json:"spec" yaml:"spec"`
+	Status      ReplicaSetStatus `json:"status" yaml:"status"`
+}
+
+type ReplicaSetSpec struct {
+	Replicas int32 `json:"replicas" yaml:"replicas"`
+	Pods     Pod   `json:"template" yaml:"template"`
+}
+
+type ReplicaSetStatus struct {
+	ReplicaStatus int32 `json:"replicas" yaml:"replicas"` //是否符合对replica的期待
+}
+
+// --------------------AutoScaler---------------------------
+type Autoscaler struct {
+	Metadata ObjMetadata `json:"metadata" yaml:"metadata"`
+	Spec     HPASpec     `json:"spec" yaml:"spec"`
+}
+
+type HPASpec struct {
+	ScaleTargetRef HPARef   `json:"scaleTargetRef" yaml:"scaleTargetRef"`
+	MinReplicas    int32    `json:"minReplicas" yaml:"minReplicas"`
+	MaxReplicas    int32    `json:"maxReplicas" yaml:"maxReplicas"`
+	ScaleInterval  int32    `json:"scaleInterval" yaml:"scaleInterval"`
+	Metrics        []Metric `json:"metrics" yaml:"metrics"`
+}
+
+type HPARef struct {
+	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
+	Kind       string `json:"kind" yaml:"kind"`
+	Name       string `json:"name" yaml:"name"`
+}
+
+type Metric struct {
+	Name   string `json:"name" yaml:"name"`
+	Target int    `json:"target" yaml:"target"`
+}
+
+// --------------------Service---------------------------
+type Service struct {
+	Name       string        `json:"name" yaml:"name"`
+	ApiVersion int           `json:"apiVersion" yaml:"apiVersion"`
+	Kind       string        `json:"kind" yaml:"kind"`
+	Metadata   ObjMetadata   `json:"metadata" yaml:"metadata"`
+	Spec       ServiceSpec   `json:"spec" yaml:"spec"`
+	Status     ServiceStatus `json:"status" yaml:"status"`
+}
+
 type ServiceSpec struct {
 	Type          string            `json:"type" yaml:"type"`           //service 的类型，有ClusterIp和 NodePort类型,默认为ClusterIp,暂时只支持ClusterIp
 	ClusterIp     string            `json:"clusterIp" yaml:"clusterIp"` //虚拟服务Ip地址， 可以手工指定或者由系统进行分配
@@ -37,6 +110,7 @@ type ServiceSpec struct {
 	Selector      map[string]string `json:"selector" yaml:"selector"`
 	PodNameAndIps []PodNameAndIp    `json:"podNameAndIps"` //选取的podsIp
 }
+
 type ServicePort struct {
 	Name       string `json:"name" yaml:"name"`
 	Protocol   string `json:"protocol" yaml:"protocol"`     //端口协议, 支持TCP和UDP, 默认TCP
@@ -45,16 +119,12 @@ type ServicePort struct {
 	NodePort   string `json:"nodePort" yaml:"nodePort"`     //当service类型为NodePort时，指定映射到物理机的端口号
 }
 
-type PodNameAndIp struct {
-	Name string `json:"name"`
-	Ip   string `json:"ip"`
-}
-
 type ServiceStatus struct {
 	Phase          string            `json:"phase" yaml:"phase"`
 	Pods2IpAndPort map[string]string `json:"pods2IpAndPort" yaml:"pods2IpAndPort"` //pod name到 podIp:port的映射
 }
 
+<<<<<<< HEAD
 type Service struct {
 	ApiVersion int           `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string        `json:"kind" yaml:"kind"`
@@ -63,6 +133,8 @@ type Service struct {
 	Status     ServiceStatus `json:"status" yaml:"status"`
 }
 
+=======
+>>>>>>> szy
 type Container struct {
 	Name    string          `json:"name" yaml:"name"`
 	Image   string          `json:"image" yaml:"image"`
@@ -87,6 +159,7 @@ type Volume struct {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // main原来的版本
 // type ContainerEnv struct {
 // }
@@ -95,6 +168,8 @@ type Volume struct {
 
 =======
 >>>>>>> 22c9598c726809453582ec62946941ca15843c80
+=======
+>>>>>>> szy
 type ContainerPort struct {
 	//added ?
 	Name          string `json:"name" yaml:"name"`
@@ -114,7 +189,4 @@ type Condition struct {
 	LastTransitionTime string `json:"lastTransitionTime" yaml:"lastTransitionTime"`
 	Status             string `json:"status" yaml:"status"`
 	Type               string `json:"type" yaml:"type"`
-}
-
-type Scheduler struct {
 }
