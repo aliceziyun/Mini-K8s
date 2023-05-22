@@ -76,6 +76,7 @@ func (p *Pod) GetUid() string {
 	// return p.configPod.UID
 	return ""
 }
+
 func (p *Pod) GetContainers() []object.ContainerMeta {
 	p.rwLock.RLock()
 	defer p.rwLock.RUnlock()

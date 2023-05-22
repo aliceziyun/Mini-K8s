@@ -1,10 +1,7 @@
 package etcdstorage
 
 import (
-	"Mini-K8s/pkg/message"
-	"Mini-K8s/pkg/message/config"
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -53,36 +50,49 @@ func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
 	return &KVStore{client: cli}, nil
 }
 
-func (kvs *KVStore) Get(key string) (string, error) {
+func (kvs *KVStore) Get(key string) ([]ListRes, error) {
+	fmt.Println("wtf", key)
 	kv := clientv3.NewKV(kvs.client)
 	response, err := kv.Get(context.TODO(), key)
 	if err != nil {
-		return "", err
+		return []ListRes{}, err
 	}
 
 	if len(response.Kvs) != 0 {
-		return string(response.Kvs[0].Value), nil
+		fmt.Println("[etcd] get a new", key)
+		listRes := ListRes{
+			ResourceVersion: response.Kvs[0].ModRevision,
+			CreateVersion:   response.Kvs[0].CreateRevision,
+			Key:             string(response.Kvs[0].Key),
+			ValueBytes:      response.Kvs[0].Value,
+		}
+		return []ListRes{listRes}, nil
 	} else {
-		return "", nil
+		return []ListRes{}, nil
 	}
 }
 
-func (kvs *KVStore) GetPrefix(key string) error {
+func (kvs *KVStore) GetPrefix(key string) ([]ListRes, error) {
 	kv := clientv3.NewKV(kvs.client)
 	response, err := kv.Get(context.TODO(), key, clientv3.WithPrefix())
 	if err != nil {
-		return err
+		return []ListRes{}, err
 	}
-
-	if len(response.Kvs) != 0 {
-		fmt.Print("-> Get result:\n")
-		for _, resp := range response.Kvs {
-			fmt.Printf("\tkey: %s, value: %s\n", string(resp.Key), string(resp.Value))
+	var ret []ListRes
+	for _, kv := range response.Kvs {
+		res := ListRes{
+			ResourceVersion: kv.ModRevision,
+			CreateVersion:   kv.CreateRevision,
+			Key:             string(kv.Key),
+			ValueBytes:      kv.Value,
 		}
-	} else {
-		fmt.Println("-> Get result: Empty")
+		ret = append(ret, res)
 	}
+<<<<<<< HEAD
 	return nil
+=======
+	return ret, nil
+>>>>>>> szy
 }
 
 func (kvs *KVStore) Put(key string, val string) error {
@@ -92,7 +102,7 @@ func (kvs *KVStore) Put(key string, val string) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("put a new pod", key, val)
+	fmt.Println("[etcd] put a new", key, val)
 	return err
 }
 
@@ -103,49 +113,46 @@ func (kvs *KVStore) Del(key string) error {
 	return err
 }
 
+// 现在这个Watch，Watch的是Prefix
 func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
+<<<<<<< HEAD
 	fmt.Println("[ETCD] WATCH\n", key)
 
+=======
+>>>>>>> szy
 	watchResChan := make(chan WatchRes)
-
 	watcher := clientv3.NewWatcher(kvs.client)
 	ctx, cancel := context.WithCancel(context.TODO())
 
-	val, _ := kvs.client.Get(ctx, key)
-
-	watchStartRevision := val.Header.Revision + 1 //获取revision,观察这个revision之后的变化
-
-	//go watch(watchResChan)
-	//time.AfterFunc(10*time.Second, func() {
-	//	cancel()
-	//},
-	//)
-	watchRespChan := watcher.Watch(ctx, key, clientv3.WithRev(watchStartRevision))
-
 	// 处理kv变化事件
-	for watchResp := range watchRespChan {
-		var res WatchRes
-		for _, event := range watchResp.Events {
-			fmt.Print("[WATCH]")
-			switch event.Type {
-			case mvccpb.PUT:
-				fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
-				res.ResType = PUT
-				res.Key = key
-				res.IsCreate = event.IsCreate()
-				res.IsModify = event.IsModify()
-				res.ValueBytes = event.Kv.Value
-				data, _ := json.Marshal(res)
-				publisher, _ := message.NewPublisher(config.DefaultQConfig())
-				publisher.Publish("/testAddPod", data, "application/json")
-				break
-			case mvccpb.DELETE:
-				res.ResType = DELETE
-				fmt.Println("Delete\tRevision:", event.Kv.ModRevision)
-				break
+	watch := func(c chan<- WatchRes) {
+		watchRespChan := watcher.Watch(ctx, key, clientv3.WithPrefix())
+		for watchResp := range watchRespChan {
+			var res WatchRes
+			for _, event := range watchResp.Events {
+				fmt.Print("[WATCH]")
+				switch event.Type {
+				case mvccpb.PUT:
+					fmt.Println("Put Revision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
+					res.ResType = PUT
+					res.Key = key
+					res.IsCreate = event.IsCreate()
+					res.IsModify = event.IsModify()
+					res.ValueBytes = event.Kv.Value
+					break
+				case mvccpb.DELETE:
+					res.ResType = DELETE
+					fmt.Println("Delete Revision:", event.Kv.ModRevision)
+					break
+				}
+				c <- res
 			}
 		}
+		close(c)
 	}
 
+	go watch(watchResChan)
+
+	fmt.Printf("[etcd]  %s return \n", key)
 	return cancel, watchResChan
 }

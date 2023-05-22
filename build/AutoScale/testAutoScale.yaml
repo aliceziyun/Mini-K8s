@@ -1,0 +1,19 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoScale
+metadata:
+  namespace: default
+  name: nginx-deployment-hpa        #定义一条HPA机制的规则名字
+  labels:
+    app: nginx-deployment-hpa       #设置HPA机制的标签
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: ReplicaSet
+    name: RS            #指定对象名
+  minReplicas: 2                      #指定HPA机制最低创建pod数量，当设置了replicas: 1，以这个数字为准
+  maxReplicas: 5                      #指定HPA机制最高创建pod数量
+  metrics:    #cpu和memory都是以百分比作为指标
+    - name: cpu
+      target: 10
+    - name: memory
+      target: 50
