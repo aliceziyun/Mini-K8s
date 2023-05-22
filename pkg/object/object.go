@@ -124,17 +124,6 @@ type ServiceStatus struct {
 	Pods2IpAndPort map[string]string `json:"pods2IpAndPort" yaml:"pods2IpAndPort"` //pod name到 podIp:port的映射
 }
 
-<<<<<<< HEAD
-type Service struct {
-	ApiVersion int           `json:"apiVersion" yaml:"apiVersion"`
-	Kind       string        `json:"kind" yaml:"kind"`
-	Metadata   ObjMetadata   `json:"metadata" yaml:"metadata"`
-	Spec       ServiceSpec   `json:"spec" yaml:"spec"`
-	Status     ServiceStatus `json:"status" yaml:"status"`
-}
-
-=======
->>>>>>> szy
 type Container struct {
 	Name    string          `json:"name" yaml:"name"`
 	Image   string          `json:"image" yaml:"image"`
@@ -158,18 +147,6 @@ type ContainerMeta struct {
 type Volume struct {
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// main原来的版本
-// type ContainerEnv struct {
-// }
-// type ContainerEnv struct {
-// }
-
-=======
->>>>>>> 22c9598c726809453582ec62946941ca15843c80
-=======
->>>>>>> szy
 type ContainerPort struct {
 	//added ?
 	Name          string `json:"name" yaml:"name"`
