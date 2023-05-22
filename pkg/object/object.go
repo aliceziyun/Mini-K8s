@@ -62,16 +62,6 @@ type Service struct {
 	Status     ServiceStatus `json:"status" yaml:"status"`
 }
 
-// main原来的版本
-// type Container struct {
-// 	Name    string        `json:"name" yaml:"name"`
-// 	Image   string        `json:"image" yaml:"image"`
-// 	Ports   ContainerPort `json:"ports" yaml:"ports"`
-// 	Env     ContainerEnv  `json:"env" yaml:"env"`
-// 	Command string        `json:"command" yaml:"command"`
-// 	Args    string        `json:"args" yaml:"args"`
-
-// ymz merge===============================================
 type Container struct {
 	Name    string          `json:"name" yaml:"name"`
 	Image   string          `json:"image" yaml:"image"`
@@ -91,18 +81,9 @@ type ContainerMeta struct {
 	ContainerId string
 }
 
-//ymz merge===============================================
-
 type Volume struct {
 }
 
-// main原来的版本
-// type ContainerEnv struct {
-// }
-// type ContainerEnv struct {
-// }
-
-// ymz merge-------------------------------
 type ContainerPort struct {
 	//added ?
 	Name          string `json:"name" yaml:"name"`
@@ -116,8 +97,6 @@ type ContainerEnv struct {
 	Name  string `json:"name" yaml:"name"`
 	Value string `json:"value" yaml:"value"`
 }
-
-//ymz merge-------------------------------
 
 type Condition struct {
 	LastProbeTime      string `json:"lastProbeTime" yaml:"lastProbeTime"`
