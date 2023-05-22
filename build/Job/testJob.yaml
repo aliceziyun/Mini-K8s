@@ -15,7 +15,7 @@ spec:
   template:
     spec:
       containers:
-        - name: test
+          name: test
           image: nginx
       command:
         - "module load gcc/8.3.0-gcc-4.8.5 cuda/10.1.243-gcc-8.3.0"

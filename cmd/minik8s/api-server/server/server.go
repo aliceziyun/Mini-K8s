@@ -86,6 +86,8 @@ func (s *APIServer) Run() error {
 // registerWebFunc: 将API方法名和方法绑定
 func registerWebFunc(engine *gin.Engine, s *APIServer) {
 	engine.POST(_const.PATH, s.watch)
+	engine.PUT(_const.PATH, s.put)
+
 	engine.PUT(_const.POD_CONFIG, s.addPod)
 	engine.GET(_const.POD_CONFIG_PREFIX, s.getByPrefix)
 
@@ -93,7 +95,6 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 	engine.GET(_const.RS_CONFIG, s.get)
 
 	engine.GET(_const.RS_CONFIG_PREFIX, s.getByPrefix)
-
 }
 
 func (s *APIServer) daemon(listening <-chan watchOpt) {

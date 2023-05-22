@@ -10,10 +10,12 @@ import (
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/monitor"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/third_party/file"
 	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"time"
 )
 
@@ -72,23 +74,36 @@ func (kl *Kubelet) Run() {
 	go kl.syncLoop(updates)
 	go kl.monitor(context.Background())
 
-	fmt.Println("[kubelet] start...")
-	ch := make(chan int)
+	fmt.Println("[Kubelet] start...")
+	stopChan := make(chan int)
 
 	go func() {
-		fmt.Println("[kubelet] start watch...")
-		err := kl.ls.Watch(_const.POD_CONFIG_PREFIX, kl.AddPod, kl.stopChannel)
+		fmt.Println("[Kubelet] start watch pod...")
+		err := kl.ls.Watch(_const.POD_CONFIG_PREFIX, kl.watchPod, kl.stopChannel)
 		if err != nil {
-			fmt.Printf("[kubelet] watch podConfig error " + err.Error())
+			fmt.Printf("[Kubelet] watch pod error " + err.Error())
 		} else {
-			fmt.Println("[kubelet] return...")
-			ch <- 1
+			fmt.Println("[Kubelet] return...")
+			stopChan <- 1
 			return
 		}
 		time.Sleep(10 * time.Second)
 	}()
 
-	<-ch
+	go func() {
+		fmt.Println("[Kubelet] start watch shared data...")
+		err := kl.ls.Watch(_const.SHARED_DATA_PREFIX, kl.watchSharedData, kl.stopChannel)
+		if err != nil {
+			fmt.Printf("[Kubelet] watch shared_data error " + err.Error())
+		} else {
+			fmt.Println("[Kubelet] return...")
+			stopChan <- 1
+			return
+		}
+		time.Sleep(10 * time.Second)
+	}()
+
+	<-stopChan
 }
 
 func (kl *Kubelet) syncLoop(ch <-chan PodUpdate.PodUpdate) bool {
@@ -121,14 +136,13 @@ func (kl *Kubelet) HandlePodAdd(pods []*object.Pod) {
 	}
 }
 
-func (kl *Kubelet) AddPod(res etcdstorage.WatchRes) {
-	fmt.Println("test Add Pod success")
+func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 	pod := &object.Pod{}
 	err := json.Unmarshal(res.ValueBytes, pod)
 	if err != nil {
-		fmt.Println("[kubelet] watch /testAddPod error", err)
+		fmt.Println("[kubelet]", err)
 	}
-	fmt.Println("[kubelet] /testAddPod new message")
+	fmt.Println("[kubelet] Add Pod")
 	pods := []*object.Pod{pod}
 	podUp := PodUpdate.PodUpdate{
 		Pods: pods,
@@ -146,5 +160,40 @@ func (kl *Kubelet) monitor(ctx context.Context) {
 			kl.podMonitor.GetDockerStat(ctx, pod)
 		}
 		time.Sleep(time.Second)
+	}
+}
+
+// 查看sharedData
+func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
+	switch res.ResType {
+	case etcdstorage.PUT:
+		jobAppFile := object.JobAppFile{}
+		err := json.Unmarshal(res.ValueBytes, &jobAppFile)
+		if err != nil {
+			fmt.Println("[Kubelet]", err)
+			return
+		}
+		appName := jobAppFile.Key
+		unzippedDir := path.Join(_const.SHARED_DATA_PREFIX, jobAppFile.Key)
+
+		//将文件放入对应位置
+		err = file.Bytes2File(jobAppFile.App, appName, _const.SHARED_DATA_PREFIX)
+		if err != nil {
+			fmt.Println("[Kubelet]", err)
+			return
+		}
+		err = file.Unzip(path.Join(_const.SHARED_DATA_PREFIX, appName), unzippedDir)
+		if err != nil {
+			fmt.Println("[Kubelet]", err)
+			return
+		}
+		err = file.Bytes2File(jobAppFile.Slurm, "sbatch.slurm", unzippedDir)
+		if err != nil {
+			fmt.Println("[Kubelet]", err)
+			return
+		}
+
+		fmt.Println("[kubelet] Add Shared Data")
+		break
 	}
 }

@@ -18,6 +18,19 @@ func (s *APIServer) watch(ctx *gin.Context) {
 	ctx.Data(http.StatusOK, "application/json", nil)
 }
 
+func (s *APIServer) put(ctx *gin.Context) {
+	key := ctx.Request.URL.Path
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+	err = s.store.Put(key, string(body))
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+	ctx.Status(http.StatusOK)
+}
+
 func (s *APIServer) addPod(ctx *gin.Context) {
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	pod := &object.Pod{}
