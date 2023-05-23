@@ -2,7 +2,9 @@ package apiserver
 
 import (
 	_const "Mini-K8s/cmd/const"
+	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/pkg/selector"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -51,6 +53,9 @@ func (s *APIServer) addService(ctx *gin.Context) {
 
 	key := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
 	fmt.Printf("key:%v\n", key)
+
+	ls, _ := listwatcher.NewListWatcher(listwatcher.DefaultConfig())
+	selector.NewService(service, *ls)
 
 	body, _ = json.Marshal(service)
 

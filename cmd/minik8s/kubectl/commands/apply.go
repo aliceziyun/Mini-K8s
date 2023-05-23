@@ -44,6 +44,8 @@ func applyFile() {
 		createNewPod(pod)
 		break
 	case "Service":
+		//applyPod1()
+		//applyPod2()
 		service := &object.Service{}
 		err = v2.Unmarshal([]byte(data), service)
 		if err != nil {
@@ -71,6 +73,38 @@ func applyFile() {
 		break
 	}
 	return
+}
+
+func applyPod1() {
+	path := _const.PODFILE
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		fmt.Printf("open file err: %v\n", err)
+	}
+	mp := make(map[string]any, 2)
+	err = v2.Unmarshal(data, mp)
+	pod := &object.Pod{}
+	err = v2.Unmarshal([]byte(data), pod)
+	if err != nil {
+		fmt.Printf("file in %s unmarshal fail, use default config", path)
+	}
+	createNewPod(pod)
+}
+
+func applyPod2() {
+	path := "/home/lcz/go/src/Mini-K8s/build/Pod/testPod2.yaml"
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		fmt.Printf("open file err: %v\n", err)
+	}
+	mp := make(map[string]any, 2)
+	err = v2.Unmarshal(data, mp)
+	pod := &object.Pod{}
+	err = v2.Unmarshal([]byte(data), pod)
+	if err != nil {
+		fmt.Printf("file in %s unmarshal fail, use default config", path)
+	}
+	createNewPod(pod)
 }
 
 func createNewPod(pod *object.Pod) {

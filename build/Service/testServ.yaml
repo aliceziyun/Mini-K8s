@@ -2,6 +2,8 @@ kind: Service
 name: serv1
 spec:
   clusterIp: 10.10.0.8
+  selector:
+    app: nginx-pod
   ports:
     - name: sp
       port: 8000

@@ -1,11 +1,10 @@
 package selector
 
 import (
-	"Mini-K8s/pkg/etcdstorage"
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
 	"encoding/json"
-	"time"
 )
 
 type ServRuntime struct {
@@ -17,7 +16,7 @@ type ServRuntime struct {
 func (r *ServRuntime) podSelector() {
 	selector := r.service.Spec.Selector
 
-	res, err := r.ls.List("PodRuntimePrefix")
+	res, err := r.ls.List(_const.POD_CONFIG_PREFIX)
 	if err != nil {
 		return
 	}
@@ -31,9 +30,9 @@ func (r *ServRuntime) podSelector() {
 
 	var selectedPods []*object.Pod
 	for _, pod := range allPods {
-		if pod.Status.Phase != "RUNNING" {
-			continue
-		}
+		//if pod.Status.Phase != "RUNNING" {
+		//	continue
+		//} todo this is for debug
 
 		isSelected := true
 		for key, val := range selector {
@@ -62,10 +61,6 @@ func (r *ServRuntime) podSelector() {
 	}
 	r.service.Spec.PodNameAndIps = newPodsInfo
 
-	data, _ := json.Marshal(r.service)
-
-	store, _ := etcdstorage.InitKVStore([]string{"localhost:2379"}, 5*time.Second)
-	store.Put("/service", string(data))
 }
 
 func NewService(serv *object.Service, ls listwatcher.ListWatcher) *ServRuntime {
