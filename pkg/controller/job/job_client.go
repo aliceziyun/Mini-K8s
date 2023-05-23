@@ -50,7 +50,12 @@ func getAccount(partition string) *object.Account {
 		fmt.Println(err)
 	}
 	var account *object.Account
-	account = object.NewAccountWith4Para(username, password, "", host)
+	account = object.NewAccountWith2Para(username, password)
+	err = account.SetRemoteBasePath(host)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
 	return account
 }
 

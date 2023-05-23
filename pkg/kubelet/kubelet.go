@@ -159,7 +159,7 @@ func (kl *Kubelet) monitor(ctx context.Context) {
 		for _, pod := range podMap {
 			kl.podMonitor.GetDockerStat(ctx, pod)
 		}
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 10)
 	}
 }
 
@@ -167,6 +167,7 @@ func (kl *Kubelet) monitor(ctx context.Context) {
 func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
 	switch res.ResType {
 	case etcdstorage.PUT:
+		fmt.Println("[Kubelet] new shared data...")
 		jobAppFile := object.JobAppFile{}
 		err := json.Unmarshal(res.ValueBytes, &jobAppFile)
 		if err != nil {
@@ -174,15 +175,15 @@ func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
 			return
 		}
 		appName := jobAppFile.Key
-		unzippedDir := path.Join(_const.SHARED_DATA_PREFIX, jobAppFile.Key)
+		unzippedDir := path.Join(_const.SHARED_DATA_DIR, jobAppFile.Key)
 
 		//将文件放入对应位置
-		err = file.Bytes2File(jobAppFile.App, appName, _const.SHARED_DATA_PREFIX)
+		err = file.Bytes2File(jobAppFile.App, appName, _const.SHARED_DATA_DIR)
 		if err != nil {
 			fmt.Println("[Kubelet]", err)
 			return
 		}
-		err = file.Unzip(path.Join(_const.SHARED_DATA_PREFIX, appName), unzippedDir)
+		err = file.Unzip(path.Join(_const.SHARED_DATA_DIR, appName), unzippedDir)
 		if err != nil {
 			fmt.Println("[Kubelet]", err)
 			return

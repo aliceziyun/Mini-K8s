@@ -1,5 +1,11 @@
 package object
 
+import (
+	_const "Mini-K8s/cmd/const"
+	"errors"
+	"fmt"
+)
+
 type Account struct {
 	username       string
 	password       string
@@ -37,4 +43,19 @@ func (account *Account) GetHost() string {
 
 func (account *Account) GetRemoteBasePath() string {
 	return account.remoteBasePath
+}
+
+func (account *Account) SetRemoteBasePath(host string) error {
+	switch host {
+	case _const.HostARM, _const.HostPiAndAI:
+		account.host = host
+		account.remoteBasePath = fmt.Sprintf("/lustre/home/acct-stu/%s", account.username)
+		return nil
+	case _const.HostSiyuan:
+		account.host = host
+		account.remoteBasePath = fmt.Sprintf("/dssg/home/acct-stu/%s", account.username)
+		return nil
+	default:
+		return errors.New("unknown host type")
+	}
 }

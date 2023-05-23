@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/mvcc/mvccpb"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 const (
@@ -123,7 +122,7 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 			for _, event := range watchResp.Events {
 				fmt.Print("[WATCH]")
 				switch event.Type {
-				case mvccpb.PUT:
+				case clientv3.EventTypePut:
 					fmt.Println("Put Revision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
 					res.ResType = PUT
 					res.Key = key
@@ -131,7 +130,7 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 					res.IsModify = event.IsModify()
 					res.ValueBytes = event.Kv.Value
 					break
-				case mvccpb.DELETE:
+				case clientv3.EventTypeDelete:
 					res.ResType = DELETE
 					fmt.Println("Delete Revision:", event.Kv.ModRevision)
 					break

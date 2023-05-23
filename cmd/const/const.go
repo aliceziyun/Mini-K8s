@@ -1,7 +1,7 @@
 package _const
 
 const (
-	SHARED_DATA_DIR = "/home/SharedData"
+	SHARED_DATA_DIR = "/home/lcz/SharedData"
 )
 
 // build

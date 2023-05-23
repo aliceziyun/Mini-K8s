@@ -5,11 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/cmd/const/account.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/object/account.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dockerfile/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dockerfile/JWStest.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/Job/testJob.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/Job/testJob.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/const/const.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/job/job_client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/job/job_client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/job/job_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/job/job_controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/object/account.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/account.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,11 +89,11 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Dockerfile" />
       <recent name="$PROJECT_DIR$/pkg/controller/autoscaler/" />
       <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter" />
       <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-start" />
       <recent name="$PROJECT_DIR$/cmd/const" />
-      <recent name="$PROJECT_DIR$/third_party/util" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build kubelet.go">
@@ -144,10 +152,14 @@
       <framework value="gotest" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/controller" />
         <item itemvalue="Go Build.go build kubelet.go" />
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/controller" />
         <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
         <item itemvalue="Go Build.go build scheduler.go" />
       </list>

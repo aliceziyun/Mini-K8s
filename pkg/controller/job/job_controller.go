@@ -6,7 +6,6 @@ import (
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
-	_map "Mini-K8s/third_party/map"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -16,18 +15,14 @@ import (
 )
 
 type JobController struct {
-	ls           *listwatcher.ListWatcher
-	jobMap       *_map.ConcurrentMapTrait[string, object.GPUJob]
-	jobStatusMap *_map.ConcurrentMapTrait[string, object.JobStatus]
-	stopChannel  chan struct{}
+	ls          *listwatcher.ListWatcher
+	stopChannel chan struct{}
 }
 
 func NewJobController(controllerCtx controller_context.ControllerContext) *JobController {
 	jc := &JobController{
-		ls:           controllerCtx.Ls,
-		stopChannel:  make(chan struct{}),
-		jobMap:       _map.NewConcurrentMapTrait[string, object.GPUJob](),
-		jobStatusMap: _map.NewConcurrentMapTrait[string, object.JobStatus](),
+		ls:          controllerCtx.Ls,
+		stopChannel: make(chan struct{}),
 	}
 
 	return jc
@@ -65,7 +60,7 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 		fmt.Println(err)
 		return
 	}
-	//account, err := jc.allocator.Allocate(job.Spec.SlurmConfig.Partition)
+	account := getAccount(job.Spec.SlurmConfig.Partition)
 
 	// 对Pod进行初始化
 	pod := object.Pod{}
@@ -80,16 +75,16 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 	pod.Kind = object.POD
 
 	container := job.Spec.App.AppSpec.Container
-	args := []string{
-		"/root/remote_runner",
+	commands := []string{
+		"sh test.sh",
 		account.GetUsername(),
 		account.GetPassword(),
 		account.GetHost(),
-		"/home/job",
-		path.Join(account.GetRemoteBasePath(), path.Base(res.Key)),
+		//"/home/job",
+		//path.Join(account.GetRemoteBasePath(), path.Base(res.Key)),
 	}
-	container.Args = args
-	container.Command = nil
+	container.Command = commands
+	container.Args = nil
 	volumeMounts := []object.VolumeMount{
 		{
 			Name:      "gpuPath",
