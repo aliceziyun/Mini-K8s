@@ -76,16 +76,19 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 
 	container := job.Spec.App.AppSpec.Container
 	fmt.Printf("[Job Controller] new container %s \n", container.Name)
+	//commands := []string{
+	//	"sh",
+	//	"test.sh",
+	//	account.GetUsername(),
+	//	account.GetPassword(),
+	//	account.GetHost(),
+	//	"/home/job",
+	//	path.Join(account.GetRemoteBasePath(), "job"+"test"),
+	//}
 	commands := []string{
-		//"sh test.sh",
-		//account.GetUsername(),
-		//account.GetPassword(),
-		//account.GetHost(),
-		//"/home/job",
 		"/bin/sh",
 		"-c",
 		"while true; do echo hello world; sleep 1; done",
-		//path.Join(account.GetRemoteBasePath(), "job-"+job.Metadata.Uid),
 	}
 	container.Command = commands
 	//container.Command = nil

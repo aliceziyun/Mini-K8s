@@ -9,9 +9,6 @@
       <change beforePath="$PROJECT_DIR$/Dockerfile/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile/JWStest.sh" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile/JWStest.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/job/job_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/job/job_controller.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/pod/pod.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/pod/pod.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,9 +149,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/controller" />
         <item itemvalue="Go Build.go build kubelet.go" />
         <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
-        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/controller" />
         <item itemvalue="Go Build.go build scheduler.go" />
       </list>
     </recent_temporary>
