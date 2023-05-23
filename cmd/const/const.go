@@ -31,6 +31,8 @@ const (
 
 	SHARED_DATA        string = "/registry/sharedData/default/:resourceName"
 	SHARED_DATA_PREFIX string = "/registry/sharedData/default"
+
+	NODE_CONFIG_PREFIX string = "/registry/node/default"
 )
 
 // api-server
