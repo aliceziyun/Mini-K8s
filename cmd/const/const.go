@@ -2,8 +2,9 @@ package _const
 
 // build
 const (
-	PODFILE string = "/home/lcz/go/src/Mini-K8s/build/Pod/testPod.yaml"
-	RSFILE  string = "/home/lcz/go/src/Mini-K8s/build/ReplicaSet/testRS.yaml"
+	PODFILE  string = "/home/lcz/go/src/Mini-K8s/build/Pod/testPod.yaml"
+	RSFILE   string = "/home/lcz/go/src/Mini-K8s/build/ReplicaSet/testRS.yaml"
+	SERVFILE string = "/home/lcz/go/src/Mini-K8s/build/Service/testServ.yaml"
 )
 
 // REST resource
@@ -17,6 +18,7 @@ const (
 	RS_CONFIG        string = "/registry/rs_config/default/:resourceName"
 	RS_CONFIG_PREFIX string = "/registry/rs_config/default"
 
+	SERVICE_CONFIG        string = "/registry/service_config/default/:resourceName"
 	SERVICE_CONFIG_PREFIX string = "/registry/service_config/default"
 )
 

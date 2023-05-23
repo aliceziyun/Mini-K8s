@@ -1,6 +1,7 @@
 package kubeproxy
 
 import (
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/iptable"
 	"Mini-K8s/pkg/listwatcher"
@@ -24,7 +25,7 @@ func NewKubeProxy(lsConfig *listwatcher.Config) *KubeProxy {
 		return nil
 	}
 	kubeProxy.ls = ls
-	RunDNS(lsConfig)
+	//RunDNS(lsConfig)
 	return kubeProxy
 }
 
@@ -35,11 +36,9 @@ func (kubeProxy *KubeProxy) Run() {
 		return
 	}
 
-	fmt.Println("iptables -I FORWARD -i ens3 -j ACCEPT")
-	fmt.Println("iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE")
-
 	exist, err := ipt.MyExist("FORWARD", "-i", "ens3", "-j", "ACCEPT")
 	if exist == false {
+		fmt.Println("iptables -I FORWARD -i ens3 -j ACCEPT")
 		err = ipt.InsertWithoutTable("FORWARD", "-i", "ens3", "-j", "ACCEPT")
 		if err != nil {
 			fmt.Println(err)
@@ -48,6 +47,7 @@ func (kubeProxy *KubeProxy) Run() {
 	}
 	exist, err = ipt.MyExist("POSTROUTING", "-t", "nat", "-o", "ens3", "-j", "MASQUERADE")
 	if exist == false {
+		fmt.Println("iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE")
 		err = ipt.AppendNAT("POSTROUTING", "-o", "ens3", "-j", "MASQUERADE")
 		if err != nil {
 			fmt.Println(err)
@@ -57,7 +57,7 @@ func (kubeProxy *KubeProxy) Run() {
 
 	watchService := func() {
 		for {
-			err := kubeProxy.ls.Watch("/service", kubeProxy.serviceChangeHandler, kubeProxy.stopChannel)
+			err := kubeProxy.ls.Watch(_const.SERVICE_CONFIG_PREFIX, kubeProxy.serviceChangeHandler, kubeProxy.stopChannel)
 			if err != nil {
 				fmt.Println("[KubeProxy] watch error" + err.Error())
 				time.Sleep(1 * time.Second)

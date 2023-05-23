@@ -88,11 +88,7 @@ func (kvs *KVStore) GetPrefix(key string) ([]ListRes, error) {
 		}
 		ret = append(ret, res)
 	}
-<<<<<<< HEAD
-	return nil
-=======
 	return ret, nil
->>>>>>> szy
 }
 
 func (kvs *KVStore) Put(key string, val string) error {
@@ -115,11 +111,6 @@ func (kvs *KVStore) Del(key string) error {
 
 // 现在这个Watch，Watch的是Prefix
 func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
-<<<<<<< HEAD
-	fmt.Println("[ETCD] WATCH\n", key)
-
-=======
->>>>>>> szy
 	watchResChan := make(chan WatchRes)
 	watcher := clientv3.NewWatcher(kvs.client)
 	ctx, cancel := context.WithCancel(context.TODO())

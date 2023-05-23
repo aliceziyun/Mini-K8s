@@ -1,0 +1,8 @@
+kind: Service
+name: serv1
+spec:
+  clusterIp: 10.10.0.8
+  ports:
+    - name: sp
+      port: 8000
+      targetPort: 8081

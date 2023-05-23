@@ -1,20 +1,19 @@
 package main
 
 import (
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/kubeproxy"
 	"Mini-K8s/pkg/listwatcher"
 	o "Mini-K8s/pkg/object"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 )
 
 func main() {
-	kubeproxy.TestDns()
-}
-
-func nmain() {
-
+	fmt.Println("hello")
 	kubeProxy := kubeproxy.NewKubeProxy(listwatcher.DefaultConfig())
 	kubeProxy.Run()
 
@@ -59,5 +58,16 @@ func nmain() {
 	}
 
 	// todo put
-	fmt.Println(jsonBytes)
+	//fmt.Println(jsonBytes)
+	reqBody := bytes.NewBuffer(jsonBytes)
+
+	suffix := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
+
+	req, _ := http.NewRequest("PUT", "http://localhost:8080"+suffix, reqBody)
+	resp, _ := http.DefaultClient.Do(req)
+
+	for {
+	}
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+
 }

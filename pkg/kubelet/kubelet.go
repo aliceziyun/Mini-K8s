@@ -8,7 +8,6 @@ import (
 	"Mini-K8s/pkg/kubelet/podConfig"
 	"Mini-K8s/pkg/kubelet/podManager"
 	"Mini-K8s/pkg/listwatcher"
-	"Mini-K8s/pkg/monitor"
 	"Mini-K8s/pkg/object"
 	"context"
 	"encoding/json"
@@ -31,7 +30,7 @@ const (
 type Kubelet struct {
 	podManager *podManager.PodManager
 	PodConfig  *podConfig.PodConfig
-	podMonitor *monitor.Monitor
+	//podMonitor *monitor.Monitor
 	// kubeNetSupport *netSupport.KubeNetSupport
 	// kubeProxy      *kubeproxy.KubeProxy
 	ls          *listwatcher.ListWatcher
@@ -67,10 +66,10 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 func (kl *Kubelet) Run() {
 	//kl.kubeNetSupport.StartKubeNetSupport()
 	//kl.kubeProxy.StartKubeProxy()
-	go kl.podMonitor.Listener()
+	//go kl.podMonitor.Listener()
 	updates := kl.PodConfig.GetUpdates()
 	go kl.syncLoop(updates)
-	go kl.monitor(context.Background())
+	//go kl.monitor(context.Background())
 
 	fmt.Println("[kubelet] start...")
 	ch := make(chan int)
@@ -141,10 +140,10 @@ func (kl *Kubelet) AddPod(res etcdstorage.WatchRes) {
 func (kl *Kubelet) monitor(ctx context.Context) {
 	for {
 		fmt.Printf("[Kubelet] New round monitoring...\n")
-		podMap := kl.podManager.CopyName2pod()
-		for _, pod := range podMap {
-			kl.podMonitor.GetDockerStat(ctx, pod)
-		}
+		//podMap := kl.podManager.CopyName2pod()
+		//for _, pod := range podMap {
+		//kl.podMonitor.GetDockerStat(ctx, pod)
+		//}
 		time.Sleep(time.Second)
 	}
 }

@@ -1,4 +1,4 @@
-package service
+package selector
 
 import (
 	"Mini-K8s/pkg/etcdstorage"
