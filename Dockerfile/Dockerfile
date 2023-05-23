@@ -4,8 +4,6 @@ RUN apt-get update
 RUN apt-get install net-tools
 RUN apt-get install sudo
 
-VOLUME /home/SharedData
-
 ARG user=test
 
 RUN useradd --create-home --no-log-init --shell /bin/bash ${user} \
@@ -16,8 +14,10 @@ RUN usermod -u 1000 ${user} && usermod -G 1000 ${user}
 
 WORKDIR /home/${user}
 
-USER ${user}
-
 COPY ./JWStest.sh ./test.sh
+
+VOLUME ["/home/${user}/sharedData"]
+
+USER ${user}
 
 EXPOSE 9999

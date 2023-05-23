@@ -41,7 +41,7 @@ func (m *Monitor) GetDockerStat(ctx context.Context, pod *pod.Pod) {
 	containers := pod.GetContainers()
 	for _, container := range containers {
 		containerID := container.ContainerId
-		stats, err := m.dockerClient.ContainerStats(ctx, containerID, false)
+		stats, err := m.dockerClient.ContainerStats(ctx, containerID, false) //TODO:有问题
 		if err != nil {
 			fmt.Printf("[Monitor] Get stats error:%v\n", err)
 			continue

@@ -13,7 +13,9 @@ const (
 
 // REST resource
 const (
-	PATH string = "/registry/:resource/:namespace"
+	PATH string = "/registry/:resource/:namespace/:resourceName"
+
+	PATH_PREFIX string = "/registry/:resource/:namespace"
 
 	POD_RUNTIME_PREFIX string = "/registry/pod/default"
 	POD_CONFIG         string = "/registry/pod_config/default/:resourceName"
@@ -24,8 +26,8 @@ const (
 
 	SERVICE_CONFIG_PREFIX string = "/registry/service_config/default"
 
-	JOB_CONFIG        string = "/registry/job/default/"
-	JOB_CONFIG_PREFIX string = "/registry/job/default/:resourceName"
+	JOB_CONFIG        string = "/registry/job/default/:resourceName"
+	JOB_CONFIG_PREFIX string = "/registry/job/default"
 
 	SHARED_DATA        string = "/registry/sharedData/default/:resourceName"
 	SHARED_DATA_PREFIX string = "/registry/sharedData/default"

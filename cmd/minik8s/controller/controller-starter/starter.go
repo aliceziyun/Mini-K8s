@@ -4,6 +4,7 @@ import (
 	"Mini-K8s/cmd/minik8s/controller/controller-context"
 	"Mini-K8s/pkg/controller/autoscaler"
 	"Mini-K8s/pkg/controller/endpoint"
+	"Mini-K8s/pkg/controller/job"
 	"Mini-K8s/pkg/controller/replicaset"
 	"context"
 )
@@ -34,6 +35,16 @@ func StartAutoScaleController(ctx context.Context, controllerContext controller_
 	ch := make(chan int)
 
 	go autoscaler.NewAutoScaleController(controllerContext).Run(ctx)
+
+	<-ch
+
+	return nil
+}
+
+func StartJobController(ctx context.Context, controllerContext controller_context.ControllerContext) error {
+	ch := make(chan int)
+
+	go job.NewJobController(controllerContext).Run(ctx)
 
 	<-ch
 

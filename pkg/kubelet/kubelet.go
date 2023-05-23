@@ -69,10 +69,10 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 func (kl *Kubelet) Run() {
 	//kl.kubeNetSupport.StartKubeNetSupport()
 	//kl.kubeProxy.StartKubeProxy()
-	go kl.podMonitor.Listener()
+	//go kl.podMonitor.Listener()
 	updates := kl.PodConfig.GetUpdates()
 	go kl.syncLoop(updates)
-	go kl.monitor(context.Background())
+	//go kl.monitor(context.Background())
 
 	fmt.Println("[Kubelet] start...")
 	stopChan := make(chan int)
@@ -174,7 +174,7 @@ func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
 			fmt.Println("[Kubelet]", err)
 			return
 		}
-		appName := jobAppFile.Key
+		appName := jobAppFile.Key + ".zip"
 		unzippedDir := path.Join(_const.SHARED_DATA_DIR, jobAppFile.Key)
 
 		//将文件放入对应位置

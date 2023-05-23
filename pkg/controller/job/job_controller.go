@@ -39,7 +39,7 @@ func (jc *JobController) register() {
 	// register job handler
 	go func() {
 		for {
-			err := jc.ls.Watch(_const.JOB_CONFIG, jc.handleJob, jc.stopChannel)
+			err := jc.ls.Watch(_const.JOB_CONFIG_PREFIX, jc.handleJob, jc.stopChannel)
 			if err != nil {
 				fmt.Println("[Job Controller] list watch RS handler init fail...")
 			} else {
@@ -75,6 +75,7 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 	pod.Kind = object.POD
 
 	container := job.Spec.App.AppSpec.Container
+	fmt.Printf("[Job Controller] new container %s \n", container.Name)
 	commands := []string{
 		"sh test.sh",
 		account.GetUsername(),

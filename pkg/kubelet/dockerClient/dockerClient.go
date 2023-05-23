@@ -5,6 +5,7 @@ import (
 	"Mini-K8s/pkg/object"
 	"context"
 	"fmt"
+	"github.com/docker/docker/api/types/mount"
 	"io"
 	"io/ioutil"
 	"unsafe"
@@ -268,16 +269,16 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 	})
 	for _, value := range containers {
 		fmt.Println("containerName:", value.Name)
-		//var mounts []mount.Mount
-		//if value.VolumeMounts != nil {
-		//	for _, it := range value.VolumeMounts {
-		//		mounts = append(mounts, mount.Mount{
-		//			Type:   mount.TypeBind,
-		//			Source: it.Name,
-		//			Target: it.MountPath,
-		//		})
-		//	}
-		//}
+		var mounts []mount.Mount
+		if value.VolumeMounts != nil {
+			for _, it := range value.VolumeMounts {
+				mounts = append(mounts, mount.Mount{
+					Type:   mount.TypeBind,
+					Source: it.Name,
+					Target: it.MountPath,
+				})
+			}
+		}
 		//生成env
 		var env []string
 		if value.Env != nil {

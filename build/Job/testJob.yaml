@@ -16,10 +16,10 @@ spec:
     spec:
       containers:
           name: test
-          image: testjws:latest
+          image: jwstest:latest
       command:
         - "module load gcc/8.3.0-gcc-4.8.5 cuda/10.1.243-gcc-8.3.0"
         - "nvcc Matrix.cu -o Matrix -lcublas"
         - "./Matrix"
-      zipPath: "/home/GPUTest/test/gpu/Matrix.zip"
+      zipPath: "/home/lcz/go/src/Mini-K8s/build/Job/Matrix.zip"
       restartPolicy: Never

@@ -120,12 +120,12 @@ func createNewJob(job *object.GPUJob) {
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
 
 	//上传job到etcd
-	//jobRaw, _ := json.Marshal(job)
-	//reqBody2 := bytes.NewBuffer(jobRaw)
-	//suffix2 := _const.JOB_CONFIG_PREFIX + "/" + jobApp.Key
-	//
-	//req2, _ := http.NewRequest("PUT", _const.BASE_URI+suffix2, reqBody2)
-	//resp, _ = http.DefaultClient.Do(req2)
-	//
-	//fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+	jobRaw, _ := json.Marshal(job)
+	reqBody2 := bytes.NewBuffer(jobRaw)
+	suffix2 := _const.JOB_CONFIG_PREFIX + "/" + jobApp.Key
+
+	req2, _ := http.NewRequest("PUT", _const.BASE_URI+suffix2, reqBody2)
+	resp, _ = http.DefaultClient.Do(req2)
+	
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
 }

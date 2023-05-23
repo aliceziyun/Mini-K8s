@@ -25,19 +25,19 @@ func getHost(partition string) (string, error) {
 	var host string
 	for _, v := range SiYuan {
 		if v == partition {
-			host = v
+			host = _const.HostSiyuan
 			return host, nil
 		}
 	}
 	for _, v := range PiAndAi {
 		if v == partition {
-			host = v
+			host = _const.HostPiAndAI
 			return host, nil
 		}
 	}
 	for _, v := range ARM {
 		if v == partition {
-			host = v
+			host = _const.HostARM
 			return host, nil
 		}
 	}
