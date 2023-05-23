@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pkg/scheduler/scheduler_client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/const/const.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/object/object.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/object.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/scheduler/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/scheduler/scheduler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	_const "Mini-K8s/cmd/const"
-	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
@@ -19,7 +18,7 @@ type Scheduler struct {
 	queue       queue.ConcurrentQueue
 }
 
-func NewScheduler(lsConfig *listwatcher.Config, clientConfig client.Config, selectType string) *Scheduler {
+func NewScheduler(lsConfig *listwatcher.Config) *Scheduler {
 	println("scheduler create")
 
 	ls, err := listwatcher.NewListWatcher(lsConfig)
@@ -32,7 +31,6 @@ func NewScheduler(lsConfig *listwatcher.Config, clientConfig client.Config, sele
 		ls: ls,
 	}
 	scheduler.stopChannel = make(chan struct{})
-	scheduler.selectType = selectType
 	return scheduler
 }
 
