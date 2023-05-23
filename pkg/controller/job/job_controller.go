@@ -60,7 +60,7 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 		fmt.Println(err)
 		return
 	}
-	account := getAccount(job.Spec.SlurmConfig.Partition)
+	//account := getAccount(job.Spec.SlurmConfig.Partition)
 
 	// 对Pod进行初始化
 	pod := object.Pod{}
@@ -77,14 +77,18 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 	container := job.Spec.App.AppSpec.Container
 	fmt.Printf("[Job Controller] new container %s \n", container.Name)
 	commands := []string{
-		"sh test.sh",
-		account.GetUsername(),
-		account.GetPassword(),
-		account.GetHost(),
+		//"sh test.sh",
+		//account.GetUsername(),
+		//account.GetPassword(),
+		//account.GetHost(),
 		//"/home/job",
-		//path.Join(account.GetRemoteBasePath(), path.Base(res.Key)),
+		"/bin/sh",
+		"-c",
+		"while true; do echo hello world; sleep 1; done",
+		//path.Join(account.GetRemoteBasePath(), "job-"+job.Metadata.Uid),
 	}
 	container.Command = commands
+	//container.Command = nil
 	container.Args = nil
 	volumeMounts := []object.VolumeMount{
 		{
@@ -102,7 +106,7 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 		{
 			Name: "gpuPath",
 			Type: "hostPath",
-			Path: path.Join(_const.SHARED_DATA_DIR, path.Base(res.Key)),
+			Path: path.Join(_const.SHARED_DATA_DIR, "job-"+job.Metadata.Uid),
 		},
 	}
 	pod.Spec.Volumes = volumes

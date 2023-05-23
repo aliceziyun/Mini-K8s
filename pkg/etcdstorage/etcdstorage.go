@@ -97,7 +97,7 @@ func (kvs *KVStore) Put(key string, val string) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("[etcd] put a new", key, val)
+	fmt.Println("[etcd] put a new", key)
 	return err
 }
 

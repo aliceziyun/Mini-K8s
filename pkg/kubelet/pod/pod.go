@@ -9,6 +9,8 @@ import (
 	"Mini-K8s/pkg/object"
 	"context"
 	"fmt"
+	uuid2 "github.com/google/uuid"
+	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -175,7 +177,7 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 					value.VolumeMounts[index].Name = path
 					continue
 				}
-				fmt.Println("[pod] error:container Mount path didn't exist")
+				fmt.Println("[Kubelet] error:container Mount path didn't exist")
 			}
 		}
 	}
@@ -271,32 +273,38 @@ func (p *Pod) ReceivePodCommand(podCommand message.PodCommand) {
 }
 
 func (p *Pod) AddVolumes(volumes []object.Volume) error {
-	// p.tmpDirMap = make(map[string]string)
-	// p.hostDirMap = make(map[string]string)
-	// p.hostFileMap = make(map[string]string)
-	// for _, value := range volumes {
-	// 	if value.Type == emptyDir {
-	// 		//临时目录，随机生成
-	// 		u := uuid.NewV4()
-	// 		path := GetCurrentAbPathByCaller() + "/tmp/" + u.String()
-	// 		os.MkdirAll(path, os.ModePerm)
-	// 		p.tmpDirMap[value.Name] = path
-	// 	} else if value.Type == hostPath {
-	// 		//指定了实际目录
-	// 		_, err := os.Stat(value.Path)
-	// 		if err != nil {
-	// 			os.MkdirAll(value.Path, os.ModePerm)
-	// 		}
-	// 		p.hostDirMap[value.Name] = value.Path
-	// 	} else {
-	// 		//文件映射
-	// 		_, err := os.Stat(value.Path)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		p.hostFileMap[value.Name] = value.Path
-	// 	}
-	// }
+	p.tmpDirMap = make(map[string]string)
+	p.hostDirMap = make(map[string]string)
+	p.hostFileMap = make(map[string]string)
+	for _, value := range volumes {
+		if value.Type == emptyDir {
+			//临时目录，随机生成
+			u, _ := uuid2.NewUUID()
+			path := GetCurrentAbPathByCaller() + "/tmp/" + u.String()
+			err := os.MkdirAll(path, os.ModePerm)
+			if err != nil {
+				return err
+			}
+			p.tmpDirMap[value.Name] = path
+		} else if value.Type == hostPath {
+			//指定了实际目录
+			_, err := os.Stat(value.Path)
+			if err != nil {
+				err := os.MkdirAll(value.Path, os.ModePerm)
+				if err != nil {
+					return err
+				}
+			}
+			p.hostDirMap[value.Name] = value.Path
+		} else {
+			//文件映射
+			_, err := os.Stat(value.Path)
+			if err != nil {
+				return err
+			}
+			p.hostFileMap[value.Name] = value.Path
+		}
+	}
 	return nil
 }
 

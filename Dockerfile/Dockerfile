@@ -16,8 +16,6 @@ WORKDIR /home/${user}
 
 COPY ./JWStest.sh ./test.sh
 
-VOLUME ["/home/${user}/sharedData"]
-
 USER ${user}
 
 EXPOSE 9999
