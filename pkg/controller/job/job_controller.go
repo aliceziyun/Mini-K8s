@@ -20,7 +20,6 @@ type JobController struct {
 	jobMap       *_map.ConcurrentMapTrait[string, object.GPUJob]
 	jobStatusMap *_map.ConcurrentMapTrait[string, object.JobStatus]
 	stopChannel  chan struct{}
-	allocator    *object.AccountAllocator
 }
 
 func NewJobController(controllerCtx controller_context.ControllerContext) *JobController {
@@ -29,7 +28,6 @@ func NewJobController(controllerCtx controller_context.ControllerContext) *JobCo
 		stopChannel:  make(chan struct{}),
 		jobMap:       _map.NewConcurrentMapTrait[string, object.GPUJob](),
 		jobStatusMap: _map.NewConcurrentMapTrait[string, object.JobStatus](),
-		allocator:    object.NewAccountAllocator(),
 	}
 
 	return jc
