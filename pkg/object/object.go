@@ -125,12 +125,18 @@ type ServiceStatus struct {
 }
 
 type Container struct {
-	Name    string          `json:"name" yaml:"name"`
-	Image   string          `json:"image" yaml:"image"`
-	Ports   []ContainerPort `json:"ports" yaml:"ports"`
-	Env     []ContainerEnv  `json:"env" yaml:"env"`
-	Command []string        `json:"command" yaml:"command"`
-	Args    []string        `json:"args" yaml:"args"`
+	Name         string          `json:"name" yaml:"name"`
+	Image        string          `json:"image" yaml:"image"`
+	Ports        []ContainerPort `json:"ports" yaml:"ports"`
+	Env          []ContainerEnv  `json:"env" yaml:"env"`
+	Command      []string        `json:"command" yaml:"command"` // 容器的启动命令列表
+	Args         []string        `json:"args" yaml:"args"`       // 容器的启动命令参数列表
+	VolumeMounts []VolumeMount   `json:"volumeMounts" yaml:"volumeMounts"`
+}
+
+type VolumeMount struct {
+	Name      string `json:"name" yaml:"name"`
+	MountPath string `json:"mountPath" yaml:"mountPath"`
 }
 
 type Containers struct {
@@ -145,6 +151,9 @@ type ContainerMeta struct {
 }
 
 type Volume struct {
+	Name string `json:"name" yaml:"name"`
+	Type string `json:"type" yaml:"type"`
+	Path string `json:"path" yaml:"path"`
 }
 
 type ContainerPort struct {
@@ -154,7 +163,6 @@ type ContainerPort struct {
 	HostPort      string `json:"hostPort" yaml:"hostPort"`
 	//类型有三种 tcp, udp, all.      默认为tcp, all的话两种都开
 	Protocol string `json:"protocol" yaml:"protocol"`
-	//?
 }
 type ContainerEnv struct {
 	Name  string `json:"name" yaml:"name"`
