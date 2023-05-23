@@ -39,6 +39,27 @@ func (s *APIServer) addPod(ctx *gin.Context) {
 	}
 }
 
+func (s *APIServer) addService(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	service := &object.Service{}
+	err = json.Unmarshal(body, service)
+	if err != nil {
+		fmt.Println("[AddService] service unmarshal fail")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	key := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
+	fmt.Printf("key:%v\n", key)
+
+	body, _ = json.Marshal(service)
+
+	err = s.store.Put(key, string(body))
+	if err != nil {
+		return
+	}
+}
+
 func (s *APIServer) addRS(ctx *gin.Context) {
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	rs := &object.ReplicaSet{}
