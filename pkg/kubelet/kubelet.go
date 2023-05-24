@@ -119,7 +119,13 @@ func (kl *Kubelet) syncLoop(ch <-chan PodUpdate.PodUpdate) bool {
 			case ADD:
 				kl.HandlePodAdd(u.Pods)
 				break
+			case DELETE:
+				kl.HandlePodUpdates(u.Pods)
+				break
+			case UPDATE:
+				break
 			}
+
 		}
 		return true
 	}
@@ -136,19 +142,67 @@ func (kl *Kubelet) HandlePodAdd(pods []*object.Pod) {
 	}
 }
 
+func (kl *Kubelet) HandlePodUpdates(pods []*object.Pod) {
+	for _, pod := range pods { //先删除
+		err := kl.podManager.DeletePod(pod.Name)
+		if err != nil {
+			fmt.Printf("[Kubelet] Delete pod fail...")
+			fmt.Printf(err.Error())
+			kl.Err = err
+		}
+	}
+	for _, pod := range pods { //再创建
+		err := kl.podManager.AddPod(pod)
+		if err != nil {
+			fmt.Printf("[Kubelet] Add pod fail...")
+			fmt.Printf(err.Error())
+			kl.Err = err
+		}
+		fmt.Printf("[Kubelet] update pod %s \n", pod.Name)
+	}
+}
+
 func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
+	if res.ResType == etcdstorage.DELETE {
+		return
+	}
 	pod := &object.Pod{}
 	err := json.Unmarshal(res.ValueBytes, pod)
 	if err != nil {
 		fmt.Println("[kubelet]", err)
 	}
+
 	fmt.Println("[kubelet] Add Pod")
 	pods := []*object.Pod{pod}
-	podUp := PodUpdate.PodUpdate{
-		Pods: pods,
-		Op:   ADD,
+	//检查pod是否已经存在
+	ok := kl.podManager.CheckIfPodExist(pod.Name)
+	if !ok { //pod不存在
+		if pod.Status.Phase != object.DELETED {
+			//新建
+			podUp := PodUpdate.PodUpdate{
+				Pods: pods,
+				Op:   ADD,
+			}
+			kl.PodConfig.GetUpdates() <- podUp
+		}
+	} else { //pod已经存在
+		if pod.Status.Phase == object.DELETED {
+			//删除pod
+			podUp := PodUpdate.PodUpdate{
+				Pods: pods,
+				Op:   DELETE,
+			}
+			kl.PodConfig.GetUpdates() <- podUp
+		} else {
+			//更新pod
+			podUp := PodUpdate.PodUpdate{
+				Pods: pods,
+				Op:   UPDATE,
+			}
+			kl.PodConfig.GetUpdates() <- podUp
+		}
 	}
-	kl.PodConfig.GetUpdates() <- podUp
+
 }
 
 // 每隔1秒更新一次pod的状态

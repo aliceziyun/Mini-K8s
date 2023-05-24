@@ -49,7 +49,7 @@ func newGetAllRequest(arg string) {
 }
 
 func getPods() []object.UserPod {
-	resList := getAll(_const.BASE_URI + _const.POD_CONFIG_PREFIX)
+	resList := getAll(_const.BASE_URI + _const.POD_RUNTIME_PREFIX)
 	var usrPods []object.UserPod
 	for _, res := range resList {
 		pod := &object.Pod{}
@@ -58,6 +58,12 @@ func getPods() []object.UserPod {
 			fmt.Println(err)
 			return nil
 		}
+
+		//无视已被删除的pod
+		if pod.Status.Phase == object.DELETED {
+			continue
+		}
+
 		ready := fmt.Sprintf("%d/%d", len(pod.Spec.Containers), pod.Status.RunningContainers)
 		usrPod := object.UserPod{
 			Name:   pod.Name,

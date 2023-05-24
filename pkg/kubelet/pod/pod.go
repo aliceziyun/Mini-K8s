@@ -395,7 +395,7 @@ func (p *Pod) DeletePod() {
 		ContainerCommand: &(command.Command),
 	}
 	p.commandChan <- podCommand
-	//p.client.DeleteRuntimePod(p.GetName()) //return nil
+	//p.client.DeleteRuntimePod(p.GetName())
 	p.rwLock.Unlock()
 }
 

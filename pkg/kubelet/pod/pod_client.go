@@ -14,7 +14,7 @@ func updatePod(pod *object.Pod) error {
 	//TODO: get running containers
 	pod.Status.RunningContainers = int32(len(pod.Spec.Containers))
 
-	suffix := _const.POD_CONFIG_PREFIX + "/" + pod.Name
+	suffix := _const.POD_RUNTIME_PREFIX + "/" + pod.Name
 	body, err := json.Marshal(pod)
 	if err != nil {
 		return err
