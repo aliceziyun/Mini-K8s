@@ -32,6 +32,7 @@ func initApp() *cli.App {
 			commands.NewApplyCommand(),
 			commands.NewQuitCommand(),
 			commands.NewGetPodCommand(),
+			commands.NewDeleteCommand(),
 		}
 	}
 	return app

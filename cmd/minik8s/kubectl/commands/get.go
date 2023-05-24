@@ -45,6 +45,11 @@ func newGetAllRequest(arg string) {
 	case strings.ToLower(resourceList[0]):
 		printer.PrintPods(getPods())
 		return
+	default:
+		fmt.Println("No such resource!")
+		fmt.Printf("[Possible Resource Object]: ")
+		printPossibleResourceObj()
+		return
 	}
 }
 
