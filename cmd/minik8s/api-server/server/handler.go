@@ -35,6 +35,7 @@ func (s *APIServer) addPod(ctx *gin.Context) {
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	pod := &object.Pod{}
 	err = json.Unmarshal(body, pod)
+	pod.Status.Phase = object.STOP
 	if err != nil {
 		fmt.Println("[AddService] service unmarshal fail")
 		ctx.AbortWithStatus(http.StatusBadRequest)

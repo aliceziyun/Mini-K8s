@@ -56,7 +56,6 @@ type Pod struct {
 	timer        *time.Ticker
 	canProbeWork bool
 	stopChan     chan bool
-	client       client.RESTClient
 }
 
 type PodNetWork struct {
@@ -104,10 +103,10 @@ func (p *Pod) setError(err error) {
 
 // Pod: 通知etcdPod被创建
 func (p *Pod) uploadPod() {
-	// err := p.client.UpdateRuntimePod(p.configPod)
-	// if err != nil {
-	// 	fmt.Println("[pod] updateRuntimePod error" + err.Error())
-	// }
+	err := updatePod(p.configPod)
+	if err != nil {
+		fmt.Println("[pod] updateRuntimePod error" + err.Error())
+	}
 }
 
 //--------------------------------------------------------------//
@@ -120,10 +119,6 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 	newPod.canProbeWork = false
 	var rwLock sync.RWMutex
 	newPod.rwLock = rwLock
-	restClient := client.RESTClient{
-		Base: "http://" + clientConfig.Host,
-	}
-	newPod.client = restClient
 	newPod.commandChan = make(chan message.PodCommand, 100)
 	newPod.responseChan = make(chan message.PodResponse, 100)
 	newPod.podWorker = &podWorker.PodWorker{}
@@ -324,7 +319,6 @@ func GetCurrentAbPathByCaller() string {
 func (p *Pod) SetStatusAndErr(status string, err error) bool {
 	// p.configPod.Status.Err = err.Error()
 	return p.compareAndSetStatus(status)
-	return false
 }
 func (p *Pod) SetContainersAndStatus(containers []object.ContainerMeta, status string) bool {
 	for _, value := range containers {

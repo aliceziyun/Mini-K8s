@@ -8,6 +8,13 @@ const (
 	HPA        string = "HPA"
 )
 
+const (
+	// status
+	RUNNING string = "RUNNING"
+	STOP    string = "STOP"
+	DELETED string = "DELETED"
+)
+
 type ObjMetadata struct {
 	Name           string            `json:"name" yaml:"name"`
 	Labels         map[string]string `json:"labels" yaml:"labels"`
@@ -87,18 +94,16 @@ type Pod struct {
 }
 
 type PodSpec struct {
-	Containers   []Container     `json:"containers" yaml:"containers"`
-	Volumes      []Volume        `json:"volumes" yaml:"volumes"`
-	NodeSelector PodNodeSelector `json:"nodeSelector" yaml:"nodeSelector"`
-	NodeName     string          `json:"nodeName" yaml:"nodeName"`
+	Containers []Container `json:"containers" yaml:"containers"`
+	Volumes    []Volume    `json:"volumes" yaml:"volumes"`
+	NodeName   string      `json:"nodeName" yaml:"nodeName"`
 }
 
 type PodStatus struct {
-	Phase      string      `json:"phase"`
-	Conditions []Condition `json:"conditions" yaml:"conditions"`
-}
-
-type PodNodeSelector struct {
+	RunningContainers int32       `json:"running-containers" yaml:"running-containers"`
+	Phase             string      `json:"phase" yaml:"phase"`
+	IP                string      `json:"ip" yaml:"ip"`
+	Conditions        []Condition `json:"conditions" yaml:"conditions"`
 }
 
 type PodNameAndIp struct {
