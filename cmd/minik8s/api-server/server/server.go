@@ -90,8 +90,10 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 
 	engine.POST(_const.PATH_PREFIX, s.watch)
 
-	engine.PUT(_const.POD_CONFIG, s.addPod)
+	engine.PUT(_const.POD_CONFIG, s.addPodConfig)
 	engine.GET(_const.POD_CONFIG_PREFIX, s.getByPrefix)
+	engine.PUT(_const.POD_RUNTIME_PREFIX, s.addPodRuntime)
+	engine.GET(_const.POD_RUNTIME_PREFIX, s.getByPrefix)
 
 	engine.PUT(_const.RS_CONFIG, s.addRS)
 	engine.GET(_const.RS_CONFIG, s.get)

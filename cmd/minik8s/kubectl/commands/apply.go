@@ -28,7 +28,7 @@ func NewApplyCommand() cli.Command {
 }
 
 func applyFile() {
-	path := _const.JOBFILE
+	path := _const.PODFILE
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Printf("open file err: %v\n", err)
@@ -68,10 +68,15 @@ func applyFile() {
 }
 
 func createNewPod(pod *object.Pod) {
+	fmt.Println("[Kubectl] create new pod ...")
+	uuid, _ := uuid2.NewUUID()
+	name := pod.Name + "-" + uuid.String()
+	pod.Name = name
+
 	podRaw, _ := json.Marshal(pod)
 	reqBody := bytes.NewBuffer(podRaw)
 
-	suffix := _const.POD_CONFIG_PREFIX + "/" + pod.Name
+	suffix := _const.POD_CONFIG_PREFIX + "/" + name
 
 	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)
@@ -126,6 +131,6 @@ func createNewJob(job *object.GPUJob) {
 
 	req2, _ := http.NewRequest("PUT", _const.BASE_URI+suffix2, reqBody2)
 	resp, _ = http.DefaultClient.Do(req2)
-	
+
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
 }

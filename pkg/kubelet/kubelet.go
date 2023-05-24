@@ -107,7 +107,7 @@ func (kl *Kubelet) Run() {
 }
 
 func (kl *Kubelet) syncLoop(ch <-chan PodUpdate.PodUpdate) bool {
-	fmt.Println("[kubelet] start syncLoop...")
+	fmt.Println("[Kubelet] start syncLoop...")
 	for {
 		select {
 		case u, open := <-ch:
@@ -115,6 +115,7 @@ func (kl *Kubelet) syncLoop(ch <-chan PodUpdate.PodUpdate) bool {
 				fmt.Printf("Update channel is closed")
 				return false
 			}
+			fmt.Println("[Kubelet] new coming pod message...")
 			switch u.Op {
 			case ADD:
 				kl.HandlePodAdd(u.Pods)
@@ -127,7 +128,6 @@ func (kl *Kubelet) syncLoop(ch <-chan PodUpdate.PodUpdate) bool {
 			}
 
 		}
-		return true
 	}
 }
 
@@ -177,6 +177,7 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 	//检查pod是否已经存在
 	ok := kl.podManager.CheckIfPodExist(pod.Name)
 	if !ok { //pod不存在
+		fmt.Printf("[Kubelet] create new pod %s ! \n", pod.Name)
 		if pod.Status.Phase != object.DELETED {
 			//新建
 			podUp := PodUpdate.PodUpdate{
@@ -186,6 +187,7 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 			kl.PodConfig.GetUpdates() <- podUp
 		}
 	} else { //pod已经存在
+		fmt.Printf("[Kubelet] pod %s exists ! \n", pod.Name)
 		if pod.Status.Phase == object.DELETED {
 			//删除pod
 			podUp := PodUpdate.PodUpdate{

@@ -25,7 +25,7 @@ func NewGetPodCommand() cli.Command {
 				fmt.Println("Only one resource object can be requested at a time!")
 				return nil
 			}
-			if len(c.Args()) == 1 {
+			if len(c.Args()) <= 2 {
 				newGetAllRequest(c.Args().Get(0))
 			}
 			return nil

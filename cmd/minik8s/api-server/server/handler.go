@@ -31,7 +31,7 @@ func (s *APIServer) put(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func (s *APIServer) addPod(ctx *gin.Context) {
+func (s *APIServer) addPodConfig(ctx *gin.Context) {
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	pod := &object.Pod{}
 	err = json.Unmarshal(body, pod)
@@ -43,6 +43,28 @@ func (s *APIServer) addPod(ctx *gin.Context) {
 	}
 
 	key := _const.POD_CONFIG_PREFIX + "/" + pod.Name
+	fmt.Printf("key:%v\n", key)
+
+	body, _ = json.Marshal(pod)
+
+	err = s.store.Put(key, string(body))
+	if err != nil {
+		return
+	}
+}
+
+func (s *APIServer) addPodRuntime(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	pod := &object.Pod{}
+	err = json.Unmarshal(body, pod)
+	pod.Status.Phase = object.RUNNING
+	if err != nil {
+		fmt.Println("[AddService] service unmarshal fail")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	key := _const.POD_RUNTIME_PREFIX + "/" + pod.Name
 	fmt.Printf("key:%v\n", key)
 
 	body, _ = json.Marshal(pod)
