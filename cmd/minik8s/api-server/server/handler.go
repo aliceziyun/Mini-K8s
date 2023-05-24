@@ -65,6 +65,27 @@ func (s *APIServer) addService(ctx *gin.Context) {
 	}
 }
 
+func (s *APIServer) addDNS(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	dnsConfig := &object.DNSConfig{}
+	err = json.Unmarshal(body, dnsConfig)
+	if err != nil {
+		fmt.Println("[AddService] dnsConfig unmarshal fail")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	key := _const.DNS_CONFIG_PREFIX + "/" + dnsConfig.Name
+	fmt.Printf("key:%v\n", key)
+
+	body, _ = json.Marshal(dnsConfig)
+
+	err = s.store.Put(key, string(body))
+	if err != nil {
+		return
+	}
+}
+
 func (s *APIServer) addRS(ctx *gin.Context) {
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	rs := &object.ReplicaSet{}

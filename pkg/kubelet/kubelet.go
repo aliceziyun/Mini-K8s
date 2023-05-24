@@ -7,6 +7,7 @@ import (
 	"Mini-K8s/pkg/kubelet/PodUpdate"
 	"Mini-K8s/pkg/kubelet/podConfig"
 	"Mini-K8s/pkg/kubelet/podManager"
+	"Mini-K8s/pkg/kubeproxy"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
 	"context"
@@ -32,7 +33,7 @@ type Kubelet struct {
 	PodConfig  *podConfig.PodConfig
 	//podMonitor *monitor.Monitor
 	// kubeNetSupport *netSupport.KubeNetSupport
-	// kubeProxy      *kubeproxy.KubeProxy
+	kubeProxy   *kubeproxy.KubeProxy
 	ls          *listwatcher.ListWatcher
 	stopChannel <-chan struct{}
 	Client      client.RESTClient
@@ -60,6 +61,8 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 	kubelet.ls = ls
 	kubelet.PodConfig = podConfig.NewPodConfig()
 
+	kubelet.kubeProxy = kubeproxy.NewKubeProxy(listwatcher.DefaultConfig())
+
 	return kubelet
 }
 
@@ -70,6 +73,8 @@ func (kl *Kubelet) Run() {
 	updates := kl.PodConfig.GetUpdates()
 	go kl.syncLoop(updates)
 	//go kl.monitor(context.Background())
+
+	go kl.kubeProxy.Run()
 
 	fmt.Println("[kubelet] start...")
 	ch := make(chan int)

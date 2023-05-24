@@ -24,7 +24,7 @@ func NewKubeProxy(lsConfig *listwatcher.Config) *KubeProxy {
 		return nil
 	}
 	kubeProxy.ls = ls
-	//RunDNS(lsConfig)
+	RunDNS(lsConfig)
 	return kubeProxy
 }
 

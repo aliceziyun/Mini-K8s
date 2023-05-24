@@ -4,17 +4,19 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="整合">
-      <change afterPath="$PROJECT_DIR$/build/Pod/testPod2.yaml" afterDir="false" />
+    <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/build/dns/testDNS.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/shell/cmd.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Pod/testPod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/Pod/testPod.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/ReplicaSet/testRS.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/ReplicaSet/testRS.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Service/testServ.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/Service/testServ.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/const/const.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/demo.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/demo.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubeproxy/dnsConfig.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubeproxy/dnsConfig.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/kubeproxy/kubeproxy.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubeproxy/kubeproxy.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/object/object.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/object.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/selector/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/selector/service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,25 +50,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "DefaultGoTemplateProperty": "Go File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "lcz",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/home/lcz/go/src/Mini-K8s/build/Pod",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;lcz&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lcz/go/src/Mini-K8s/build/Pod&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
   <component name="RdControllerToolWindowsLayoutState" isNewUi="true">
     <layout>
       <window_info id="Commit_Guest" />
@@ -124,7 +126,6 @@
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/cmd/demo.go" />
       <output_directory value="$PROJECT_DIR$/../../bin" />
-      <option name="run" value="false" />
       <method v="2" />
     </configuration>
     <configuration name="go build Mini-K8s/cmd/minik8s/api-server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
@@ -165,8 +166,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
         <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/kubelet" />
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
       </list>
     </recent_temporary>
   </component>
@@ -185,7 +186,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="lcz" />
+                        <option value="HEAD" />
                       </list>
                     </value>
                   </entry>
@@ -205,7 +206,8 @@
     <MESSAGE value="add selector" />
     <MESSAGE value="update" />
     <MESSAGE value="watch service" />
-    <option name="LAST_COMMIT_MESSAGE" value="watch service" />
+    <MESSAGE value="selector" />
+    <option name="LAST_COMMIT_MESSAGE" value="selector" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

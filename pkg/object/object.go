@@ -167,3 +167,15 @@ type Condition struct {
 	Status             string `json:"status" yaml:"status"`
 	Type               string `json:"type" yaml:"type"`
 }
+
+type DNSConfig struct {
+	Name     string    `json:"name" yaml:"name"`
+	Kind     string    `json:"kind" yaml:"kind"`
+	Host     string    `json:"host" yaml:"host"`
+	DNSPaths []DNSPath `json:"paths" yaml:"paths"`
+}
+
+type DNSPath struct {
+	Path      string `json:"path" yaml:"path"`
+	ServiceIp string `json:"serviceIp" yaml:"serviceIp"`
+}

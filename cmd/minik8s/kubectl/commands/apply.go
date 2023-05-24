@@ -26,7 +26,7 @@ func NewApplyCommand() cli.Command {
 }
 
 func applyFile() {
-	path := _const.SERVFILE
+	path := "/home/lcz/go/src/Mini-K8s/build/dns/testDNS.yaml"
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Printf("open file err: %v\n", err)
@@ -52,6 +52,14 @@ func applyFile() {
 			fmt.Printf("file in %s unmarshal fail, use default config", path)
 		}
 		createNewService(service)
+		break
+	case "DNS":
+		dnsConfig := &object.DNSConfig{}
+		err = v2.Unmarshal([]byte(data), dnsConfig)
+		if err != nil {
+			fmt.Printf("file in %s unmarshal fail, use default config", path)
+		}
+		createNewDNS(dnsConfig)
 		break
 	case "ReplicaSet":
 		rs := &object.ReplicaSet{}
@@ -112,6 +120,18 @@ func createNewPod(pod *object.Pod) {
 	reqBody := bytes.NewBuffer(podRaw)
 
 	suffix := _const.POD_CONFIG_PREFIX + "/" + pod.Name
+
+	req, _ := http.NewRequest("PUT", "http://localhost:8080"+suffix, reqBody)
+	resp, _ := http.DefaultClient.Do(req)
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func createNewDNS(dnsConfig *object.DNSConfig) {
+	podRaw, _ := json.Marshal(dnsConfig)
+	reqBody := bytes.NewBuffer(podRaw)
+
+	suffix := _const.DNS_CONFIG_PREFIX + "/" + dnsConfig.Name
 
 	req, _ := http.NewRequest("PUT", "http://localhost:8080"+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)

@@ -98,6 +98,9 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 	engine.PUT(_const.SERVICE_CONFIG, s.addService)
 	engine.GET(_const.SERVICE_CONFIG_PREFIX, s.getByPrefix)
 
+	engine.PUT(_const.DNS_CONFIG, s.addDNS)
+	engine.GET(_const.DNS_CONFIG_PREFIX, s.getByPrefix)
+
 }
 
 func (s *APIServer) daemon(listening <-chan watchOpt) {

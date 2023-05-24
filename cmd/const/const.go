@@ -20,6 +20,9 @@ const (
 
 	SERVICE_CONFIG        string = "/registry/service_config/default/:resourceName"
 	SERVICE_CONFIG_PREFIX string = "/registry/service_config/default"
+
+	DNS_CONFIG        string = "/registry/dns_config/default/:resourceName"
+	DNS_CONFIG_PREFIX string = "/registry/dns_config/default"
 )
 
 // api-server
