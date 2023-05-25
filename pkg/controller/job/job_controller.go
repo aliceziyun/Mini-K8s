@@ -101,7 +101,7 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 	}
 	container.VolumeMounts = volumeMounts
 	container.Ports = []object.ContainerPort{
-		{ContainerPort: "9999"},
+		{Port: "9999"},
 	}
 	pod.Spec.Containers = append(pod.Spec.Containers, container)
 

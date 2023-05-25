@@ -49,7 +49,7 @@ func (p *PodManager) DeletePod(podName string) error {
 		return errors.New(podName + "对应的pod不存在")
 	}
 	pod, _ := p.name2pod[podName]
-	fmt.Printf("[DeleteRuntimePod] Prepare delete pod")
+	fmt.Printf("[Kubelet] Prepare delete pod...")
 	pod.DeletePod()
 	delete(p.name2pod, podName)
 	return nil

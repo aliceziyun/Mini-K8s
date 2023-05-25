@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -35,4 +36,22 @@ func updatePod(pod *object.Pod) error {
 		return errors.New("[ReplicaSet Controller] StatusCode not 200")
 	}
 	return nil
+}
+
+func deleteRuntimePod(name string) {
+	fmt.Println("[Kubelet] delete runtime pod with name ", name)
+	suffix := _const.POD_RUNTIME_PREFIX + "/" + name
+	req, err := http.NewRequest("DELETE", _const.BASE_URI+suffix, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if resp.StatusCode != 200 {
+		fmt.Println(errors.New("[Kubelet] StatusCode not 200"))
+	}
 }

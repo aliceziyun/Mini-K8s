@@ -42,9 +42,11 @@ func newGetAllRequest(arg string) {
 		return
 	}
 	switch arg {
-	case strings.ToLower(resourceList[0]):
+	case strings.ToLower(object.POD):
 		printer.PrintPods(getPods())
 		return
+	case strings.ToLower(object.REPLICASET):
+		printer.PrintRS(getRS())
 	default:
 		fmt.Println("No such resource!")
 		fmt.Printf("[Possible Resource Object]: ")
@@ -64,11 +66,6 @@ func getPods() []object.UserPod {
 			return nil
 		}
 
-		//无视已被删除的pod
-		if pod.Status.Phase == object.DELETED {
-			continue
-		}
-
 		ready := fmt.Sprintf("%d/%d", len(pod.Spec.Containers), pod.Status.RunningContainers)
 		usrPod := object.UserPod{
 			Name:   pod.Name,
@@ -79,6 +76,31 @@ func getPods() []object.UserPod {
 		usrPods = append(usrPods, usrPod)
 	}
 	return usrPods
+}
+
+func getRS() []object.UserRS {
+	resList := getAll(_const.BASE_URI + _const.RS_CONFIG_PREFIX)
+	var usrRSs []object.UserRS
+	for _, res := range resList {
+		rs := &object.ReplicaSet{}
+		err := json.Unmarshal(res.ValueBytes, rs)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
+		if rs.Status.Status == object.DELETED {
+			continue
+		}
+
+		usrRS := object.UserRS{
+			Name:    rs.Name,
+			Ready:   rs.Spec.Replicas,
+			Current: rs.Status.ReplicaStatus,
+		}
+		usrRSs = append(usrRSs, usrRS)
+	}
+	return usrRSs
 }
 
 func printPossibleResourceObj() {

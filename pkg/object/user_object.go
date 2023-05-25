@@ -6,3 +6,9 @@ type UserPod struct {
 	Status string
 	IP     string
 }
+
+type UserRS struct {
+	Name    string
+	Current int32
+	Ready   int32
+}

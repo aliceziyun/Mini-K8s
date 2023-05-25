@@ -14,9 +14,9 @@ func main() {
 	fmt.Println("[Controller] test start")
 	controllerCtx := getControllerContext()
 	//err := controller_starter.StartEndpointController(context.TODO(), *controllerCtx)
-	//err := controller_starter.StartReplicaSetController(context.TODO(), *controllerCtx)
+	err := controller_starter.StartReplicaSetController(context.TODO(), *controllerCtx)
 	//err := controller_starter.StartAutoScaleController(context.TODO(), *controllerCtx)
-	err := controller_starter.StartJobController(context.TODO(), *controllerCtx)
+	//err := controller_starter.StartJobController(context.TODO(), *controllerCtx)
 	if err != nil {
 		fmt.Println("[Controller] start fail")
 		return

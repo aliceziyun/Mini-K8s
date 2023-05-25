@@ -2,6 +2,7 @@ package commands
 
 import (
 	_const "Mini-K8s/cmd/const"
+	"Mini-K8s/pkg/object"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -31,8 +32,16 @@ func NewDeleteCommand() cli.Command {
 
 func deleteResource(resource string, name string) {
 	switch resource {
-	case strings.ToLower(resourceList[0]):
+	case strings.ToLower(object.POD):
 		url := _const.BASE_URI + _const.POD_CONFIG_PREFIX
+		err := deleteObj(url, name)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		break
+	case strings.ToLower(object.REPLICASET):
+		url := _const.BASE_URI + _const.RS_CONFIG_PREFIX
 		err := deleteObj(url, name)
 		if err != nil {
 			fmt.Println(err)

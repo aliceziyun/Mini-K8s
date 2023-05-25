@@ -9,20 +9,25 @@ import (
 
 // 注意: pod的eventHandler处理逻辑依然是将pod对应的replicaset对象加入queue中，而不是将pod加入到queue中。
 func (rsc *ReplicaSetController) handlePod(res etcdstorage.WatchRes) {
+	var pod *object.Pod
+	var err error
+	fmt.Println(res.ResType)
 	if res.ResType == etcdstorage.DELETE {
-		return
+		pod, err = getPodByName(res.Key, rsc.ls)
+		fmt.Printf("[ReplicaSet Controller] delete Pod %s \n", pod.Name)
+	} else {
+		pod = &object.Pod{}
+		err = json.Unmarshal(res.ValueBytes, pod)
+		fmt.Printf("[ReplicaSet Controller] get new Pod %s \n", pod.Name)
 	}
 
-	pod := &object.Pod{}
-	err := json.Unmarshal(res.ValueBytes, pod)
 	if err != nil {
-		fmt.Printf("[ReplicaSet Controller] get wrong message when handle Pod \n")
+		fmt.Println(err)
 		return
 	}
-	fmt.Printf("[ReplicaSet Controller] get new Pod \n")
 
 	// 获取该pod对应的rs
-	rs := GetReplicaSetOf(pod, rsc)
+	rs := getReplicaSetOf(pod, rsc)
 	key := getKey(rs)
 	rsc.hashMap.Put(key, rs)
 	rsc.queue.Enqueue(key)

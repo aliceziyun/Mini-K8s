@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-func CreatePod(rs *object.ReplicaSet) error {
+func createPod(rs *object.ReplicaSet) error {
 	podUID, _ := uuid.NewUUID()
 	suffix := _const.POD_CONFIG_PREFIX + "/" + rs.Name + podUID.String()
 
@@ -43,7 +43,7 @@ func CreatePod(rs *object.ReplicaSet) error {
 	return nil
 }
 
-func DeletePod(podName string) error {
+func deletePod(podName string) error {
 	suffix := _const.POD_CONFIG_PREFIX + podName
 	request, err := http.NewRequest("DELETE", _const.BASE_URI+suffix, nil)
 	response, err := http.DefaultClient.Do(request)
@@ -56,7 +56,7 @@ func DeletePod(podName string) error {
 	return nil
 }
 
-func GetReplicaSetOf(pod *object.Pod, rsc *ReplicaSetController) *object.ReplicaSet {
+func getReplicaSetOf(pod *object.Pod, rsc *ReplicaSetController) *object.ReplicaSet {
 	ownerReferences := pod.Metadata.OwnerReference
 	if len(ownerReferences) == 0 {
 		return nil
@@ -82,7 +82,7 @@ func GetReplicaSetOf(pod *object.Pod, rsc *ReplicaSetController) *object.Replica
 	return nil
 }
 
-func UpdateStatus(rs *object.ReplicaSet) error {
+func updateStatus(rs *object.ReplicaSet) error {
 	suffix := _const.RS_CONFIG_PREFIX + "/" + rs.Name
 	body, err := json.Marshal(rs)
 	if err != nil {
@@ -106,7 +106,7 @@ func UpdateStatus(rs *object.ReplicaSet) error {
 	return nil
 }
 
-func DeleteRS(name string) error {
+func deleteRS(name string) error {
 	suffix := _const.RS_CONFIG_PREFIX + name
 	request, err := http.NewRequest("DELETE", _const.BASE_URI+suffix, nil)
 	if err != nil {
@@ -138,4 +138,17 @@ func GetAllPods(ls *listwatcher.ListWatcher, name string, UID string) ([]*object
 		}
 	}
 	return pods, err
+}
+
+func getPodByName(name string, ls *listwatcher.ListWatcher) (*object.Pod, error) {
+	podList, err := ls.List(name)
+	if err != nil {
+		fmt.Println(err)
+	}
+	pod := &object.Pod{}
+	err = json.Unmarshal(podList[0].ValueBytes, &pod)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return pod, err
 }

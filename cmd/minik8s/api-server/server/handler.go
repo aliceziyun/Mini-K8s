@@ -31,11 +31,21 @@ func (s *APIServer) put(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
+func (s *APIServer) delete(ctx *gin.Context) {
+	key := ctx.Request.URL.Path
+	err := s.store.Del(key)
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+	ctx.Status(http.StatusOK)
+}
+
 func (s *APIServer) addPodConfig(ctx *gin.Context) {
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	pod := &object.Pod{}
 	err = json.Unmarshal(body, pod)
-	pod.Status.Phase = object.STOP
+	//这里为了方便replicaSet等设置成running，实际有没有挂掉靠监听同步
+	pod.Status.Phase = object.RUNNING
 	if err != nil {
 		fmt.Println("[AddService] service unmarshal fail")
 		ctx.AbortWithStatus(http.StatusBadRequest)
@@ -51,6 +61,35 @@ func (s *APIServer) addPodConfig(ctx *gin.Context) {
 	if err != nil {
 		return
 	}
+}
+
+func (s *APIServer) deletePod(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	var name string
+	err = json.Unmarshal(body, &name)
+
+	key := _const.POD_CONFIG_PREFIX + "/" + name
+	resList, err := s.store.Get(key)
+	if err != nil || len(resList) == 0 {
+		fmt.Printf("[API-Server] pod not exist:%s\n", name)
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	pod := object.Pod{}
+	err = json.Unmarshal(resList[0].ValueBytes, &pod)
+	if err != nil {
+		fmt.Printf("[API-Server] pod unmarshal fail\n")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	pod.Status.Phase = object.DELETED
+	raw, _ := json.Marshal(pod)
+	fmt.Println("[API-Server] delete pod ", pod.Name)
+	err = s.store.Put(key, string(raw))
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+	ctx.Status(http.StatusOK)
 }
 
 func (s *APIServer) addPodRuntime(ctx *gin.Context) {
@@ -85,6 +124,8 @@ func (s *APIServer) addRS(ctx *gin.Context) {
 		return
 	}
 
+	rs.Status.Status = object.RUNNING
+
 	key := _const.RS_CONFIG_PREFIX + "/" + rs.Name
 	fmt.Printf("key:%v\n", key)
 
@@ -94,6 +135,35 @@ func (s *APIServer) addRS(ctx *gin.Context) {
 	if err != nil {
 		return
 	}
+}
+
+func (s *APIServer) deleteRS(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	var name string
+	err = json.Unmarshal(body, &name)
+
+	key := _const.RS_CONFIG_PREFIX + "/" + name
+	resList, err := s.store.Get(key)
+	if err != nil || len(resList) == 0 {
+		fmt.Printf("[API-Server] RS not exist:%s\n", name)
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	rs := object.ReplicaSet{}
+	err = json.Unmarshal(resList[0].ValueBytes, &rs)
+	if err != nil {
+		fmt.Printf("[API-Server] rs unmarshal fail\n")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	rs.Status.Status = object.DELETED
+	raw, _ := json.Marshal(rs)
+	fmt.Println("[API-Server] delete rs ", rs.Name)
+	err = s.store.Put(key, string(raw))
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+	ctx.Status(http.StatusOK)
 }
 
 func (s *APIServer) get(ctx *gin.Context) {

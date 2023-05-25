@@ -65,9 +65,9 @@ type Volume struct {
 
 type ContainerPort struct {
 	//added ?
-	Name          string `json:"name" yaml:"name"`
-	ContainerPort string `json:"containerPort" yaml:"containerPort"`
-	HostPort      string `json:"hostPort" yaml:"hostPort"`
+	Name     string `json:"name" yaml:"name"`
+	Port     string `json:"containerPort" yaml:"containerPort"`
+	HostPort string `json:"hostPort" yaml:"hostPort"`
 	//类型有三种 tcp, udp, all.      默认为tcp, all的话两种都开
 	Protocol string `json:"protocol" yaml:"protocol"`
 }
@@ -143,7 +143,8 @@ type ReplicaSetSpec struct {
 }
 
 type ReplicaSetStatus struct {
-	ReplicaStatus int32 `json:"replicas" yaml:"replicas"` //是否符合对replica的期待
+	ReplicaStatus int32  `json:"replicas" yaml:"replicas"` //是否符合对replica的期待
+	Status        string `json:"status" yaml:"status"`
 }
 
 // --------------------AutoScaler---------------------------

@@ -121,9 +121,10 @@ func (kl *Kubelet) syncLoop(ch <-chan PodUpdate.PodUpdate) bool {
 				kl.HandlePodAdd(u.Pods)
 				break
 			case DELETE:
-				kl.HandlePodUpdates(u.Pods)
+				kl.HandlePodDelete(u.Pods)
 				break
 			case UPDATE:
+				kl.HandlePodUpdates(u.Pods)
 				break
 			}
 
@@ -138,6 +139,16 @@ func (kl *Kubelet) HandlePodAdd(pods []*object.Pod) {
 		if err != nil {
 			fmt.Println("[kubelet]AddPod error" + err.Error())
 			kl.Err = err
+		}
+	}
+}
+
+func (kl *Kubelet) HandlePodDelete(pods []*object.Pod) {
+	for _, pod := range pods {
+		fmt.Printf("[Kubelet] delete pod:%s \n", pod.Name)
+		err := kl.podManager.DeletePod(pod.Name)
+		if err != nil {
+			fmt.Printf("[Kubelet] Delete pod fail...\n")
 		}
 	}
 }
@@ -177,8 +188,8 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 	//检查pod是否已经存在
 	ok := kl.podManager.CheckIfPodExist(pod.Name)
 	if !ok { //pod不存在
-		fmt.Printf("[Kubelet] create new pod %s ! \n", pod.Name)
 		if pod.Status.Phase != object.DELETED {
+			fmt.Printf("[Kubelet] create new pod %s ! \n", pod.Name)
 			//新建
 			podUp := PodUpdate.PodUpdate{
 				Pods: pods,

@@ -51,7 +51,6 @@ func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
 }
 
 func (kvs *KVStore) Get(key string) ([]ListRes, error) {
-	fmt.Println("wtf", key)
 	kv := clientv3.NewKV(kvs.client)
 	response, err := kv.Get(context.TODO(), key)
 	if err != nil {
@@ -131,8 +130,12 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 					res.ValueBytes = event.Kv.Value
 					break
 				case clientv3.EventTypeDelete:
-					res.ResType = DELETE
 					fmt.Println("Delete Revision:", event.Kv.ModRevision)
+					res.ResType = DELETE
+					res.Key = key
+					res.IsCreate = event.IsCreate()
+					res.IsModify = event.IsModify()
+					res.ValueBytes = event.Kv.Value
 					break
 				}
 				c <- res

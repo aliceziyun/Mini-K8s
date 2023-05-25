@@ -78,7 +78,6 @@ func applyFile(file string) error {
 			return err
 		}
 		createNewRS(rs)
-		fmt.Println(rs)
 		break
 	case "Job":
 		job := &object.GPUJob{}

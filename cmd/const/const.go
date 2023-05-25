@@ -1,14 +1,8 @@
 package _const
 
 const (
-	SHARED_DATA_DIR = "/home/lcz/SharedData"
-)
-
-// build
-const (
-	PODFILE string = "/home/lcz/go/src/Mini-K8s/build/Pod/testPod.yaml"
-	RSFILE  string = "/home/lcz/go/src/Mini-K8s/build/ReplicaSet/testRS.yaml"
-	JOBFILE string = "/home/lcz/go/src/Mini-K8s/build/Job/testJob.yaml"
+	WORK_DIR        string = "../../../build"
+	SHARED_DATA_DIR string = "/home/lcz/SharedData"
 )
 
 // REST resource

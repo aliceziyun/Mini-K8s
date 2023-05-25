@@ -382,6 +382,7 @@ func (p *Pod) StartProbe() {
 
 func (p *Pod) DeletePod() {
 	p.rwLock.Lock()
+	fmt.Println("[Kubelet] into deletePod")
 	p.compareAndSetStatus(POD_DELETED_STATUS)
 	command := &message.CommandWithContainerIds{}
 	command.CommandType = message.COMMAND_DELETE_CONTAINER
@@ -395,13 +396,13 @@ func (p *Pod) DeletePod() {
 		ContainerCommand: &(command.Command),
 	}
 	p.commandChan <- podCommand
-	//p.client.DeleteRuntimePod(p.GetName())
+	fmt.Println("[Kubelet] send command")
+	deleteRuntimePod(p.GetName())
 	p.rwLock.Unlock()
 }
 
 // 释放所有资源
 func (p *Pod) releaseResource() {
-	//拿下锁防止寄了
 	p.rwLock.Lock()
 	p.canProbeWork = false
 	p.stopChan <- true
