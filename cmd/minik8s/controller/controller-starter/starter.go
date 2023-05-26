@@ -11,42 +11,42 @@ import (
 
 //TODO: 现在如果没有channel控制，就跑不起来
 
-func StartReplicaSetController(ctx context.Context, controllerContext controller_context.ControllerContext) error {
+func StartReplicaSetController(ctx context.Context, controllerContext controller_context.ControllerContext) {
 	ch := make(chan int)
 
 	go replicaset.NewReplicaSetController(controllerContext).Run(ctx)
 
 	<-ch
 
-	return nil
+	return
 }
 
-func StartEndpointController(ctx context.Context, controllerContext controller_context.ControllerContext) error {
+func StartEndpointController(ctx context.Context, controllerContext controller_context.ControllerContext) {
 	ch := make(chan int)
 
 	go endpoint.NewEndpointController(controllerContext).Run(ctx)
 
 	<-ch
 
-	return nil
+	return
 }
 
-func StartAutoScaleController(ctx context.Context, controllerContext controller_context.ControllerContext) error {
+func StartAutoScaleController(ctx context.Context, controllerContext controller_context.ControllerContext) {
 	ch := make(chan int)
 
 	go autoscaler.NewAutoScaleController(controllerContext).Run(ctx)
 
 	<-ch
 
-	return nil
+	return
 }
 
-func StartJobController(ctx context.Context, controllerContext controller_context.ControllerContext) error {
+func StartJobController(ctx context.Context, controllerContext controller_context.ControllerContext) {
 	ch := make(chan int)
 
 	go job.NewJobController(controllerContext).Run(ctx)
 
 	<-ch
 
-	return nil
+	return
 }

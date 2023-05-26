@@ -26,6 +26,11 @@ func (rsc *ReplicaSetController) handlePod(res etcdstorage.WatchRes) {
 		return
 	}
 
+	if pod == nil {
+		fmt.Println("[ReplicaSet Controller] pod has been deleted")
+		return
+	}
+
 	// 获取该pod对应的rs
 	rs := getReplicaSetOf(pod, rsc)
 	key := getKey(rs)

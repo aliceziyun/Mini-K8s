@@ -6,30 +6,26 @@
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Pod/testPod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/testPod.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/Pod/testPod2.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/testPod2.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/ReplicaSet/testRS.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/testRS.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/AutoScale/testAutoScale.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/testHPA.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/testPod2.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/testPod2.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/const/const.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter/starter.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter/starter.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/delete.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/delete.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/get.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/get.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/controller/job/job_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/job/job_controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/autoscaler/autoscaler_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/autoscaler/autoscaler_controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/autoscaler/autoscaler_status.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/autoscaler/autoscaler_status.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_controller.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/etcdstorage/etcdstorage.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/testDockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/test/testDockerClient.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/pod/pod.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/pod/pod.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/pod/pod_client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/pod/pod_client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/podManager/podManager.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/podManager/podManager.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/object/object.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/object.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/object/user_object.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/object/user_object.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/monitor/monitor.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/monitor/monitor.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/third_party/map/concurrentMap.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/map/concurrentMap.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/third_party/printer/printer.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/printer/printer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/third_party/util/getMetrics.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/util/getMetrics.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +75,7 @@
       <window_info id="Space Code Reviews" order="0" />
       <window_info id="Bookmarks" order="1" side_tool="true" />
       <window_info id="Pull Requests" order="2" weight="0.32997918" />
-      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.2203331" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.20367801" />
       <window_info id="Commit" order="4" />
       <window_info id="Learn" order="5" show_stripe_button="false" />
       <window_info id="Structure" order="6" side_tool="true" />
@@ -88,10 +84,10 @@
       <window_info anchor="bottom" id="File Transfer" order="1" />
       <window_info anchor="bottom" id="Database Changes" order="2" />
       <window_info anchor="bottom" id="Problems View" order="3" weight="0.33170468" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="4" visible="true" weight="0.23941368" />
+      <window_info anchor="bottom" id="Terminal" order="4" weight="0.5217155" />
       <window_info anchor="bottom" id="TypeScript" order="5" />
       <window_info anchor="bottom" id="Services" order="6" weight="0.3295331" />
-      <window_info anchor="bottom" id="Run" order="7" weight="0.3794788" />
+      <window_info active="true" anchor="bottom" id="Run" order="7" visible="true" weight="0.41856676" />
       <window_info anchor="bottom" id="Dependency Checker" order="8" />
       <window_info anchor="right" id="Endpoints" order="0" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="1" />
@@ -195,16 +191,5 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/cmd/minik8s/kubectl/commands/delete.go</url>
-          <line>18</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

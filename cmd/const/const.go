@@ -20,6 +20,8 @@ const (
 
 	SERVICE_CONFIG_PREFIX string = "/registry/service_config/default"
 
+	HPA_CONFIG_PREFIX string = "/registry/hpa_config/default"
+
 	JOB_CONFIG        string = "/registry/job/default/:resourceName"
 	JOB_CONFIG_PREFIX string = "/registry/job/default"
 

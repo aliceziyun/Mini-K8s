@@ -79,6 +79,15 @@ func applyFile(file string) error {
 		}
 		createNewRS(rs)
 		break
+	case "HorizontalPodAutoScale":
+		hpa := &object.Autoscaler{}
+		err = v2.Unmarshal([]byte(data), hpa)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		createNewHPA(hpa)
+		break
 	case "Job":
 		job := &object.GPUJob{}
 		err = v2.Unmarshal([]byte(data), job)
@@ -95,8 +104,7 @@ func applyFile(file string) error {
 
 func createNewPod(pod *object.Pod) {
 	fmt.Println("[Kubectl] create new pod ...")
-	uuid, _ := uuid2.NewUUID()
-	name := pod.Name + "-" + uuid.String()
+	name := pod.Name
 	pod.Name = name
 
 	podRaw, _ := json.Marshal(pod)
@@ -115,6 +123,18 @@ func createNewRS(rs *object.ReplicaSet) {
 	reqBody := bytes.NewBuffer(rsRaw)
 
 	suffix := _const.RS_CONFIG_PREFIX + "/" + rs.Name
+
+	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	resp, _ := http.DefaultClient.Do(req)
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func createNewHPA(hpa *object.Autoscaler) {
+	hpaRaw, _ := json.Marshal(hpa)
+	reqBody := bytes.NewBuffer(hpaRaw)
+
+	suffix := _const.HPA_CONFIG_PREFIX + "/" + hpa.Metadata.Name
 
 	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)

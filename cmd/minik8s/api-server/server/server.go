@@ -100,8 +100,8 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 
 	engine.PUT(_const.RS_CONFIG, s.addRS)
 	engine.GET(_const.RS_CONFIG, s.get)
-	engine.DELETE(_const.RS_CONFIG, s.deleteRS)
 
+	engine.DELETE(_const.RS_CONFIG_PREFIX, s.deleteRS)
 	engine.GET(_const.RS_CONFIG_PREFIX, s.getByPrefix)
 }
 

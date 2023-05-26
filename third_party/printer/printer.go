@@ -19,7 +19,7 @@ func PrintRS(rs []object.UserRS) {
 	fmt.Printf("NAME\tCURRENT\tREADY\n")
 
 	for _, each := range rs {
-		fmt.Printf("%s\t%s\t%s\n", each.Name, each.Current, each.Ready)
+		fmt.Printf("%s\t%d\t%d\n", each.Name, each.Current, each.Ready)
 	}
 
 	return

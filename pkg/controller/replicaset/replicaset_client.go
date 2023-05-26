@@ -43,9 +43,12 @@ func createPod(rs *object.ReplicaSet) error {
 	return nil
 }
 
-func deletePod(podName string) error {
-	suffix := _const.POD_CONFIG_PREFIX + podName
-	request, err := http.NewRequest("DELETE", _const.BASE_URI+suffix, nil)
+func deletePod(name string) error {
+	//都已经知道了pod但还是传一个pod的name，这个函数多少有点呆
+	nameRaw, _ := json.Marshal(name)
+	reqBody := bytes.NewBuffer(nameRaw)
+	suffix := _const.POD_CONFIG_PREFIX
+	request, err := http.NewRequest("DELETE", _const.BASE_URI+suffix, reqBody)
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return err
@@ -146,6 +149,9 @@ func getPodByName(name string, ls *listwatcher.ListWatcher) (*object.Pod, error)
 		fmt.Println(err)
 	}
 	pod := &object.Pod{}
+	if len(podList) == 0 {
+		return nil, nil
+	}
 	err = json.Unmarshal(podList[0].ValueBytes, &pod)
 	if err != nil {
 		fmt.Println(err)

@@ -120,7 +120,9 @@ func (rsc *ReplicaSetController) manageReplicas(filteredPods []*object.Pod, rs *
 	fmt.Println("[ReplicaSet Controller] diff is: ", diff)
 
 	//rs被删除，删除全部pod
+	fmt.Println(rs.Status.Status)
 	if rs.Status.Status == object.DELETED {
+		rsc.hashMap.Remove(rs.Name)
 		for _, pod := range filteredPods {
 			if err := deletePod(pod.Name); err != nil {
 				//podKey := controller.PodKey(targetPod)

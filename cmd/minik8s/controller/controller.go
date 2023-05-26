@@ -13,14 +13,12 @@ func main() {
 	// only for test
 	fmt.Println("[Controller] test start")
 	controllerCtx := getControllerContext()
+	ch := make(chan int)
 	//err := controller_starter.StartEndpointController(context.TODO(), *controllerCtx)
-	err := controller_starter.StartReplicaSetController(context.TODO(), *controllerCtx)
-	//err := controller_starter.StartAutoScaleController(context.TODO(), *controllerCtx)
+	go controller_starter.StartReplicaSetController(context.TODO(), *controllerCtx)
+	go controller_starter.StartAutoScaleController(context.TODO(), *controllerCtx)
 	//err := controller_starter.StartJobController(context.TODO(), *controllerCtx)
-	if err != nil {
-		fmt.Println("[Controller] start fail")
-		return
-	}
+	<-ch
 }
 
 func getControllerContext() *controller_context.ControllerContext {

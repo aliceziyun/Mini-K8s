@@ -272,6 +272,8 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 	})
 	for _, value := range containers {
 		fmt.Println("[Kubelet] containerName:", value.Name)
+		fmt.Println("[Kubelet] commandTest:", value.Command)
+		fmt.Println("[Kubelet] argTest:", value.Args)
 		var mounts []mount.Mount
 		if value.VolumeMounts != nil {
 			for _, it := range value.VolumeMounts {

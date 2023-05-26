@@ -62,6 +62,7 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 	}
 	kubelet.ls = ls
 	kubelet.PodConfig = podConfig.NewPodConfig()
+	kubelet.podMonitor = monitor.NewMonitor()
 
 	return kubelet
 }
@@ -69,10 +70,10 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 func (kl *Kubelet) Run() {
 	//kl.kubeNetSupport.StartKubeNetSupport()
 	//kl.kubeProxy.StartKubeProxy()
-	//go kl.podMonitor.Listener()
+	go kl.podMonitor.Listener()
 	updates := kl.PodConfig.GetUpdates()
 	go kl.syncLoop(updates)
-	//go kl.monitor(context.Background())
+	go kl.monitor(context.Background())
 
 	fmt.Println("[Kubelet] start...")
 	stopChan := make(chan int)
@@ -218,7 +219,7 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 
 }
 
-// 每隔1秒更新一次pod的状态
+// 每隔10秒更新一次pod的状态
 func (kl *Kubelet) monitor(ctx context.Context) {
 	for {
 		fmt.Printf("[Kubelet] New round monitoring...\n")

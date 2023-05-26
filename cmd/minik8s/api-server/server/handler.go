@@ -152,7 +152,7 @@ func (s *APIServer) deleteRS(ctx *gin.Context) {
 	rs := object.ReplicaSet{}
 	err = json.Unmarshal(resList[0].ValueBytes, &rs)
 	if err != nil {
-		fmt.Printf("[API-Server] rs unmarshal fail\n")
+		fmt.Printf("[API-Server] unmarshal fail\n")
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
