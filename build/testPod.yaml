@@ -1,4 +1,5 @@
 kind: Pod #kind资源 Pod
+name: TestPod
 spec: #详细
   containers: #容器信息
     - name: nginx #容器叫nginx

@@ -10,10 +10,12 @@ import (
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/monitor"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/third_party/file"
 	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"time"
 )
 
@@ -60,6 +62,7 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 	}
 	kubelet.ls = ls
 	kubelet.PodConfig = podConfig.NewPodConfig()
+	kubelet.podMonitor = monitor.NewMonitor()
 
 	return kubelet
 }
@@ -72,27 +75,40 @@ func (kl *Kubelet) Run() {
 	go kl.syncLoop(updates)
 	go kl.monitor(context.Background())
 
-	fmt.Println("[kubelet] start...")
-	ch := make(chan int)
+	fmt.Println("[Kubelet] start...")
+	stopChan := make(chan int)
 
 	go func() {
-		fmt.Println("[kubelet] start watch...")
-		err := kl.ls.Watch(_const.POD_CONFIG_PREFIX, kl.AddPod, kl.stopChannel)
+		fmt.Println("[Kubelet] start watch pod...")
+		err := kl.ls.Watch(_const.POD_CONFIG_PREFIX, kl.watchPod, kl.stopChannel)
 		if err != nil {
-			fmt.Printf("[kubelet] watch podConfig error " + err.Error())
+			fmt.Printf("[Kubelet] watch pod error " + err.Error())
 		} else {
-			fmt.Println("[kubelet] return...")
-			ch <- 1
+			fmt.Println("[Kubelet] return...")
+			stopChan <- 1
 			return
 		}
 		time.Sleep(10 * time.Second)
 	}()
 
-	<-ch
+	go func() {
+		fmt.Println("[Kubelet] start watch shared data...")
+		err := kl.ls.Watch(_const.SHARED_DATA_PREFIX, kl.watchSharedData, kl.stopChannel)
+		if err != nil {
+			fmt.Printf("[Kubelet] watch shared_data error " + err.Error())
+		} else {
+			fmt.Println("[Kubelet] return...")
+			stopChan <- 1
+			return
+		}
+		time.Sleep(10 * time.Second)
+	}()
+
+	<-stopChan
 }
 
 func (kl *Kubelet) syncLoop(ch <-chan PodUpdate.PodUpdate) bool {
-	fmt.Println("[kubelet] start syncLoop...")
+	fmt.Println("[Kubelet] start syncLoop...")
 	for {
 		select {
 		case u, open := <-ch:
@@ -100,13 +116,20 @@ func (kl *Kubelet) syncLoop(ch <-chan PodUpdate.PodUpdate) bool {
 				fmt.Printf("Update channel is closed")
 				return false
 			}
+			fmt.Println("[Kubelet] new coming pod message...")
 			switch u.Op {
 			case ADD:
 				kl.HandlePodAdd(u.Pods)
 				break
+			case DELETE:
+				kl.HandlePodDelete(u.Pods)
+				break
+			case UPDATE:
+				kl.HandlePodUpdates(u.Pods)
+				break
 			}
+
 		}
-		return true
 	}
 }
 
@@ -121,23 +144,82 @@ func (kl *Kubelet) HandlePodAdd(pods []*object.Pod) {
 	}
 }
 
-func (kl *Kubelet) AddPod(res etcdstorage.WatchRes) {
-	fmt.Println("test Add Pod success")
+func (kl *Kubelet) HandlePodDelete(pods []*object.Pod) {
+	for _, pod := range pods {
+		fmt.Printf("[Kubelet] delete pod:%s \n", pod.Name)
+		err := kl.podManager.DeletePod(pod.Name)
+		if err != nil {
+			fmt.Printf("[Kubelet] Delete pod fail...\n")
+		}
+	}
+}
+
+func (kl *Kubelet) HandlePodUpdates(pods []*object.Pod) {
+	for _, pod := range pods { //先删除
+		err := kl.podManager.DeletePod(pod.Name)
+		if err != nil {
+			fmt.Printf("[Kubelet] Delete pod fail...")
+			fmt.Printf(err.Error())
+			kl.Err = err
+		}
+	}
+	for _, pod := range pods { //再创建
+		err := kl.podManager.AddPod(pod)
+		if err != nil {
+			fmt.Printf("[Kubelet] Add pod fail...")
+			fmt.Printf(err.Error())
+			kl.Err = err
+		}
+		fmt.Printf("[Kubelet] update pod %s \n", pod.Name)
+	}
+}
+
+func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
+	if res.ResType == etcdstorage.DELETE {
+		return
+	}
 	pod := &object.Pod{}
 	err := json.Unmarshal(res.ValueBytes, pod)
 	if err != nil {
-		fmt.Println("[kubelet] watch /testAddPod error", err)
+		fmt.Println("[kubelet]", err)
 	}
-	fmt.Println("[kubelet] /testAddPod new message")
+
+	fmt.Println("[kubelet] Add Pod")
 	pods := []*object.Pod{pod}
-	podUp := PodUpdate.PodUpdate{
-		Pods: pods,
-		Op:   ADD,
+	//检查pod是否已经存在
+	ok := kl.podManager.CheckIfPodExist(pod.Name)
+	if !ok { //pod不存在
+		if pod.Status.Phase != object.DELETED {
+			fmt.Printf("[Kubelet] create new pod %s ! \n", pod.Name)
+			//新建
+			podUp := PodUpdate.PodUpdate{
+				Pods: pods,
+				Op:   ADD,
+			}
+			kl.PodConfig.GetUpdates() <- podUp
+		}
+	} else { //pod已经存在
+		fmt.Printf("[Kubelet] pod %s exists ! \n", pod.Name)
+		if pod.Status.Phase == object.DELETED {
+			//删除pod
+			podUp := PodUpdate.PodUpdate{
+				Pods: pods,
+				Op:   DELETE,
+			}
+			kl.PodConfig.GetUpdates() <- podUp
+		} else {
+			//更新pod
+			podUp := PodUpdate.PodUpdate{
+				Pods: pods,
+				Op:   UPDATE,
+			}
+			kl.PodConfig.GetUpdates() <- podUp
+		}
 	}
-	kl.PodConfig.GetUpdates() <- podUp
+
 }
 
-// 每隔1秒更新一次pod的状态
+// 每隔10秒更新一次pod的状态
 func (kl *Kubelet) monitor(ctx context.Context) {
 	for {
 		fmt.Printf("[Kubelet] New round monitoring...\n")
@@ -145,6 +227,42 @@ func (kl *Kubelet) monitor(ctx context.Context) {
 		for _, pod := range podMap {
 			kl.podMonitor.GetDockerStat(ctx, pod)
 		}
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 10)
+	}
+}
+
+// 查看sharedData
+func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
+	switch res.ResType {
+	case etcdstorage.PUT:
+		fmt.Println("[Kubelet] new shared data...")
+		jobAppFile := object.JobAppFile{}
+		err := json.Unmarshal(res.ValueBytes, &jobAppFile)
+		if err != nil {
+			fmt.Println("[Kubelet]", err)
+			return
+		}
+		appName := jobAppFile.Key + ".zip"
+		unzippedDir := path.Join(_const.SHARED_DATA_DIR, jobAppFile.Key)
+
+		//将文件放入对应位置
+		err = file.Bytes2File(jobAppFile.App, appName, _const.SHARED_DATA_DIR)
+		if err != nil {
+			fmt.Println("[Kubelet]", err)
+			return
+		}
+		err = file.Unzip(path.Join(_const.SHARED_DATA_DIR, appName), unzippedDir)
+		if err != nil {
+			fmt.Println("[Kubelet]", err)
+			return
+		}
+		err = file.Bytes2File(jobAppFile.Slurm, "sbatch.slurm", unzippedDir)
+		if err != nil {
+			fmt.Println("[Kubelet]", err)
+			return
+		}
+
+		fmt.Println("[kubelet] Add Shared Data")
+		break
 	}
 }

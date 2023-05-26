@@ -1,0 +1,9 @@
+kind: Pod
+name: TestPod2
+spec:
+  containers:
+    - name: ghost
+      image: ghost
+      ports:
+        - containerPort: 80
+      args: ["/bin/bash","-c","while true;do echo ydq;done"]  #前台循环进程，保持运行 + 提升cpu使用率

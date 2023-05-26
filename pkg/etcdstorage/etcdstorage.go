@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/mvcc/mvccpb"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 const (
@@ -51,7 +50,6 @@ func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
 }
 
 func (kvs *KVStore) Get(key string) ([]ListRes, error) {
-	fmt.Println("wtf", key)
 	kv := clientv3.NewKV(kvs.client)
 	response, err := kv.Get(context.TODO(), key)
 	if err != nil {
@@ -102,7 +100,7 @@ func (kvs *KVStore) Put(key string, val string) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("[etcd] put a new", key, val)
+	fmt.Println("[etcd] put a new", key)
 	return err
 }
 
@@ -132,7 +130,7 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 			for _, event := range watchResp.Events {
 				fmt.Print("[WATCH]")
 				switch event.Type {
-				case mvccpb.PUT:
+				case clientv3.EventTypePut:
 					fmt.Println("Put Revision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
 					res.ResType = PUT
 					res.Key = key
@@ -140,9 +138,13 @@ func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
 					res.IsModify = event.IsModify()
 					res.ValueBytes = event.Kv.Value
 					break
-				case mvccpb.DELETE:
-					res.ResType = DELETE
+				case clientv3.EventTypeDelete:
 					fmt.Println("Delete Revision:", event.Kv.ModRevision)
+					res.ResType = DELETE
+					res.Key = key
+					res.IsCreate = event.IsCreate()
+					res.IsModify = event.IsModify()
+					res.ValueBytes = event.Kv.Value
 					break
 				}
 				c <- res

@@ -9,6 +9,8 @@ import (
 	"Mini-K8s/pkg/object"
 	"context"
 	"fmt"
+	uuid2 "github.com/google/uuid"
+	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -54,7 +56,6 @@ type Pod struct {
 	timer        *time.Ticker
 	canProbeWork bool
 	stopChan     chan bool
-	client       client.RESTClient
 }
 
 type PodNetWork struct {
@@ -102,10 +103,10 @@ func (p *Pod) setError(err error) {
 
 // Pod: 通知etcdPod被创建
 func (p *Pod) uploadPod() {
-	// err := p.client.UpdateRuntimePod(p.configPod)
-	// if err != nil {
-	// 	fmt.Println("[pod] updateRuntimePod error" + err.Error())
-	// }
+	err := updatePod(p.configPod)
+	if err != nil {
+		fmt.Println("[pod] updateRuntimePod error" + err.Error())
+	}
 }
 
 //--------------------------------------------------------------//
@@ -118,10 +119,6 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 	newPod.canProbeWork = false
 	var rwLock sync.RWMutex
 	newPod.rwLock = rwLock
-	restClient := client.RESTClient{
-		Base: "http://" + clientConfig.Host,
-	}
-	newPod.client = restClient
 	newPod.commandChan = make(chan message.PodCommand, 100)
 	newPod.responseChan = make(chan message.PodResponse, 100)
 	newPod.podWorker = &podWorker.PodWorker{}
@@ -157,28 +154,28 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 	commandWithConfig.CommandType = message.COMMAND_BUILD_CONTAINERS_OF_POD
 	commandWithConfig.Group = config.Spec.Containers
 	// 把config中的container里的volumeMounts MountPath 换成实际路径
-	// for _, value := range commandWithConfig.Group {
-	// 	if value.VolumeMounts != nil {
-	// 		for index, it := range value.VolumeMounts {
-	// 			path, ok := newPod.tmpDirMap[it.Name]
-	// 			if ok {
-	// 				value.VolumeMounts[index].Name = path
-	// 				continue
-	// 			}
-	// 			path, ok = newPod.hostDirMap[it.Name]
-	// 			if ok {
-	// 				value.VolumeMounts[index].Name = path
-	// 				continue
-	// 			}
-	// 			path, ok = newPod.hostFileMap[it.Name]
-	// 			if ok {
-	// 				value.VolumeMounts[index].Name = path
-	// 				continue
-	// 			}
-	// 			fmt.Println("[pod] error:container Mount path didn't exist")
-	// 		}
-	// 	}
-	// }
+	for _, value := range commandWithConfig.Group {
+		if value.VolumeMounts != nil {
+			for index, it := range value.VolumeMounts {
+				path, ok := newPod.tmpDirMap[it.Name]
+				if ok {
+					value.VolumeMounts[index].Name = path
+					continue
+				}
+				path, ok = newPod.hostDirMap[it.Name]
+				if ok {
+					value.VolumeMounts[index].Name = path
+					continue
+				}
+				path, ok = newPod.hostFileMap[it.Name]
+				if ok {
+					value.VolumeMounts[index].Name = path
+					continue
+				}
+				fmt.Println("[Kubelet] error:container Mount path didn't exist")
+			}
+		}
+	}
 	podCommand := message.PodCommand{
 		ContainerCommand: &(commandWithConfig.Command),
 		PodCommandType:   message.ADD_POD,
@@ -271,32 +268,38 @@ func (p *Pod) ReceivePodCommand(podCommand message.PodCommand) {
 }
 
 func (p *Pod) AddVolumes(volumes []object.Volume) error {
-	// p.tmpDirMap = make(map[string]string)
-	// p.hostDirMap = make(map[string]string)
-	// p.hostFileMap = make(map[string]string)
-	// for _, value := range volumes {
-	// 	if value.Type == emptyDir {
-	// 		//临时目录，随机生成
-	// 		u := uuid.NewV4()
-	// 		path := GetCurrentAbPathByCaller() + "/tmp/" + u.String()
-	// 		os.MkdirAll(path, os.ModePerm)
-	// 		p.tmpDirMap[value.Name] = path
-	// 	} else if value.Type == hostPath {
-	// 		//指定了实际目录
-	// 		_, err := os.Stat(value.Path)
-	// 		if err != nil {
-	// 			os.MkdirAll(value.Path, os.ModePerm)
-	// 		}
-	// 		p.hostDirMap[value.Name] = value.Path
-	// 	} else {
-	// 		//文件映射
-	// 		_, err := os.Stat(value.Path)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		p.hostFileMap[value.Name] = value.Path
-	// 	}
-	// }
+	p.tmpDirMap = make(map[string]string)
+	p.hostDirMap = make(map[string]string)
+	p.hostFileMap = make(map[string]string)
+	for _, value := range volumes {
+		if value.Type == emptyDir {
+			//临时目录，随机生成
+			u, _ := uuid2.NewUUID()
+			path := GetCurrentAbPathByCaller() + "/tmp/" + u.String()
+			err := os.MkdirAll(path, os.ModePerm)
+			if err != nil {
+				return err
+			}
+			p.tmpDirMap[value.Name] = path
+		} else if value.Type == hostPath {
+			//指定了实际目录
+			_, err := os.Stat(value.Path)
+			if err != nil {
+				err := os.MkdirAll(value.Path, os.ModePerm)
+				if err != nil {
+					return err
+				}
+			}
+			p.hostDirMap[value.Name] = value.Path
+		} else {
+			//文件映射
+			_, err := os.Stat(value.Path)
+			if err != nil {
+				return err
+			}
+			p.hostFileMap[value.Name] = value.Path
+		}
+	}
 	return nil
 }
 
@@ -316,7 +319,6 @@ func GetCurrentAbPathByCaller() string {
 func (p *Pod) SetStatusAndErr(status string, err error) bool {
 	// p.configPod.Status.Err = err.Error()
 	return p.compareAndSetStatus(status)
-	return false
 }
 func (p *Pod) SetContainersAndStatus(containers []object.ContainerMeta, status string) bool {
 	for _, value := range containers {
@@ -380,6 +382,7 @@ func (p *Pod) StartProbe() {
 
 func (p *Pod) DeletePod() {
 	p.rwLock.Lock()
+	fmt.Println("[Kubelet] into deletePod")
 	p.compareAndSetStatus(POD_DELETED_STATUS)
 	command := &message.CommandWithContainerIds{}
 	command.CommandType = message.COMMAND_DELETE_CONTAINER
@@ -393,13 +396,13 @@ func (p *Pod) DeletePod() {
 		ContainerCommand: &(command.Command),
 	}
 	p.commandChan <- podCommand
-	//p.client.DeleteRuntimePod(p.GetName()) //return nil
+	fmt.Println("[Kubelet] send command")
+	deleteRuntimePod(p.GetName())
 	p.rwLock.Unlock()
 }
 
 // 释放所有资源
 func (p *Pod) releaseResource() {
-	//拿下锁防止寄了
 	p.rwLock.Lock()
 	p.canProbeWork = false
 	p.stopChan <- true

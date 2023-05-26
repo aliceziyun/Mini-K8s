@@ -228,14 +228,14 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 	for _, port := range ports {
 		//默认是tcp
 		if port.Protocol == "" || port.Protocol == "tcp" || port.Protocol == "all" {
-			p, err := nat.NewPort("tcp", port.ContainerPort)
+			p, err := nat.NewPort("tcp", port.Port)
 			if err != nil {
 				return container.ContainerCreateCreatedBody{}, err
 			}
 			exports[p] = struct{}{}
 		}
 		if port.Protocol == "udp" || port.Protocol == "all" {
-			p, err := nat.NewPort("udp", port.ContainerPort)
+			p, err := nat.NewPort("udp", port.Port)
 			if err != nil {
 				return container.ContainerCreateCreatedBody{}, err
 			}

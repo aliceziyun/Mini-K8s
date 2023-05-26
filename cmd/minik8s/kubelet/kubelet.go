@@ -58,35 +58,6 @@ func main() {
 	// 		//node = nil
 	// 	}
 
-	// }
-	//containers := []object.Container{
-	//	{
-	//		Name:    "nginx",
-	//		Image:   "nginx",
-	//		Ports:   nil,
-	//		Env:     nil,
-	//		Command: nil,
-	//		Args:    nil,
-	//	},
-	//	{
-	//		Name:    "ghost",
-	//		Image:   "ghost",
-	//		Ports:   nil,
-	//		Env:     nil,
-	//		Command: nil,
-	//		Args:    nil,
-	//	},
-	//	{
-	//		Name:    "container2",
-	//		Image:   "img2",
-	//		Ports:   nil,
-	//		Env:     nil,
-	//		Command: nil,
-	//		Args:    nil,
-	//	},
-	//}
-	//dockerClient.Main(containers)
-
 	clientConfig := client.Config{Host: "localhost" + ":8080"}
 	kube := kubelet.NewKubelet(listwatcher.DefaultConfig(), clientConfig)
 	kube.Run()

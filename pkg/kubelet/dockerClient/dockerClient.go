@@ -5,6 +5,7 @@ import (
 	"Mini-K8s/pkg/object"
 	"context"
 	"fmt"
+	"github.com/docker/docker/api/types/mount"
 	"io"
 	"io/ioutil"
 	"unsafe"
@@ -70,14 +71,14 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 	for _, port := range ports {
 		//默认是tcp
 		if port.Protocol == "" || port.Protocol == "tcp" || port.Protocol == "all" {
-			p, err := nat.NewPort("tcp", port.ContainerPort)
+			p, err := nat.NewPort("tcp", port.Port)
 			if err != nil {
 				return container.ContainerCreateCreatedBody{}, err
 			}
 			exports[p] = struct{}{}
 		}
 		if port.Protocol == "udp" || port.Protocol == "all" {
-			p, err := nat.NewPort("udp", port.ContainerPort)
+			p, err := nat.NewPort("udp", port.Port)
 			if err != nil {
 				return container.ContainerCreateCreatedBody{}, err
 			}
@@ -169,6 +170,7 @@ func dockerClientPullImages(images []string) error {
 		flag := false //此镜像是否已在本地
 		for _, it := range resp {
 			if isImageExist(value, it.RepoTags) {
+				fmt.Printf("[Kubelet] image %s exists \n", value)
 				flag = true
 				break
 			}
@@ -197,8 +199,10 @@ func runContainers(containerIds []object.ContainerMeta) error {
 		return err2
 	}
 	for _, value := range containerIds {
+		fmt.Printf("[Kubelet] Run Container with ID %s \n", value)
 		err := cli.ContainerStart(context.Background(), value.ContainerId, types.ContainerStartOptions{})
 		if err != nil {
+			fmt.Println("[Kubelet] start container fail", err)
 			return err
 		}
 	}
@@ -257,7 +261,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 	}
 	//创建pause容器
 	pause, err := createPause(totalPort, pauseName)
-	fmt.Println("pausename:", pauseName)
+	fmt.Println("[Kubelet] pausename:", pauseName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -267,17 +271,19 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		ContainerId: firstContainerId,
 	})
 	for _, value := range containers {
-		fmt.Println("containerName:", value.Name)
-		//var mounts []mount.Mount
-		//if value.VolumeMounts != nil {
-		//	for _, it := range value.VolumeMounts {
-		//		mounts = append(mounts, mount.Mount{
-		//			Type:   mount.TypeBind,
-		//			Source: it.Name,
-		//			Target: it.MountPath,
-		//		})
-		//	}
-		//}
+		fmt.Println("[Kubelet] containerName:", value.Name)
+		fmt.Println("[Kubelet] commandTest:", value.Command)
+		fmt.Println("[Kubelet] argTest:", value.Args)
+		var mounts []mount.Mount
+		if value.VolumeMounts != nil {
+			for _, it := range value.VolumeMounts {
+				mounts = append(mounts, mount.Mount{
+					Type:   mount.TypeBind,
+					Source: it.Name,
+					Target: it.MountPath,
+				})
+			}
+		}
 		//生成env
 		var env []string
 		if value.Env != nil {
@@ -295,7 +301,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		//	resourceConfig.Memory = getMemory(value.Limits.Memory)
 		//}
 		//创建容器
-		fmt.Println("[dockerClient] ContainerCreate")
+		fmt.Printf("[dockerClient] ContainerCreate with image %s \n", value.Image)
 		resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 			Image:      value.Image,
 			Entrypoint: value.Command,
@@ -303,12 +309,13 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 			Env:        env,
 		}, &container.HostConfig{
 			NetworkMode: container.NetworkMode("container:" + firstContainerId),
-			//Mounts:      mounts,
-			IpcMode:   container.IpcMode("container:" + firstContainerId),
-			PidMode:   container.PidMode("container" + firstContainerId),
-			Resources: resourceConfig,
+			Mounts:      mounts,
+			IpcMode:     container.IpcMode("container:" + firstContainerId),
+			PidMode:     container.PidMode("container" + firstContainerId),
+			Resources:   resourceConfig,
 		}, nil, nil, value.Name)
 		if err != nil {
+			fmt.Println("[Kubelet] run container fail with reason", err)
 			return nil, nil, err
 		}
 		result = append(result, object.ContainerMeta{

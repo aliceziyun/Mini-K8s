@@ -25,6 +25,19 @@ type Monitor struct {
 	dockerClient *client.Client
 }
 
+func NewMonitor() *Monitor {
+	fmt.Printf("[Monitor] init... \n")
+	c, err := client.NewClientWithOpts()
+	if err != nil {
+		fmt.Println("[Monitor] init fail")
+		return nil
+	}
+
+	return &Monitor{
+		dockerClient: c,
+	}
+}
+
 func (m *Monitor) Listener() {
 	http.Handle("/metrics", promhttp.Handler())
 	err := http.ListenAndServe(":2112", nil)
@@ -41,12 +54,18 @@ func (m *Monitor) GetDockerStat(ctx context.Context, pod *pod.Pod) {
 	containers := pod.GetContainers()
 	for _, container := range containers {
 		containerID := container.ContainerId
+		if containerID == "" {
+			continue //还没填充，别急
+		}
+		fmt.Println("[Monitor] containerID,", containerID)
 		stats, err := m.dockerClient.ContainerStats(ctx, containerID, false)
 		if err != nil {
 			fmt.Printf("[Monitor] Get stats error:%v\n", err)
 			continue
 		}
 		raw, _ := ioutil.ReadAll(stats.Body)
+
+		//util.PrintMetricJson(raw)
 
 		statsJson := &types.StatsJSON{}
 		err = json.Unmarshal(raw, statsJson)
@@ -57,6 +76,8 @@ func (m *Monitor) GetDockerStat(ctx context.Context, pod *pod.Pod) {
 
 		cpuPercent := util.GetCPUPercent(statsJson)
 		memPercent := util.GetMemPercent(statsJson)
+
+		fmt.Println(cpuPercent, memPercent)
 
 		NewMetric(pod.GetName(), pod.GetUid(), memPercent, cpuPercent)
 	}

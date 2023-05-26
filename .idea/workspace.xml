@@ -6,6 +6,29 @@
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
+=======
+      <change beforePath="$PROJECT_DIR$/build/AutoScale/testAutoScale.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/testHPA.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/testPod2.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/testPod2.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/const/const.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/const/const.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/api-server/server/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter/starter.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter/starter.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/autoscaler/autoscaler_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/autoscaler/autoscaler_controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/autoscaler/autoscaler_status.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/autoscaler/autoscaler_status.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/controller/replicaset/replicaset_handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/kubelet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/monitor/monitor.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/monitor/monitor.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/third_party/map/concurrentMap.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/map/concurrentMap.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/third_party/printer/printer.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/printer/printer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/third_party/util/getMetrics.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/util/getMetrics.go" afterDir="false" />
+>>>>>>> szy
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +79,7 @@
       <window_info id="Space Code Reviews" order="0" />
       <window_info id="Bookmarks" order="1" side_tool="true" />
       <window_info id="Pull Requests" order="2" weight="0.32997918" />
-      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.2203331" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.20367801" />
       <window_info id="Commit" order="4" />
       <window_info id="Learn" order="5" show_stripe_button="false" />
       <window_info id="Structure" order="6" side_tool="true" />
@@ -65,10 +88,14 @@
       <window_info anchor="bottom" id="File Transfer" order="1" />
       <window_info anchor="bottom" id="Database Changes" order="2" />
       <window_info anchor="bottom" id="Problems View" order="3" weight="0.33170468" />
+<<<<<<< HEAD
       <window_info active="true" anchor="bottom" id="Terminal" order="4" visible="true" weight="0.5054289" />
+=======
+      <window_info anchor="bottom" id="Terminal" order="4" weight="0.5217155" />
+>>>>>>> szy
       <window_info anchor="bottom" id="TypeScript" order="5" />
       <window_info anchor="bottom" id="Services" order="6" weight="0.3295331" />
-      <window_info anchor="bottom" id="Run" order="7" weight="0.4087948" />
+      <window_info active="true" anchor="bottom" id="Run" order="7" visible="true" weight="0.41856676" />
       <window_info anchor="bottom" id="Dependency Checker" order="8" />
       <window_info anchor="right" id="Endpoints" order="0" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="1" />
@@ -78,11 +105,11 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/build" />
+      <recent name="$PROJECT_DIR$/Dockerfile" />
       <recent name="$PROJECT_DIR$/pkg/controller/autoscaler/" />
       <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter" />
       <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-start" />
-      <recent name="$PROJECT_DIR$/cmd/const" />
-      <recent name="$PROJECT_DIR$/third_party/util" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build kubelet.go">
@@ -102,6 +129,15 @@
       <package value="Mini-K8s/cmd/minik8s/controller" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build apply.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="Mini-K8s" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="Mini-K8s" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/kubectl/commands/apply.go" />
       <method v="2" />
     </configuration>
     <configuration name="go build kubelet.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
@@ -132,10 +168,21 @@
       <framework value="gotest" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/controller" />
         <item itemvalue="Go Build.go build kubelet.go" />
+<<<<<<< HEAD
+=======
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
+        <item itemvalue="Go Build.go build apply.go" />
+>>>>>>> szy
         <item itemvalue="Go Build.go build scheduler.go" />
       </list>
     </recent_temporary>
