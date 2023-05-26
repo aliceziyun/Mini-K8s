@@ -1,4 +1,3 @@
-// 暂时用来参考
 package pod
 
 import (
@@ -481,3 +480,21 @@ func (p *Pod) releaseResource() {
 	close(p.responseChan)
 	p.rwLock.Unlock()
 }
+
+func (pod *Pod) GetContainerByName(name string) *object.Container {
+	for _, container := range pod.configPod.Spec.Containers {
+		if container.Name == name {
+			return &container
+		}
+	}
+	return nil
+}
+
+// func (pod *Pod) GetContainerByName2(name string) *object.ContainerMeta {
+// 	for _, container := range pod.containers {
+// 		if container.RealName == name { //originName?
+// 			return &container
+// 		}
+// 	}
+// 	return nil
+// }

@@ -1,11 +1,13 @@
 package message
 
 import (
+	"Mini-K8s/pkg/message/config"
 	"fmt"
 
-	"github.com/streadway/amqp"
 	"sync"
 	"time"
+
+	"github.com/streadway/amqp"
 )
 
 type Publisher struct {
@@ -17,7 +19,7 @@ type Publisher struct {
 	mtxNormal     sync.Mutex
 }
 
-func NewPublisher(config *QConfig) (*Publisher, error) {
+func NewPublisher(config *config.QConfig) (*Publisher, error) {
 	url := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", config.User, config.Password, config.Host, config.Port, config.VHost)
 	p := new(Publisher)
 	var err error

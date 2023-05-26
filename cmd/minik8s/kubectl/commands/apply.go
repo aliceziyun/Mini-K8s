@@ -1,12 +1,14 @@
 package commands
 
 import (
-	"Mini-K8s/pkg/object"
+	_const "Mini-K8s/cmd/const"
+	"Mini-K8s/third_party/util"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/urfave/cli"
 	"net/http"
+
+	"github.com/urfave/cli"
 )
 
 func NewApplyCommand() cli.Command {
@@ -23,12 +25,12 @@ func NewApplyCommand() cli.Command {
 }
 
 func CreatePod() {
-	pod := object.Pod{}
+	pod := util.GetPodByFile(_const.PodFile)
 
 	podRaw, _ := json.Marshal(pod)
 	reqBody := bytes.NewBuffer(podRaw)
 
-	req, _ := http.NewRequest("PUT", "http://localhost:8080/testpod", reqBody)
+	req, _ := http.NewRequest("PUT", "http://localhost:8080/testAddPod", reqBody)
 	resp, _ := http.DefaultClient.Do(req)
 
 	fmt.Println(resp.StatusCode)

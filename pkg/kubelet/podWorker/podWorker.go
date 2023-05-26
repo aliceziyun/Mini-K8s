@@ -24,3 +24,5 @@ func (podWorker *PodWorker) SyncLoop(commands <-chan message.PodCommand, respons
 	// 	}
 	// }
 }
+
+// syncPod

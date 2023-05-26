@@ -3,7 +3,8 @@ package scheduler
 import (
 	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/etcdstorage"
-	"Mini-K8s/pkg/listener"
+	"Mini-K8s/pkg/listwatcher"
+	"Mini-K8s/pkg/listwatcher/config"
 	"Mini-K8s/pkg/object"
 	"Mini-K8s/third_party/queue"
 	"context"
@@ -13,17 +14,17 @@ import (
 )
 
 type Scheduler struct {
-	ls          *listener.Listener
+	ls          *listwatcher.ListWatcher
 	stopChannel <-chan struct{}
 	selectType  string
 	queue       queue.ConcurrentQueue
 	Client      client.RESTClient
 }
 
-func NewScheduler(lsConfig *listener.Config, clientConfig client.Config, selectType string) *Scheduler {
+func NewScheduler(lsConfig *config.Config, clientConfig client.Config, selectType string) *Scheduler {
 	println("scheduler create")
 
-	ls, err := listener.NewListener(lsConfig)
+	ls, err := listwatcher.NewListWatcher(lsConfig)
 	if err != nil {
 		fmt.Println(err)
 		fmt.Printf("[Scheduler] list watch start fail...")
@@ -75,6 +76,7 @@ func (sched *Scheduler) worker(ctx context.Context) {
 
 // watch the change of new pods
 func (sched *Scheduler) watchNewPod(res etcdstorage.WatchRes) {
+	fmt.Printf("Scheduler WatchNewPod")
 	pod := &object.Pod{}
 	err := json.Unmarshal(res.ValueBytes, pod)
 	if err != nil {

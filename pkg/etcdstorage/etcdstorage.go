@@ -1,24 +1,31 @@
 package etcdstorage
 
-
 import (
 	"Mini-K8s/pkg/message"
+	"Mini-K8s/pkg/message/config"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/coreos/etcd/mvcc/mvccpb"
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/mvcc/mvccpb"
 )
 
 const (
-	EtcdPodPrefix     string = "/registry/pods/"
-	EtcdServicePrefix string = "/registry/services/"
+	PUT    int = 0
+	DELETE int = 1
 )
 
 type KVStore struct {
 	client *clientv3.Client
+}
+
+type ListRes struct {
+	ResourceVersion int64
+	CreateVersion   int64
+	Key             string
+	ValueBytes      []byte
 }
 
 type WatchRes struct {
@@ -32,7 +39,6 @@ type WatchRes struct {
 }
 
 func InitKVStore(endpoints []string, timeout time.Duration) (*KVStore, error) {
-	fmt.Print("\n")
 	config := clientv3.Config{
 		Endpoints:   endpoints,
 		DialTimeout: timeout,
@@ -76,60 +82,70 @@ func (kvs *KVStore) GetPrefix(key string) error {
 	} else {
 		fmt.Println("-> Get result: Empty")
 	}
-	fmt.Print("\n")
 	return nil
 }
 
 func (kvs *KVStore) Put(key string, val string) error {
-	fmt.Println("put a new pod", key, val)
+	fmt.Println("[ETCD] PUT\n", key, val)
 	kv := clientv3.NewKV(kvs.client)
 	_, err := kv.Put(context.TODO(), key, val)
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println("put a new pod", key, val)
 	return err
 }
 
 func (kvs *KVStore) Del(key string) error {
-	fmt.Println("delete a new pod", key)
+	fmt.Println("[ETCD] DELETE\n", key)
 	kv := clientv3.NewKV(kvs.client)
 	_, err := kv.Delete(context.TODO(), key)
 	return err
 }
 
 func (kvs *KVStore) Watch(key string) (context.CancelFunc, <-chan WatchRes) {
-	fmt.Println("etcd start watch", key)
+	fmt.Println("[ETCD] WATCH\n", key)
 
 	watchResChan := make(chan WatchRes)
 
 	watcher := clientv3.NewWatcher(kvs.client)
 	ctx, cancel := context.WithCancel(context.TODO())
 
-	watch := func(c chan<- WatchRes) {
-		//fmt.Println("watch again")
-		watchRespChan := watcher.Watch(ctx, key)
-		// 处理kv变化事件
-		for watchResp := range watchRespChan {
-			var res WatchRes
-			for _, event := range watchResp.Events {
-				fmt.Print("[WATCH]")
-				switch event.Type {
-				case mvccpb.PUT:
-					fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
-					data, _ := json.Marshal("sewgwq")
-					publisher, _ := message.NewPublisher(message.DefaultQConfig())
-					publisher.Publish("/testwatch", data, "application/json")
-				case mvccpb.DELETE:
-					fmt.Println("Delete\tRevision:", event.Kv.ModRevision)
-				}
-			}
-			c <- res
-		}
-		fmt.Println("etcd close watcher with key", key)
-		close(c)
-	}
+	val, _ := kvs.client.Get(ctx, key)
 
-	go watch(watchResChan)
+	watchStartRevision := val.Header.Revision + 1 //获取revision,观察这个revision之后的变化
+
+	//go watch(watchResChan)
+	//time.AfterFunc(10*time.Second, func() {
+	//	cancel()
+	//},
+	//)
+	watchRespChan := watcher.Watch(ctx, key, clientv3.WithRev(watchStartRevision))
+
+	// 处理kv变化事件
+	for watchResp := range watchRespChan {
+		var res WatchRes
+		for _, event := range watchResp.Events {
+			fmt.Print("[WATCH]")
+			switch event.Type {
+			case mvccpb.PUT:
+				fmt.Println("Put\tRevision: ", event.Kv.CreateRevision, event.Kv.ModRevision)
+				res.ResType = PUT
+				res.Key = key
+				res.IsCreate = event.IsCreate()
+				res.IsModify = event.IsModify()
+				res.ValueBytes = event.Kv.Value
+				data, _ := json.Marshal(res)
+				publisher, _ := message.NewPublisher(config.DefaultQConfig())
+				publisher.Publish("/testAddPod", data, "application/json")
+				break
+			case mvccpb.DELETE:
+				res.ResType = DELETE
+				fmt.Println("Delete\tRevision:", event.Kv.ModRevision)
+				break
+			}
+		}
+	}
 
 	return cancel, watchResChan
 }

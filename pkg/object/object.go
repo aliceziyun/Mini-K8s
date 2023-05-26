@@ -107,3 +107,15 @@ type Condition struct {
 
 type Scheduler struct {
 }
+
+func (pod *Pod) GetContainerByName(name string) *Container {
+	for _, container := range pod.Spec.Containers {
+		if container.Name == name {
+			return &container
+		}
+	}
+	return nil
+}
+func (pod *Pod) Containers() []Container {
+	return pod.Spec.Containers
+}

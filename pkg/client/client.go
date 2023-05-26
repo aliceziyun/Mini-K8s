@@ -1,7 +1,7 @@
 package client
 
 import (
-	"Mini-K8s/pkg/message"
+	"Mini-K8s/pkg/message/config"
 	"time"
 )
 
@@ -18,7 +18,7 @@ type ServerConfig struct {
 	ValidResources []string
 	EtcdEndpoints  []string
 	EtcdTimeout    time.Duration
-	QueueConfig    *message.QConfig
+	QueueConfig    *config.QConfig
 	//Recover        bool
 }
 
@@ -27,4 +27,3 @@ func DefaultClientConfig() Config {
 		Host: "127.0.0.1:8080",
 	}
 }
-

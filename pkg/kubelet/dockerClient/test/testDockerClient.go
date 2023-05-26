@@ -399,12 +399,26 @@ func main() {
 
 	// fmt.Println("======delete test=====")
 	getAllContainers()
-	// tmp, err := getAllContainers()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+
+	cli, err := GetNewClient()
+	if err != nil {
+		fmt.Println("error")
+		return
+	}
+
+	tmp, err1 := getAllContainers()
+	if err1 != nil {
+		fmt.Println(err1)
+	}
 	// fmt.Println("----------------\nthis is the container to be deleted: ")
-	// fmt.Printf("image=%s,id=%s\n", tmp[3].Image, tmp[3].ID)
+	fmt.Printf("image=%s,id=%s\n", tmp[1].Image, tmp[1].ID)
+	resp, err2 := cli.ContainerStats(context.Background(), tmp[1].ID, false)
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+
+	fmt.Println(resp)
+
 	// fmt.Println("----------------")
 	// deleteContainerById(tmp[3].ID)
 	// getAllContainers()
