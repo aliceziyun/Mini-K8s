@@ -9,5 +9,3 @@ spec:
       image: nginx:1.17.1
       ports:
         - containerPort: 80
-status:
-  podIP: 10.10.80.12

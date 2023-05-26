@@ -2,7 +2,6 @@ package object
 
 import (
 	"fmt"
-	"github.com/docker/docker/api/types/container"
 	"strings"
 )
 
@@ -14,6 +13,11 @@ type GPUJob struct {
 type JobSpec struct {
 	SlurmConfig JobConfig   `json:"slurm" yaml:"slurm"`
 	App         AppTemplate `json:"template" yaml:"template"`
+}
+
+type JobStatus struct {
+	JID    string `json:"jid" yaml:"jid"`
+	Status string `json:"status" yaml:"status"`
 }
 
 type JobConfig struct {
@@ -32,10 +36,16 @@ type AppTemplate struct {
 }
 
 type AppSpec struct {
-	Container     Container               `json:"containers" yaml:"containers"`
-	Commands      []string                `json:"command" yaml:"command"`
-	ZipPath       string                  `json:"zipPath" yaml:"zipPath"`
-	RestartPolicy container.RestartPolicy `json:"restartPolicy" yaml:"restartPolicy"`
+	Container     Container `json:"containers" yaml:"containers"`
+	Commands      []string  `json:"command" yaml:"command"`
+	ZipPath       string    `json:"zipPath" yaml:"zipPath"`
+	RestartPolicy string    `json:"restartPolicy" yaml:"restartPolicy"`
+}
+
+type JobAppFile struct {
+	Key   string
+	Slurm []byte
+	App   []byte
 }
 
 func (job *GPUJob) NewSlurmScript() []byte {

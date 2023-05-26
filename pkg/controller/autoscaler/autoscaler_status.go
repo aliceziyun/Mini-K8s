@@ -3,6 +3,7 @@ package autoscaler
 import (
 	"Mini-K8s/pkg/controller/autoscaler/resource"
 	"Mini-K8s/pkg/object"
+	"fmt"
 )
 
 type resourceStatus struct {
@@ -13,6 +14,7 @@ type resourceStatus struct {
 
 // 获取Pod某一项具体的resource的状况
 func (asc *AutoScaleController) getPodResourceStatus(resourceName string, pods []*object.Pod) ([]resourceStatus, error) {
+	fmt.Println("[AutoScale Controller] get pod resource")
 	var statusList []resourceStatus
 	for _, pod := range pods {
 		var status resourceStatus

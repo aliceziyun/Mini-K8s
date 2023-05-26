@@ -31,6 +31,25 @@ func (cp *ConcurrentMap) Contains(key interface{}) bool {
 	return ok
 }
 
+func (cp *ConcurrentMap) Remove(key interface{}) {
+	cp.mtx.RLock()
+	defer cp.mtx.RUnlock()
+	delete(cp.m, key)
+	return
+}
+
+func (cp *ConcurrentMap) GetAll() []interface{} {
+	cp.mtx.RLock()
+	defer cp.mtx.RUnlock()
+
+	var elemList []interface{}
+
+	for _, elem := range cp.m {
+		elemList = append(elemList, elem)
+	}
+	return elemList
+}
+
 type ConcurrentMapTrait[KEY comparable, VALUE any] struct {
 	innerMap map[KEY]VALUE
 	mtx      sync.RWMutex

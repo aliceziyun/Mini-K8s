@@ -56,7 +56,7 @@ func (rsc *ReplicaSetController) register() {
 
 	//register Pod handler
 	go func() {
-		err := rsc.ls.Watch(_const.POD_CONFIG_PREFIX, rsc.handlePod, rsc.stopChannel)
+		err := rsc.ls.Watch(_const.POD_RUNTIME_PREFIX, rsc.handlePod, rsc.stopChannel)
 		if err != nil {
 			fmt.Println("[ReplicaSet Controller] list watch Pod handler init fail...")
 		}
@@ -84,7 +84,6 @@ func (rsc *ReplicaSetController) worker() {
 }
 
 func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
-	// TODO: 如果同步Pod状态还比较好理解，如果删除或者增加RS要怎么操作呢
 	fmt.Println("[ReplicaSet Controller] start sync ...")
 
 	// 获取replicaset对象以及关联的pod对象列表
@@ -118,6 +117,22 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 
 func (rsc *ReplicaSetController) manageReplicas(filteredPods []*object.Pod, rs *object.ReplicaSet) error {
 	diff := len(filteredPods) - int(rs.Spec.Replicas)
+	fmt.Println("[ReplicaSet Controller] diff is: ", diff)
+
+	//rs被删除，删除全部pod
+	fmt.Println(rs.Status.Status)
+	if rs.Status.Status == object.DELETED {
+		rsc.hashMap.Remove(rs.Name)
+		for _, pod := range filteredPods {
+			if err := deletePod(pod.Name); err != nil {
+				//podKey := controller.PodKey(targetPod)
+				//rsc.expectations.DeletionObserved(rsKey, podKey)
+				fmt.Printf("[ReplicaSet Controller] deletion skipped of pods %v \n", pod.Name)
+			}
+		}
+		return nil
+	}
+
 	if diff == 0 {
 		return nil
 	}
@@ -150,7 +165,7 @@ func (rsc *ReplicaSetController) manageReplicas(filteredPods []*object.Pod, rs *
 		//TODO:expectation
 		//rsc.expectations.ExpectDeletions(rsKey, getPodKeys(podsToDelete))
 		for _, pod := range podsToDelete {
-			if err := DeletePod(pod.Name); err != nil {
+			if err := deletePod(pod.Name); err != nil {
 				//podKey := controller.PodKey(targetPod)
 				//rsc.expectations.DeletionObserved(rsKey, podKey)
 				fmt.Printf("[ReplicaSet Controller] deletion skipped of pods %v \n", pod.Name)
@@ -175,9 +190,9 @@ func (rsc *ReplicaSetController) updateReplicaSetStatus(rs *object.ReplicaSet, n
 	rs.Status = newStatus
 	var err error
 	if rs.Status.ReplicaStatus == 0 {
-		err = DeleteRS(rs.Name)
+		err = deleteRS(rs.Name)
 	} else {
-		err = UpdateStatus(rs)
+		err = updateStatus(rs)
 	}
 	return rs, err
 }
@@ -185,7 +200,7 @@ func (rsc *ReplicaSetController) updateReplicaSetStatus(rs *object.ReplicaSet, n
 func (rsc *ReplicaSetController) slowStartBatch(diff int, rs *object.ReplicaSet) (int, error) {
 	var success int
 	for i := 0; i < diff; i++ {
-		err := CreatePod(rs)
+		err := createPod(rs)
 		if err == nil {
 			success++
 		}
@@ -204,8 +219,8 @@ func isOwner(ownerReferences []object.OwnerReference, name string) bool {
 }
 
 func isActive(status object.PodStatus) bool {
-	//if status.Phase == "Running" {
-	return true
-	//}
-	//return false
+	if status.Phase == object.RUNNING {
+		return true
+	}
+	return false
 }

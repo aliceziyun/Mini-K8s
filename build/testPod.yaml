@@ -1,8 +1,5 @@
 kind: Pod #kind资源 Pod
-name: p1
-metadata:
-  labels:
-    app: nginx-pod
+name: TestPod
 spec: #详细
   containers: #容器信息
     - name: nginx #容器叫nginx
@@ -13,5 +10,3 @@ spec: #详细
       image: ghost
       ports:
         - containerPort: 90
-status:
-  podIP: 10.10.80.11
