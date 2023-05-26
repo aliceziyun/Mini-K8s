@@ -8,6 +8,7 @@ import (
 	"Mini-K8s/pkg/object"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -59,7 +60,7 @@ func (kubeProxy *KubeProxy) Run() {
 			err := kubeProxy.ls.Watch(_const.SERVICE_CONFIG_PREFIX, kubeProxy.serviceChangeHandler, kubeProxy.stopChannel)
 			if err != nil {
 				fmt.Println("[KubeProxy] watch error" + err.Error())
-				time.Sleep(1 * time.Second)
+				time.Sleep(5 * time.Second)
 			} else {
 				return
 			}
@@ -69,6 +70,7 @@ func (kubeProxy *KubeProxy) Run() {
 }
 
 func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
+	fmt.Println("kubeProxy handle watch")
 	if res.ResType == etcdstorage.DELETE {
 		// delete service
 	} else {
@@ -81,32 +83,32 @@ func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 		}
 		fmt.Println(service)
 
-		//ipt, err := iptables.New()
-		//if err != nil {
-		//	fmt.Println(err)
-		//}
-		//
-		//num := len(service.Spec.PodNameAndIps)
-		//for i := 0; i < num; i++ {
-		//	dst := service.Spec.PodNameAndIps[num].Ip + ":" + service.Spec.Ports[0].TargetPort
-		//	probability := strconv.FormatFloat(1/float64(num-i), 'f', 2, 64)
-		//	if i+1 == num {
-		//		probability = "1"
-		//	}
-		//
-		//	fmt.Println("iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
-		//		" -p tcp --dport " + service.Spec.Ports[0].Port +
-		//		" -m statistic --mode random --probability " + probability +
-		//		" -j DNAT --to-destination " + dst)
-		//
-		//	err = ipt.Append("OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
-		//		"-m", "statistic", "--mode", "random", "--probability", probability,
-		//		"-j", "DNAT", "--to-destination", dst)
-		//	if err != nil {
-		//		fmt.Println(err)
-		//		return
-		//	}
-		//}
+		ipt, err := iptables.New()
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		num := len(service.Spec.PodNameAndIps)
+		for i := 0; i < num; i++ {
+			dst := service.Spec.PodNameAndIps[i].Ip + ":" + service.Spec.Ports[0].TargetPort
+			probability := strconv.FormatFloat(1/float64(num-i), 'f', 2, 64)
+			if i+1 == num {
+				probability = "1"
+			}
+
+			fmt.Println("iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
+				" -p tcp --dport " + service.Spec.Ports[0].Port +
+				" -m statistic --mode random --probability " + probability +
+				" -j DNAT --to-destination " + dst)
+
+			err = ipt.AppendNAT("OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+				"-m", "statistic", "--mode", "random", "--probability", probability,
+				"-j", "DNAT", "--to-destination", dst)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
 
 		//dst1 := service.Spec.PodNameAndIps[0].Ip + ":" + service.Spec.Ports[0].TargetPort
 		//dst2 := service.Spec.PodNameAndIps[1].Ip + ":" + service.Spec.Ports[0].TargetPort

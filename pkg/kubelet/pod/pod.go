@@ -331,7 +331,7 @@ func (p *Pod) SetContainersAndStatus(containers []object.ContainerMeta, status s
 	return p.compareAndSetStatus(status)
 }
 func (p *Pod) setIpAddress(settings *types.NetworkSettings) {
-	// p.configPod.Status.PodIP = settings.IPAddress
+	p.configPod.Status.PodIP = settings.IPAddress
 }
 func filterSingle(input string) string {
 	index := strings.Index(input, "/tcp")

@@ -102,7 +102,7 @@ type PodSpec struct {
 type PodStatus struct {
 	RunningContainers int32       `json:"running-containers" yaml:"running-containers"`
 	Phase             string      `json:"phase" yaml:"phase"`
-	PodIP                string      `json:"podIP" yaml:"podIP"`
+	PodIP             string      `json:"podIP" yaml:"podIP"`
 	Conditions        []Condition `json:"conditions" yaml:"conditions"`
 }
 
@@ -200,50 +200,6 @@ type ServicePort struct {
 
 type ServiceStatus struct {
 	Phase string `json:"phase" yaml:"phase"`
-}
-
-type Container struct {
-	Name    string          `json:"name" yaml:"name"`
-	Image   string          `json:"image" yaml:"image"`
-	Ports   []ContainerPort `json:"ports" yaml:"ports"`
-	Env     []ContainerEnv  `json:"env" yaml:"env"`
-	Command []string        `json:"command" yaml:"command"`
-	Args    []string        `json:"args" yaml:"args"`
-}
-
-type Containers struct {
-	Containers []Container `json:"containers" yaml:"containers"`
-}
-
-// ContainerMeta (added)
-type ContainerMeta struct {
-	OriginName  string
-	RealName    string
-	ContainerId string
-}
-
-type Volume struct {
-}
-
-type ContainerPort struct {
-	//added ?
-	Name          string `json:"name" yaml:"name"`
-	ContainerPort string `json:"containerPort" yaml:"containerPort"`
-	HostPort      string `json:"hostPort" yaml:"hostPort"`
-	//类型有三种 tcp, udp, all.      默认为tcp, all的话两种都开
-	Protocol string `json:"protocol" yaml:"protocol"`
-	//?
-}
-type ContainerEnv struct {
-	Name  string `json:"name" yaml:"name"`
-	Value string `json:"value" yaml:"value"`
-}
-
-type Condition struct {
-	LastProbeTime      string `json:"lastProbeTime" yaml:"lastProbeTime"`
-	LastTransitionTime string `json:"lastTransitionTime" yaml:"lastTransitionTime"`
-	Status             string `json:"status" yaml:"status"`
-	Type               string `json:"type" yaml:"type"`
 }
 
 type DNSConfig struct {

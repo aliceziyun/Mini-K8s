@@ -2,7 +2,9 @@ package apiserver
 
 import (
 	_const "Mini-K8s/cmd/const"
+	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/pkg/selector"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -106,7 +108,7 @@ func (s *APIServer) addPodRuntime(ctx *gin.Context) {
 	key := _const.POD_RUNTIME_PREFIX + "/" + pod.Name
 	fmt.Printf("key:%v\n", key)
 
-	body, _ = json.Marshal(service)
+	body, _ = json.Marshal(pod)
 
 	err = s.store.Put(key, string(body))
 	if err != nil {

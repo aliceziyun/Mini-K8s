@@ -71,7 +71,7 @@ func getPods() []object.UserPod {
 			Name:   pod.Name,
 			Ready:  ready,
 			Status: pod.Status.Phase,
-			IP:     pod.Status.IP,
+			IP:     pod.Status.PodIP,
 		}
 		usrPods = append(usrPods, usrPod)
 	}

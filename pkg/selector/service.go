@@ -16,7 +16,7 @@ type ServRuntime struct {
 func (r *ServRuntime) podSelector() {
 	selector := r.service.Spec.Selector
 
-	res, err := r.ls.List(_const.POD_CONFIG_PREFIX)
+	res, err := r.ls.List(_const.POD_RUNTIME_PREFIX)
 	if err != nil {
 		return
 	}

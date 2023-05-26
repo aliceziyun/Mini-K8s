@@ -9,6 +9,7 @@ import (
 	"Mini-K8s/pkg/kubelet/podManager"
 	"Mini-K8s/pkg/kubeproxy"
 	"Mini-K8s/pkg/listwatcher"
+	"Mini-K8s/pkg/monitor"
 	"Mini-K8s/pkg/object"
 	"Mini-K8s/third_party/file"
 	"context"
@@ -33,7 +34,7 @@ const (
 type Kubelet struct {
 	podManager *podManager.PodManager
 	PodConfig  *podConfig.PodConfig
-	//podMonitor *monitor.Monitor
+	podMonitor *monitor.Monitor
 	// kubeNetSupport *netSupport.KubeNetSupport
 	kubeProxy   *kubeproxy.KubeProxy
 	ls          *listwatcher.ListWatcher
@@ -227,7 +228,7 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 func (kl *Kubelet) monitor(ctx context.Context) {
 	for {
 		fmt.Printf("[Kubelet] New round monitoring...\n")
-<<<<<<< HEAD
+
 		podMap := kl.podManager.CopyName2pod()
 		for _, pod := range podMap {
 			kl.podMonitor.GetDockerStat(ctx, pod)
@@ -269,12 +270,6 @@ func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
 
 		fmt.Println("[kubelet] Add Shared Data")
 		break
-=======
-		//podMap := kl.podManager.CopyName2pod()
-		//for _, pod := range podMap {
-		//kl.podMonitor.GetDockerStat(ctx, pod)
-		//}
-		time.Sleep(time.Second)
->>>>>>> 8e548ccfb670203aabf093cb851a1550b72489e1
+
 	}
 }

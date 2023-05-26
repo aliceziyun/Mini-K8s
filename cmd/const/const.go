@@ -1,7 +1,7 @@
 package _const
 
 const (
-	WORK_DIR        string = "../../../build"
+	WORK_DIR        string = "./build"
 	SHARED_DATA_DIR string = "/home/lcz/SharedData"
 )
 

@@ -6,5 +6,5 @@ spec:
     app: nginx-pod
   ports:
     - name: sp
-      port: 8000
-      targetPort: 8081
+      port: 6666
+      targetPort: 80
