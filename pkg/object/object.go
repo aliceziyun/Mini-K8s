@@ -199,6 +199,5 @@ type ServicePort struct {
 }
 
 type ServiceStatus struct {
-	Phase          string            `json:"phase" yaml:"phase"`
-	Pods2IpAndPort map[string]string `json:"pods2IpAndPort" yaml:"pods2IpAndPort"` //pod name到 podIp:port的映射
+	Phase string `json:"phase" yaml:"phase"`
 }

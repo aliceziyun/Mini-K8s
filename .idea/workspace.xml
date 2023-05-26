@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
+    <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="整合">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
       <change beforePath="$PROJECT_DIR$/build/AutoScale/testAutoScale.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/build/testHPA.yaml" afterDir="false" />
@@ -29,6 +30,10 @@
       <change beforePath="$PROJECT_DIR$/third_party/printer/printer.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/printer/printer.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/third_party/util/getMetrics.go" beforeDir="false" afterPath="$PROJECT_DIR$/third_party/util/getMetrics.go" afterDir="false" />
 >>>>>>> szy
+=======
+      <change beforePath="$PROJECT_DIR$/cmd/demo.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/demo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/kubeproxy/dnsConfig.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubeproxy/dnsConfig.go" afterDir="false" />
+>>>>>>> 8e548ccfb670203aabf093cb851a1550b72489e1
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +50,9 @@
   <component name="GOROOT" url="file:///usr/local/go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GoLibraries">
+    <option name="useGoPathFromSystemEnvironment" value="false" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -64,20 +72,21 @@
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;szy&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;lcz&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/root&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lcz/go/bin&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
 }</component>
-  <component name="RdControllerToolWindowsLayoutState" isNewUi="false">
+  <component name="RdControllerToolWindowsLayoutState" isNewUi="true">
     <layout>
       <window_info id="Commit_Guest" />
-      <window_info id="Space Code Reviews" order="0" />
+      <window_info id="Space Code Reviews" order="0" show_stripe_button="false" weight="0.33011132" />
       <window_info id="Bookmarks" order="1" side_tool="true" />
+<<<<<<< HEAD
       <window_info id="Pull Requests" order="2" weight="0.32997918" />
       <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.20367801" />
       <window_info id="Commit" order="4" />
@@ -98,39 +107,68 @@
       <window_info active="true" anchor="bottom" id="Run" order="7" visible="true" weight="0.41856676" />
       <window_info anchor="bottom" id="Dependency Checker" order="8" />
       <window_info anchor="right" id="Endpoints" order="0" show_stripe_button="false" />
+=======
+      <window_info id="Pull Requests" order="2" weight="0.33011132" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.18072642" />
+      <window_info id="Commit" order="4" show_stripe_button="false" weight="0.33011132" />
+      <window_info id="Learn" order="5" weight="0.33011132" />
+      <window_info id="Structure" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Find" show_stripe_button="false" weight="0.3302257" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="0" visible="true" weight="0.3302257" />
+      <window_info anchor="bottom" id="Database Changes" order="1" />
+      <window_info anchor="bottom" id="File Transfer" order="2" weight="0.3302257" />
+      <window_info anchor="bottom" id="Run" order="3" weight="0.3302257" />
+      <window_info anchor="bottom" id="Problems View" order="4" weight="0.3302257" />
+      <window_info anchor="bottom" id="Terminal" order="5" weight="0.3302257" />
+      <window_info anchor="bottom" id="TypeScript" order="6" />
+      <window_info anchor="bottom" id="Services" order="7" weight="0.3302257" />
+      <window_info anchor="bottom" id="Dependency Checker" order="8" weight="0.3302257" />
+      <window_info anchor="right" id="documentation.v2" side_tool="true" />
+      <window_info anchor="right" id="Meet New UI" show_stripe_button="false" side_tool="true" weight="0.33011132" />
+      <window_info anchor="right" id="Endpoints" order="0" weight="0.33011132" />
+>>>>>>> 8e548ccfb670203aabf093cb851a1550b72489e1
       <window_info anchor="right" id="Database" order="1" />
-      <window_info anchor="right" id="Notifications" order="2" weight="0.25017348" />
+      <window_info anchor="right" id="Notifications" order="2" weight="0.33011132" />
       <window_info anchor="right" id="make" order="3" side_tool="true" />
     </layout>
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+<<<<<<< HEAD
       <recent name="$PROJECT_DIR$/build" />
       <recent name="$PROJECT_DIR$/Dockerfile" />
       <recent name="$PROJECT_DIR$/pkg/controller/autoscaler/" />
       <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-starter" />
       <recent name="$PROJECT_DIR$/cmd/minik8s/controller/controller-start" />
+=======
+      <recent name="$PROJECT_DIR$/cmd/const" />
+      <recent name="$PROJECT_DIR$/third_party/util" />
+      <recent name="$PROJECT_DIR$/build/Pod" />
+      <recent name="$PROJECT_DIR$/pkg/listwatcher" />
+      <recent name="$PROJECT_DIR$/cmd/minik8s" />
+>>>>>>> 8e548ccfb670203aabf093cb851a1550b72489e1
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build kubelet.go">
+  <component name="RunManager" selected="Go Build.go build Mini-K8s/cmd">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="Mini-K8s" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build Mini-K8s/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
       <module name="Mini-K8s" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <package value="Mini-K8s/cmd/minik8s/api-server" />
+      <package value="Mini-K8s/cmd" />
       <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/cmd/minik8s/api-server/api-server.go" />
+      <filePath value="$PROJECT_DIR$/cmd/demo.go" />
+      <output_directory value="$PROJECT_DIR$/../../bin" />
       <method v="2" />
     </configuration>
-    <configuration name="go build Mini-K8s/cmd/minik8s/controller" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="Mini-K8s" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="Mini-K8s/cmd/minik8s/controller" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/cmd/minik8s/controller/controller.go" />
-      <method v="2" />
-    </configuration>
+<<<<<<< HEAD
     <configuration name="go build apply.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="Mini-K8s" />
       <working_directory value="$PROJECT_DIR$" />
@@ -141,25 +179,31 @@
       <method v="2" />
     </configuration>
     <configuration name="go build kubelet.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+=======
+    <configuration name="go build Mini-K8s/cmd/minik8s/api-server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+>>>>>>> 8e548ccfb670203aabf093cb851a1550b72489e1
       <module name="Mini-K8s" />
       <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <package value="Mini-K8s" />
+      <kind value="PACKAGE" />
+      <package value="Mini-K8s/cmd/minik8s/api-server" />
       <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/api-server/api-server.go" />
+      <output_directory value="$PROJECT_DIR$/../../bin" />
+      <option name="run" value="false" />
       <method v="2" />
     </configuration>
-    <configuration name="go build scheduler.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+    <configuration name="go build Mini-K8s/cmd/minik8s/kubelet" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="Mini-K8s" />
       <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <package value="Mini-K8s" />
+      <kind value="PACKAGE" />
+      <package value="Mini-K8s/cmd/minik8s/kubelet" />
       <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/cmd/minik8s/scheduler/scheduler.go" />
+      <filePath value="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" />
+      <output_directory value="$PROJECT_DIR$/../../bin" />
+      <option name="run" value="false" />
       <method v="2" />
     </configuration>
     <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
-      <module name="Mini-K8s" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="DIRECTORY" />
       <package value="Mini-K8s" />
@@ -168,6 +212,7 @@
       <framework value="gotest" />
       <method v="2" />
     </configuration>
+<<<<<<< HEAD
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
       <deployment type="dockerfile">
         <settings />
@@ -184,12 +229,55 @@
         <item itemvalue="Go Build.go build apply.go" />
 >>>>>>> szy
         <item itemvalue="Go Build.go build scheduler.go" />
+=======
+    <list>
+      <item itemvalue="Go Build.go build Mini-K8s/cmd" />
+      <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
+      <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/kubelet" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/kubelet" />
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
+>>>>>>> 8e548ccfb670203aabf093cb851a1550b72489e1
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="小整合" />
+    <MESSAGE value="整合" />
+    <MESSAGE value="add selector" />
+    <MESSAGE value="update" />
+    <option name="LAST_COMMIT_MESSAGE" value="update" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

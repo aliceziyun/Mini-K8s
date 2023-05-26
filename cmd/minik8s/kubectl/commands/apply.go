@@ -50,6 +50,7 @@ func applyFile(file string) error {
 	}
 	filename := file + ".yaml"
 	path := path2.Join(_const.WORK_DIR, filename)
+
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Printf("open file err: %v\n", err)
@@ -69,6 +70,14 @@ func applyFile(file string) error {
 			return err
 		}
 		createNewPod(pod)
+		break
+	case "Service":
+		service := &object.Service{}
+		err = v2.Unmarshal([]byte(data), service)
+		if err != nil {
+			fmt.Printf("file in %s unmarshal fail, use default config", path)
+		}
+		createNewService(service)
 		break
 	case "ReplicaSet":
 		rs := &object.ReplicaSet{}
@@ -113,6 +122,19 @@ func createNewPod(pod *object.Pod) {
 	suffix := _const.POD_CONFIG_PREFIX + "/" + name
 
 	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	resp, _ := http.DefaultClient.Do(req)
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func createNewService(service *object.Service) {
+	fmt.Println(service)
+	podRaw, _ := json.Marshal(service)
+	reqBody := bytes.NewBuffer(podRaw)
+
+	suffix := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
+
+	req, _ := http.NewRequest("PUT", "http://localhost:8080"+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)
 
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)

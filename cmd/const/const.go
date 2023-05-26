@@ -18,6 +18,7 @@ const (
 	RS_CONFIG        string = "/registry/rs_config/default/:resourceName"
 	RS_CONFIG_PREFIX string = "/registry/rs_config/default"
 
+	SERVICE_CONFIG        string = "/registry/service_config/default/:resourceName"
 	SERVICE_CONFIG_PREFIX string = "/registry/service_config/default"
 
 	HPA_CONFIG_PREFIX string = "/registry/hpa_config/default"
