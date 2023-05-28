@@ -1,14 +1,8 @@
 package main
 
-import (
-	"Mini-K8s/pkg/shell"
-	"fmt"
-)
+import "Mini-K8s/pkg/mesh"
 
 func main() {
-	output, err := shell.ExecCmd("cat", "/etc/hosts")
-	if err != nil {
-		return
-	}
-	fmt.Println(output)
+	sidecar := mesh.Sidecar{}
+	sidecar.RunForwardServer("192.168.1.4:15001", "10.10.72.2", "-s")
 }
