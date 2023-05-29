@@ -216,14 +216,14 @@ func (s *APIServer) deleteRS(ctx *gin.Context) {
 }
 
 func (s *APIServer) addNode(ctx *gin.Context) {
-	dynamicIp := util.GetDynamicIP()
+	masterIp := util.GetDynamicIP()
 
 	body, err := ioutil.ReadAll(ctx.Request.Body)
 	node := &object.Node{}
 	err = json.Unmarshal(body, node)
 
-	if dynamicIp != node.Spec.DynamicIp {
-		fmt.Printf("[API-Server] inconsistent dynamic IP %s and %s \n", dynamicIp, node.Spec.DynamicIp)
+	if masterIp != node.MasterIp {
+		fmt.Printf("[API-Server] inconsistent matster IP %s and %s \n", masterIp, node.Spec.DynamicIp)
 		return
 	}
 
@@ -232,7 +232,7 @@ func (s *APIServer) addNode(ctx *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-	key := _const.NODE_CONFIG_PREFIX + "/" + dynamicIp
+	key := _const.NODE_CONFIG_PREFIX + "/" + node.Spec.DynamicIp
 	raw, _ := json.Marshal(node)
 	err = s.store.Put(key, string(raw))
 	if err != nil {
