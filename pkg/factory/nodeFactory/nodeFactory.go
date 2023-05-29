@@ -3,6 +3,7 @@ package nodeFactory
 import (
 	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/third_party/timer"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -30,6 +31,7 @@ func NewNode(node *object.Node) (*object.Node, error) {
 	fmt.Println("node name", name)
 	node.MetaData.Name = name
 	node.MetaData.Uid = uuid.New().String()
+	node.MetaData.Ctime = timer.SetTime()
 	netMap.Name2Node[name] = node
 	fmt.Println("new node added")
 	return node, nil

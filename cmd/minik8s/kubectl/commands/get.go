@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var resourceList = []string{object.POD, object.REPLICASET, object.SERVICE, object.HPA}
@@ -47,6 +48,8 @@ func newGetAllRequest(arg string) {
 		return
 	case strings.ToLower(object.REPLICASET):
 		printer.PrintRS(getRS())
+	case strings.ToLower(object.NODE):
+		printer.PrintNode(getNodes())
 	default:
 		fmt.Println("No such resource!")
 		fmt.Printf("[Possible Resource Object]: ")
@@ -101,6 +104,31 @@ func getRS() []object.UserRS {
 		usrRSs = append(usrRSs, usrRS)
 	}
 	return usrRSs
+}
+
+func getNodes() []object.UserNode {
+	resList := getAll(_const.BASE_URI + _const.NODE_CONFIG_PREFIX)
+	var usrNodes []object.UserNode
+	for _, res := range resList {
+		node := &object.Node{}
+		err := json.Unmarshal(res.ValueBytes, node)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
+		ctime := time.Now().Sub(node.MetaData.Ctime).String()
+		//ctime = timer.FormatTime(ctime)
+
+		usrNode := object.UserNode{
+			Name:      node.MetaData.Name,
+			DynamicIP: node.Spec.DynamicIp,
+			Role:      node.Roles,
+			Ctime:     ctime,
+		}
+		usrNodes = append(usrNodes, usrNode)
+	}
+	return usrNodes
 }
 
 func printPossibleResourceObj() {

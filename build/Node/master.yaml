@@ -1,0 +1,8 @@
+kind: Node
+masterIp: 10.119.11.91
+role: master
+spec:
+  physicalIp: 10.119.11.91
+  nodeIpAndMask:
+metadata:
+  name: master

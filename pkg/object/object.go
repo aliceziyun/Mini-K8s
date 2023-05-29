@@ -1,11 +1,14 @@
 package object
 
+import "time"
+
 const (
 	// kind
 	POD        string = "POD"
 	REPLICASET string = "REPLICASET"
 	SERVICE    string = "SERVICE"
 	HPA        string = "HPA"
+	NODE       string = "NODE"
 )
 
 const (
@@ -21,6 +24,7 @@ type ObjMetadata struct {
 	Uid            string            `json:"uid" yaml:"uid"`
 	Namespace      string            `json:"namespace" yaml:"namespace"`
 	OwnerReference []OwnerReference  `json:"ownerReferences" yaml:"ownerReferences"`
+	Ctime          time.Time
 }
 
 type OwnerReference struct {
@@ -115,7 +119,7 @@ type Node struct {
 	MasterIp string      `json:"masterIp" yaml:"masterIp"`
 	Spec     NodeSpec    `json:"spec" yaml:"spec"`
 	Status   string      `json:"status" yaml:"status"`
-	Roles    string      `json:"roles" yaml:"roles"`
+	Roles    string      `json:"role" yaml:"role"`
 }
 
 type NodeList struct {

@@ -3,7 +3,8 @@ masterIp: 10.119.11.91
 role: worker
 spec:
   physicalIp: 10.119.10.175
+  nodeIpAndMask:
 metadata:
-  name: test1
+  name: worker1
   labels:
     type: ubuntu
