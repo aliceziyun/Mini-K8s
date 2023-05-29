@@ -6,7 +6,6 @@ host=$3
 path=$4
 remoteHost=$5
 
-
 # 使用参数进行后续操作
 echo "Password: $password"
 echo "User: $user"

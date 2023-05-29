@@ -39,6 +39,7 @@ func NewMonitor() *Monitor {
 }
 
 func (m *Monitor) Listener() {
+	fmt.Println("[Monitor] start listening")
 	http.Handle("/metrics", promhttp.Handler())
 	err := http.ListenAndServe(":2112", nil)
 	if err != nil {

@@ -31,7 +31,7 @@ type AutoScaleController struct {
 
 func NewAutoScaleController(controllerContext controller_context.ControllerContext) *AutoScaleController {
 	hash := _map.NewConcurrentMap()
-	mClient := client.MetricClient{Base: "localhost:2112"}
+	mClient := client.MetricClient{Base: _const.BASE_MONITOR_URI}
 	asc := &AutoScaleController{
 		ls:           controllerContext.Ls,
 		hashMap:      hash,
@@ -208,6 +208,7 @@ func (asc *AutoScaleController) computeReplicasForMetric(metric object.Metric, r
 
 	//计算需要的replica数量
 	count, err := asc.computeReplicasCount(metric, podResourceStatusList)
+	fmt.Println("[AutoScale Controller] new replicaset number is", count)
 	if err != nil {
 		return -1, err
 	}
