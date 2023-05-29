@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+//只有master节点才有scheduler
+
 type Scheduler struct {
 	ls          *listwatcher.ListWatcher
 	stopChannel <-chan struct{}
@@ -19,7 +21,7 @@ type Scheduler struct {
 }
 
 func NewScheduler(lsConfig *listwatcher.Config) *Scheduler {
-	println("scheduler create")
+	println("[Scheduler] scheduler create")
 
 	ls, err := listwatcher.NewListWatcher(lsConfig)
 	if err != nil {
@@ -75,6 +77,7 @@ func (sched *Scheduler) watchNewPod(res etcdstorage.WatchRes) {
 		return
 	}
 
+	//已经为pod分配了node
 	if pod.Spec.NodeName != "" {
 		return
 	}
@@ -102,6 +105,7 @@ func (sched *Scheduler) schedulePod(pod *object.Pod) error {
 	}
 	fmt.Printf("[Scheduler] assign pod to node: %s\n", nodeName)
 
+	//填充pod的node部分
 	pod.Spec.NodeName = nodeName
 	err = updatePod(pod)
 	return err

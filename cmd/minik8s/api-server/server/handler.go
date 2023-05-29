@@ -2,7 +2,9 @@ package apiserver
 
 import (
 	_const "Mini-K8s/cmd/const"
+	"Mini-K8s/pkg/factory/nodeFactory"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/third_party/util"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -165,6 +167,34 @@ func (s *APIServer) deleteRS(ctx *gin.Context) {
 	}
 	ctx.Status(http.StatusOK)
 }
+
+func (s *APIServer) addNode(ctx *gin.Context) {
+	dynamicIp := util.GetDynamicIP()
+
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	node := &object.Node{}
+	err = json.Unmarshal(body, node)
+
+	if dynamicIp != node.Spec.DynamicIp {
+		fmt.Println("[API-Server] inconsistent dynamic IP")
+		return
+	}
+
+	node, err = nodeFactory.NewNode(node)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	key := _const.NODE_CONFIG_PREFIX + "/" + dynamicIp
+	raw, _ := json.Marshal(node)
+	err = s.store.Put(key, string(raw))
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+	}
+	ctx.Status(http.StatusOK)
+}
+
+//----------------------通用----------------------
 
 func (s *APIServer) get(ctx *gin.Context) {
 	key := ctx.Request.URL.Path

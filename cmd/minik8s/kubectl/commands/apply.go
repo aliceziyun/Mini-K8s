@@ -105,8 +105,19 @@ func applyFile(file string) error {
 			return err
 		}
 		createNewJob(job)
-		fmt.Println(job)
 		break
+	case "Node":
+		node := &object.Node{}
+		err = v2.Unmarshal([]byte(data), node)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		createNewNode(node)
+		break
+	default:
+		err = errors.New("no such resources")
+		return err
 	}
 	return nil
 }
@@ -134,7 +145,7 @@ func createNewService(service *object.Service) {
 
 	suffix := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
 
-	req, _ := http.NewRequest("PUT", "http://localhost:8080"+suffix, reqBody)
+	req, _ := http.NewRequest("PUT", _const.SERVICE_CONFIG_PREFIX+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)
 
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
@@ -157,6 +168,18 @@ func createNewHPA(hpa *object.Autoscaler) {
 	reqBody := bytes.NewBuffer(hpaRaw)
 
 	suffix := _const.HPA_CONFIG_PREFIX + "/" + hpa.Metadata.Name
+
+	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	resp, _ := http.DefaultClient.Do(req)
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func createNewNode(node *object.Node) {
+	nodeRaw, _ := json.Marshal(node)
+	reqBody := bytes.NewBuffer(nodeRaw)
+
+	suffix := _const.NODE_CONFIG_PREFIX + "/" + node.MetaData.Name
 
 	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)

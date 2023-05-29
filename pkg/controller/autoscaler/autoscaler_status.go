@@ -1,7 +1,6 @@
 package autoscaler
 
 import (
-	"Mini-K8s/pkg/controller/autoscaler/resource"
 	"Mini-K8s/pkg/object"
 	"fmt"
 )
@@ -23,14 +22,14 @@ func (asc *AutoScaleController) getPodResourceStatus(resourceName string, pods [
 
 		switch resourceName {
 		case "cpu":
-			res, err := asc.metricClient.GetResource(resource.CPU, pod.Name, pod.Metadata.Uid)
+			res, err := asc.metricClient.GetResource("cpu", pod.Name, pod.Metadata.Uid)
 			if err != nil || res == nil {
 				return statusList, err
 			}
 			status.res = *res
 			break
 		case "memory":
-			res, err := asc.metricClient.GetResource(resource.MEMORY, pod.Name, pod.Metadata.Uid)
+			res, err := asc.metricClient.GetResource("memory", pod.Name, pod.Metadata.Uid)
 			if err != nil || res == nil {
 				return statusList, err
 			}

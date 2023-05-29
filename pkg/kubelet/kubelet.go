@@ -8,6 +8,7 @@ import (
 	"Mini-K8s/pkg/kubelet/podConfig"
 	"Mini-K8s/pkg/kubelet/podManager"
 	"Mini-K8s/pkg/listwatcher"
+	"Mini-K8s/pkg/monitor"
 	"Mini-K8s/pkg/object"
 	"Mini-K8s/third_party/file"
 	"context"
@@ -17,6 +18,8 @@ import (
 	"path"
 	"time"
 )
+
+//只有从节点才有kubelet
 
 const (
 	// SET is the current pod configuration.
@@ -32,7 +35,7 @@ const (
 type Kubelet struct {
 	podManager *podManager.PodManager
 	PodConfig  *podConfig.PodConfig
-	//podMonitor *monitor.Monitor
+	podMonitor *monitor.Monitor
 	// kubeNetSupport *netSupport.KubeNetSupport
 	// kubeProxy      *kubeproxy.KubeProxy
 	ls          *listwatcher.ListWatcher
@@ -69,10 +72,10 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 func (kl *Kubelet) Run() {
 	//kl.kubeNetSupport.StartKubeNetSupport()
 	//kl.kubeProxy.StartKubeProxy()
-	//go kl.podMonitor.Listener()
+	go kl.podMonitor.Listener()
 	updates := kl.PodConfig.GetUpdates()
 	go kl.syncLoop(updates)
-	//go kl.monitor(context.Background())
+	go kl.monitor(context.Background())
 
 	fmt.Println("[Kubelet] start...")
 	stopChan := make(chan int)
@@ -183,11 +186,20 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 		fmt.Println("[kubelet]", err)
 	}
 
+	//如果pod没有分配node，则返回
+	if pod.Spec.NodeName == "" {
+		return
+	}
+
 	fmt.Println("[kubelet] Add Pod")
 	pods := []*object.Pod{pod}
 	//检查pod是否已经存在
 	ok := kl.podManager.CheckIfPodExist(pod.Name)
 	if !ok { //pod不存在
+		//不是本节点的pod
+		if pod.Spec.NodeName != kl.getNodeName() {
+			return
+		}
 		if pod.Status.Phase != object.DELETED {
 			fmt.Printf("[Kubelet] create new pod %s ! \n", pod.Name)
 			//新建
@@ -222,9 +234,9 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 func (kl *Kubelet) monitor(ctx context.Context) {
 	for {
 		fmt.Printf("[Kubelet] New round monitoring...\n")
-<<<<<<< HEAD
 		podMap := kl.podManager.CopyName2pod()
 		for _, pod := range podMap {
+			fmt.Println("[Monitor] monitoring pod", pod.GetName())
 			kl.podMonitor.GetDockerStat(ctx, pod)
 		}
 		time.Sleep(time.Second * 10)
@@ -264,12 +276,10 @@ func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
 
 		fmt.Println("[kubelet] Add Shared Data")
 		break
-=======
-		//podMap := kl.podManager.CopyName2pod()
-		//for _, pod := range podMap {
-		//kl.podMonitor.GetDockerStat(ctx, pod)
-		//}
-		time.Sleep(time.Second)
->>>>>>> 8e548ccfb670203aabf093cb851a1550b72489e1
 	}
+}
+
+func (k *Kubelet) getNodeName() string {
+	netSupport := k.kubeNetSupport.GetKubeproxySnapShoot()
+	return netSupport.NodeName
 }

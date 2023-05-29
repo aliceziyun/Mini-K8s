@@ -5,6 +5,11 @@ const (
 	SHARED_DATA_DIR string = "/home/lcz/SharedData"
 )
 
+const (
+	BASIC_IP_AND_MASK string = "172.16.0.0/16"
+	MASTER_IP         string = "10.119.11.91"
+)
+
 // REST resource
 const (
 	PATH string = "/registry/:resource/:namespace/:resourceName"
@@ -26,13 +31,15 @@ const (
 	JOB_CONFIG        string = "/registry/job/default/:resourceName"
 	JOB_CONFIG_PREFIX string = "/registry/job/default"
 
+	NODE_CONFIG        string = "/registry/node/default/:resourceName"
+	NODE_CONFIG_PREFIX string = "/registry/node/default"
+
 	SHARED_DATA        string = "/registry/sharedData/default/:resourceName"
 	SHARED_DATA_PREFIX string = "/registry/sharedData/default"
-
-	NODE_CONFIG_PREFIX string = "/registry/node/default"
 )
 
 // api-server
 const (
-	BASE_URI string = "http://localhost:8080"
+	BASE_URI         string = "http://localhost:8080"
+	BASE_MONITOR_URI string = "http://localhost:2112/metrics"
 )

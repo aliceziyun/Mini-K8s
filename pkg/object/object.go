@@ -64,11 +64,9 @@ type Volume struct {
 }
 
 type ContainerPort struct {
-	//added ?
 	Name     string `json:"name" yaml:"name"`
 	Port     string `json:"containerPort" yaml:"containerPort"`
 	HostPort string `json:"hostPort" yaml:"hostPort"`
-	//类型有三种 tcp, udp, all.      默认为tcp, all的话两种都开
 	Protocol string `json:"protocol" yaml:"protocol"`
 }
 type ContainerEnv struct {
@@ -117,6 +115,7 @@ type Node struct {
 	MasterIp string      `json:"masterIp" yaml:"masterIp"`
 	Spec     NodeSpec    `json:"spec" yaml:"spec"`
 	Status   string      `json:"status" yaml:"status"`
+	Roles    string      `json:"roles" yaml:"roles"`
 }
 
 type NodeList struct {
@@ -124,9 +123,7 @@ type NodeList struct {
 }
 
 type NodeSpec struct {
-	//浮动ip地址
-	DynamicIp string `json:"physicalIp" yaml:"physicalIp""`
-	//为该节点分配的pod网段
+	DynamicIp     string `json:"physicalIp" yaml:"physicalIp""`
 	NodeIpAndMask string `json:"nodeIpAndMask" yaml:"nodeIpAndMask"`
 }
 
