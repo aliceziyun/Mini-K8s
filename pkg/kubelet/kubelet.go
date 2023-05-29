@@ -76,10 +76,10 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 func (kl *Kubelet) Run() {
 	kl.NodeManager.Start()
 	//kl.kubeProxy.StartKubeProxy()
-	go kl.podMonitor.Listener()
 	updates := kl.PodConfig.GetUpdates()
 	go kl.syncLoop(updates)
-	go kl.monitor(context.Background())
+	//go kl.podMonitor.Listener()
+	//go kl.monitor(context.Background())
 
 	go kl.kubeProxy.Run()
 
@@ -96,7 +96,7 @@ func (kl *Kubelet) Run() {
 			stopChan <- 1
 			return
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Second)
 	}()
 
 	go func() {
@@ -109,7 +109,7 @@ func (kl *Kubelet) Run() {
 			stopChan <- 1
 			return
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Second)
 	}()
 
 	<-stopChan
@@ -183,6 +183,7 @@ func (kl *Kubelet) HandlePodUpdates(pods []*object.Pod) {
 }
 
 func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
+	fmt.Println("[Kubelet] new Pod")
 	if res.ResType == etcdstorage.DELETE {
 		return
 	}
@@ -194,6 +195,7 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 
 	//如果pod没有分配node，则返回
 	if pod.Spec.NodeName == "" {
+		fmt.Println("[Kubelet] the pod not belong to any node")
 		return
 	}
 

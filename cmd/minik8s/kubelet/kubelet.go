@@ -9,21 +9,6 @@ import (
 
 //const MasterIp = "10.119.11.108"
 
-//func parseConfigFile(path string) *object.Node {
-//	data, err := ioutil.ReadFile(path)
-//	if err != nil {
-//		fmt.Printf("ReadFile in %s fail, use default config", os.Args[1])
-//		return nil
-//	}
-//	node := &object.Node{}
-//	err = yaml.Unmarshal([]byte(data), node)
-//	if err != nil {
-//		fmt.Printf("file in %s unmarshal fail, use default config", path)
-//		return nil
-//	}
-//	return node
-//}
-
 //	func main() {
 //		//var node *object.Node
 //		node := &object.Node{}
