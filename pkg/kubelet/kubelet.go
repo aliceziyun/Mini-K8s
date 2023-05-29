@@ -67,7 +67,7 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 	kubelet.ls = ls
 	kubelet.PodConfig = podConfig.NewPodConfig()
 	kubelet.podMonitor = monitor.NewMonitor()
-
+	kubelet.NodeManager, err = nodeManager.NewNodeManager(listwatcher.DefaultConfig())
 	kubelet.kubeProxy = kubeproxy.NewKubeProxy(listwatcher.DefaultConfig())
 
 	return kubelet

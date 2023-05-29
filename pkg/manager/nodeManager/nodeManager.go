@@ -5,10 +5,12 @@ import (
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/third_party/util"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -32,6 +34,41 @@ type NodeSnapShot struct {
 	IpAndMask string
 	NodeName  string
 	Error     string
+}
+
+func NewNodeManager(lsConfig *listwatcher.Config) (*NodeManager, error) {
+	nodeManager := &NodeManager{}
+	var rwLock sync.RWMutex
+	nodeManager.rwLock = rwLock
+	nodeManager.stopChannel = make(chan struct{}, 10)
+	nodeManager.DynamicIp = util.GetDynamicIP()
+	//nodeManager.IpAndMask = tools.GetDocker0IpAndMask()
+	ls, err2 := listwatcher.NewListWatcher(lsConfig)
+	if err2 != nil {
+		return nil, err2
+	}
+	nodeManager.ls = ls
+
+	resNode, _ := nodeManager.getNode(nodeManager.DynamicIp)
+	if resNode == nil {
+		nodeManager.node = nil
+		nodeManager.reboot = false
+	} else {
+		nodeManager.node = resNode
+		nodeManager.reboot = true
+		nodeManager.NodeName = resNode.MetaData.Name
+	}
+	sErr := ""
+	if nodeManager.err != nil {
+		sErr = nodeManager.err.Error()
+	}
+	nodeManager.nodeSnapShot = NodeSnapShot{
+		IpAndMask: nodeManager.IpAndMask,
+		DynamicIp: nodeManager.DynamicIp,
+		NodeName:  nodeManager.NodeName,
+		Error:     sErr,
+	}
+	return nodeManager, nil
 }
 
 func (m *NodeManager) Start() {
@@ -108,6 +145,42 @@ func (m *NodeManager) putNode(suffix string, requestBody any) error {
 		return errors.New("StatusCode not 200")
 	}
 	return nil
+}
+
+func (m *NodeManager) getNode(ip string) (*object.Node, error) {
+	suffix := _const.NODE_CONFIG_PREFIX + "/" + ip
+
+	request, err := http.NewRequest("GET", _const.BASE_URI+suffix, nil)
+	if err != nil {
+		return nil, err
+	}
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return nil, errors.New("StatusCode not 200")
+	}
+
+	reader := response.Body
+	defer reader.Close()
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	var resList []etcdstorage.ListRes
+	err = json.Unmarshal(data, &resList)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(resList) == 0 {
+		return nil, nil
+	}
+
+	result := &object.Node{}
+	err = json.Unmarshal(resList[0].ValueBytes, result)
+	return result, err
 }
 
 func (m *NodeManager) watchNode(res etcdstorage.WatchRes) {

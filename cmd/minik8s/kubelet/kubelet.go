@@ -45,19 +45,6 @@ import (
 //	}
 
 func main() {
-	//var node *object.Node
-	//node := &object.Node{}
-	//masterIp := MasterIp
-	// if len(os.Args) != 1 {
-	// 	path := os.Args[1]
-	// 	//参数应该为yaml文件路径,进行解析
-	// 	//node = parseConfigFile(os.Args[1])
-
-	// 	if err != nil {
-	// 		fmt.Printf("file in %s unmarshal fail, use default config", path)
-	// 		//node = nil
-	// 	}
-
 	clientConfig := client.Config{Host: "192.168.1.6" + ":8080"}
 	kube := kubelet.NewKubelet(listwatcher.DefaultConfig(), clientConfig)
 	kube.Run()
