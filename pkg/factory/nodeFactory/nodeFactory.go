@@ -27,6 +27,7 @@ func NewNode(node *object.Node) (*object.Node, error) {
 	}
 	var name string
 	name = node.MetaData.Name //默认有名字
+	fmt.Println("node name", name)
 	node.MetaData.Name = name
 	node.MetaData.Uid = uuid.New().String()
 	netMap.Name2Node[name] = node

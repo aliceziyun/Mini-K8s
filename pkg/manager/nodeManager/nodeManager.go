@@ -86,15 +86,13 @@ func (m *NodeManager) register() {
 			if err != nil {
 				fmt.Println("[Node Manager] watch register error" + err.Error())
 				time.Sleep(5 * time.Second)
-			} else {
-				return
 			}
 		}
 	}()
 }
 
 func (m *NodeManager) registerNode() {
-	m.register()
+	go m.register()
 	fmt.Println("[Node Manager] start init...")
 
 	//boot.BootFlannel()
@@ -183,6 +181,7 @@ func (m *NodeManager) getNode(ip string) (*object.Node, error) {
 	return result, err
 }
 
+// 只更新本机的nodeName
 func (m *NodeManager) watchNode(res etcdstorage.WatchRes) {
 	if res.ResType == etcdstorage.DELETE {
 		return
@@ -199,4 +198,6 @@ func (m *NodeManager) watchNode(res etcdstorage.WatchRes) {
 	if node.Spec.DynamicIp == m.DynamicIp {
 		m.NodeName = node.MetaData.Name
 	}
+
+	fmt.Println("[Node Manager] new node name", m.NodeName)
 }
