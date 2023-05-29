@@ -70,11 +70,14 @@ func getPods() []object.UserPod {
 		}
 
 		ready := fmt.Sprintf("%d/%d", len(pod.Spec.Containers), pod.Status.RunningContainers)
+		ctime := time.Now().Sub(pod.Metadata.Ctime).String()
 		usrPod := object.UserPod{
 			Name:   pod.Name,
 			Ready:  ready,
 			Status: pod.Status.Phase,
+			Owner:  pod.Spec.NodeName,
 			IP:     pod.Status.PodIP,
+			Ctime:  ctime,
 		}
 		usrPods = append(usrPods, usrPod)
 	}

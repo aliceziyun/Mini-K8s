@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 func (s *APIServer) watch(ctx *gin.Context) {
@@ -50,6 +51,7 @@ func (s *APIServer) addPodConfig(ctx *gin.Context) {
 	err = json.Unmarshal(body, pod)
 	//这里为了方便replicaSet等设置成running，实际有没有挂掉靠监听同步
 	pod.Status.Phase = object.RUNNING
+	pod.Metadata.Ctime = time.Now()
 	if err != nil {
 		fmt.Println("[AddService] service unmarshal fail")
 		ctx.AbortWithStatus(http.StatusBadRequest)

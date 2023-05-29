@@ -133,7 +133,7 @@ func isImageExist(a string, tags []string) bool {
 		}
 	}
 
-	fmt.Printf("Local image:%v Target image:%s\n", tags, a)
+	//fmt.Printf("Local image:%v Target image:%s\n", tags, a)
 	return false
 }
 

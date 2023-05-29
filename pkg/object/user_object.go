@@ -4,8 +4,9 @@ type UserPod struct {
 	Name   string
 	Ready  string
 	Status string
-	Ctime  string
+	Owner  string
 	IP     string
+	Ctime  string
 }
 
 type UserRS struct {
