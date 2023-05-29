@@ -58,7 +58,7 @@ func main() {
 	// 		//node = nil
 	// 	}
 
-	clientConfig := client.Config{Host: "localhost" + ":8080"}
+	clientConfig := client.Config{Host: "192.168.1.6" + ":8080"}
 	kube := kubelet.NewKubelet(listwatcher.DefaultConfig(), clientConfig)
 	kube.Run()
 }
