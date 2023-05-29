@@ -223,7 +223,7 @@ func (s *APIServer) addNode(ctx *gin.Context) {
 	err = json.Unmarshal(body, node)
 
 	if dynamicIp != node.Spec.DynamicIp {
-		fmt.Println("[API-Server] inconsistent dynamic IP")
+		fmt.Printf("[API-Server] inconsistent dynamic IP %s and %s \n", dynamicIp, node.Spec.DynamicIp)
 		return
 	}
 
