@@ -104,13 +104,13 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 	engine.DELETE(_const.RS_CONFIG_PREFIX, s.deleteRS)
 	engine.GET(_const.RS_CONFIG_PREFIX, s.getByPrefix)
 
-
 	engine.PUT(_const.SERVICE_CONFIG, s.addService)
 	engine.GET(_const.SERVICE_CONFIG_PREFIX, s.getByPrefix)
 
 	engine.PUT(_const.DNS_CONFIG, s.addDNS)
 	engine.GET(_const.DNS_CONFIG_PREFIX, s.getByPrefix)
 
+	engine.PUT(_const.NODE_CONFIG, s.addNode)
 }
 
 func (s *APIServer) daemon(listening <-chan watchOpt) {

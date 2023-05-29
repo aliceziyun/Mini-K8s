@@ -1,0 +1,7 @@
+kind: Node
+masterIp: 10.119.10.175
+role: worker
+metadata:
+  name: test1
+  labels:
+    type: ubuntu

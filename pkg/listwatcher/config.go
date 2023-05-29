@@ -1,6 +1,7 @@
 package listwatcher
 
 import (
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/message/config"
 )
 
@@ -13,7 +14,7 @@ type Config struct {
 
 func DefaultConfig() *Config {
 	return &Config{
-		Host:        "localhost",
+		Host:        _const.MATSTER_INNER_IP,
 		Port:        8080,
 		QueueConfig: config.DefaultQConfig(),
 	}
