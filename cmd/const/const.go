@@ -44,6 +44,6 @@ const (
 
 // api-server
 const (
-	BASE_URI         string = "http://localhost:8080"
-	BASE_MONITOR_URI string = "http://localhost:2112/metrics"
+	BASE_URI         string = "10.119.11.91:8080"
+	BASE_MONITOR_URI string = "10.119.11.91:2112/metrics"
 )
