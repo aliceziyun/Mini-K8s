@@ -8,6 +8,7 @@ const (
 const (
 	BASIC_IP_AND_MASK string = "172.16.0.0/16"
 	MASTER_IP         string = "10.119.11.91"
+	MATSTER_INNER_IP  string = "192.168.1.6"
 )
 
 // REST resource
