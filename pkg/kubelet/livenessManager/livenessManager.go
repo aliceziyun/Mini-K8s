@@ -161,7 +161,7 @@ type Manager interface {
 	Start()
 }
 
-type Opt interface {
+type OptFn interface {
 	GetPod(podUID string) *object.Pod
 	AddPod(podUID string, pod *object.Pod)
 	UpdatePod(podUID string, newPod *object.Pod)
@@ -170,7 +170,7 @@ type Opt interface {
 	Start()
 }
 
-func NewPlegManager(statusManager Opt) Manager {
+func NewPlegManager(statusManager OptFn) Manager {
 	return &manager{
 		eventCh:          make(chan *PodLifecycleEvent, eventChannelSize),
 		statusManager:    statusManager,
@@ -180,7 +180,7 @@ func NewPlegManager(statusManager Opt) Manager {
 
 type manager struct {
 	eventCh          chan *PodLifecycleEvent
-	statusManager    Opt
+	statusManager    OptFn
 	podStatusRecords podStatusRecords
 }
 
