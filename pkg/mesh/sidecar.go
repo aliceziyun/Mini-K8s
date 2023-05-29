@@ -12,11 +12,19 @@ import (
 // 15006 inbound outside -> pod
 
 type Sidecar struct {
-	podIP         string
+	PodIP         string
+	Host          string
 	forwardServer *net.TCPListener
 }
 
-func (sc *Sidecar) RunForwardServer(host, podIP, mode string) {
+func (sc *Sidecar) RunForwardServer(mode string) {
+
+	var host string
+	if mode == "outbound" {
+		host = sc.Host + ":15001"
+	} else {
+		host = sc.Host + ":15006"
+	}
 
 	// set server
 	listenAddr, err := net.ResolveTCPAddr("tcp", host)
@@ -29,26 +37,39 @@ func (sc *Sidecar) RunForwardServer(host, podIP, mode string) {
 	}
 	sc.forwardServer = server
 
-	// set pod ip
-	sc.podIP = podIP
-
 	// set iptables
 	ipt, err := iptables.New()
 	if err != nil {
 		return
 	}
-	exist, err := ipt.Exists("nat", "PREROUTING", "-p", "tcp", mode, sc.podIP, "-j", "DNAT", "--to-destination", host)
-	if err != nil {
-		return
-	}
-	if exist == false {
-		fmt.Println("iptables -t nat -A PREROUTING -p tcp " + mode + " " + sc.podIP + " -j DNAT --to-destination " + host)
-		err = ipt.AppendNAT("PREROUTING", "-p", "tcp", mode, sc.podIP, "-j", "DNAT", "--to-destination", host)
+	if mode == "outbound" {
+		exist, err := ipt.Exists("nat", "PREROUTING", "-p", "tcp", "-s", sc.PodIP, "-j", "DNAT", "--to-destination", host)
 		if err != nil {
 			return
 		}
+		if exist == false {
+			fmt.Println("iptables -t nat -A PREROUTING -p tcp " + "-s" + " " + sc.PodIP + " -j DNAT --to-destination " + host)
+			err = ipt.AppendNAT("PREROUTING", "-p", "tcp", "-s", sc.PodIP, "-j", "DNAT", "--to-destination", host)
+			if err != nil {
+				return
+			}
+		} else {
+			fmt.Println("exist")
+		}
 	} else {
-		fmt.Println("exist")
+		exist, err := ipt.Exists("nat", "OUTPUT", "-p", "tcp", "-d", sc.PodIP, "-j", "DNAT", "--to-destination", host)
+		if err != nil {
+			return
+		}
+		if exist == false {
+			fmt.Println("iptables -t nat -A OUTPUT -p tcp " + "-d" + " " + sc.PodIP + " -j DNAT --to-destination " + host)
+			err = ipt.AppendNAT("OUTPUT", "-p", "tcp", "-d", sc.PodIP, "-j", "DNAT", "--to-destination", host)
+			if err != nil {
+				return
+			}
+		} else {
+			fmt.Println("exist")
+		}
 	}
 
 	// listen

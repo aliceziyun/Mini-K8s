@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="576eeb9b-4b12-45e3-861d-27a1eefb54c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pkg/mesh/sidecar.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/demo.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/demo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/minik8s/kubelet/kubelet.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/kubelet/dockerClient/dockerClient.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/mesh/sidecar.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/mesh/sidecar.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,26 +44,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lcz&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/home/lcz/test",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
   }
-}</component>
+}]]></component>
   <component name="RdControllerToolWindowsLayoutState" isNewUi="false">
     <layout>
       <window_info id="Commit_Guest" />
@@ -82,10 +80,11 @@
       <window_info anchor="bottom" id="File Transfer" order="2" weight="0.3302257" />
       <window_info anchor="bottom" id="Run" order="3" weight="0.3302257" />
       <window_info anchor="bottom" id="Problems View" order="4" weight="0.3302257" />
-      <window_info anchor="bottom" id="Terminal" order="5" weight="0.3302257" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="5" visible="true" weight="0.3302257" />
       <window_info anchor="bottom" id="TypeScript" order="6" />
       <window_info anchor="bottom" id="Services" order="7" weight="0.3302257" />
       <window_info anchor="bottom" id="Dependency Checker" order="8" weight="0.3302257" />
+      <window_info anchor="bottom" id="Debug" order="9" show_stripe_button="false" weight="0.3302257" />
       <window_info anchor="right" id="documentation.v2" side_tool="true" />
       <window_info anchor="right" id="Meet New UI" show_stripe_button="false" side_tool="true" weight="0.33011132" />
       <window_info anchor="right" id="Endpoints" order="0" show_stripe_button="false" weight="0.33011132" />
@@ -99,11 +98,11 @@
       <recent name="$PROJECT_DIR$/build/Pod" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$USER_HOME$/test" />
       <recent name="$PROJECT_DIR$/cmd/const" />
       <recent name="$PROJECT_DIR$/third_party/util" />
       <recent name="$PROJECT_DIR$/build/Pod" />
       <recent name="$PROJECT_DIR$/pkg/listwatcher" />
-      <recent name="$PROJECT_DIR$/cmd/minik8s" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build Mini-K8s/cmd">
@@ -164,8 +163,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
         <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/kubelet" />
+        <item itemvalue="Go Build.go build Mini-K8s/cmd/minik8s/api-server" />
       </list>
     </recent_temporary>
   </component>
@@ -208,7 +207,8 @@
     <MESSAGE value="selector" />
     <MESSAGE value="dns" />
     <MESSAGE value="pre" />
-    <option name="LAST_COMMIT_MESSAGE" value="pre" />
+    <MESSAGE value="sidecar" />
+    <option name="LAST_COMMIT_MESSAGE" value="sidecar" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
