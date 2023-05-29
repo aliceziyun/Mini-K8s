@@ -26,9 +26,9 @@ func PrintRS(rs []object.UserRS) {
 }
 
 func PrintNode(node []object.UserNode) {
-	fmt.Printf("NAME\tDYNAMICIP\tCTIME\tROLE\n")
+	fmt.Printf("NAME\tDYNAMICIP\tROLE\tCTIME\n")
 
 	for _, each := range node {
-		fmt.Printf("%s\t%s\t%s\t%s\n", each.Name, each.DynamicIP, each.Ctime, each.Role)
+		fmt.Printf("%s\t%s\t%s\t%s\n", each.Name, each.DynamicIP, each.Role, each.Ctime)
 	}
 }
