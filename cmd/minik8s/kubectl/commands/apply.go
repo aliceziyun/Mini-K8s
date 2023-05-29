@@ -153,7 +153,7 @@ func createNewService(service *object.Service) {
 
 	suffix := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
 
-	req, _ := http.NewRequest("PUT", _const.SERVICE_CONFIG_PREFIX+suffix, reqBody)
+	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)
 
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
@@ -165,7 +165,7 @@ func createNewDNS(dnsConfig *object.DNSConfig) {
 
 	suffix := _const.DNS_CONFIG_PREFIX + "/" + dnsConfig.Name
 
-	req, _ := http.NewRequest("PUT", "http://localhost:8080"+suffix, reqBody)
+	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)
 
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)

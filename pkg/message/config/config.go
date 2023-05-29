@@ -16,7 +16,7 @@ func DefaultQConfig() *QConfig {
 	config := QConfig{
 		User:          "user",
 		Password:      "123456",
-		Host:          "192.168.1.6",
+		Host:          "localhost",
 		Port:          "5672",
 		VHost:         "admin",
 		MaxRetry:      10,
