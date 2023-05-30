@@ -8,6 +8,7 @@ import (
 	"Mini-K8s/third_party/queue"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type Scheduler struct {
 	stopChannel <-chan struct{}
 	selectType  string
 	queue       queue.ConcurrentQueue
+	mtx         sync.Mutex
 }
 
 func NewScheduler(lsConfig *listwatcher.Config) *Scheduler {
@@ -58,7 +60,9 @@ func (sched *Scheduler) worker() {
 		if !sched.queue.Empty() {
 			podPtr := sched.queue.Front()
 			sched.queue.Dequeue()
+			mtx.Lock()
 			err := sched.schedulePod(podPtr.(*object.Pod))
+			mtx.Unlock()
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -83,9 +87,8 @@ func (sched *Scheduler) watchNewPod(res etcdstorage.WatchRes) {
 	}
 
 	// check whether scheduled
-	fmt.Printf("watch new Config Pod with name:%s\n", pod.Name)
+	fmt.Printf("watch new Pod with name:%s\n", pod.Name)
 
-	fmt.Printf("[watchNewPod] new message from watcher...\n")
 	sched.queue.Enqueue(pod)
 }
 

@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sync"
 	"time"
 )
 
@@ -44,6 +45,7 @@ type Kubelet struct {
 	stopChannel <-chan struct{}
 	Client      client.RESTClient
 	Err         error
+	mtx         sync.Mutex
 }
 
 func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubelet {
@@ -235,7 +237,6 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 			kl.PodConfig.GetUpdates() <- podUp
 		}
 	}
-
 }
 
 // 每隔10秒更新一次pod的状态
