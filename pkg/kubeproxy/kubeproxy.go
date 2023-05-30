@@ -27,6 +27,7 @@ func NewKubeProxy(lsConfig *listwatcher.Config) *KubeProxy {
 	}
 	kubeProxy.ls = ls
 	RunDNS(lsConfig)
+	kubeProxy.ServName2Serv = make(map[string]object.Service)
 	return kubeProxy
 }
 
