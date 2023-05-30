@@ -2,6 +2,7 @@ package mesh
 
 import (
 	iptables "Mini-K8s/pkg/iptable"
+	"Mini-K8s/pkg/listwatcher"
 	"fmt"
 	"io"
 	"net"
@@ -14,6 +15,7 @@ import (
 type Sidecar struct {
 	PodIP         string
 	Host          string
+	gateway       *Gateway
 	forwardServer *net.TCPListener
 }
 
@@ -71,6 +73,9 @@ func (sc *Sidecar) RunForwardServer(mode string) {
 			fmt.Println("exist")
 		}
 	}
+
+	// set gateway
+	sc.gateway = NewGateway(listwatcher.DefaultConfig())
 
 	// listen
 	for {
