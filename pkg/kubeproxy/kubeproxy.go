@@ -100,17 +100,46 @@ func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 				probability = "1"
 			}
 
-			fmt.Println("iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
-				" -p tcp --dport " + service.Spec.Ports[0].Port +
-				" -m statistic --mode random --probability " + probability +
-				" -j DNAT --to-destination " + dst)
-
-			err = ipt.AppendNAT("OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+			exist, err := ipt.Exists("nat", "OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
 				"-m", "statistic", "--mode", "random", "--probability", probability,
 				"-j", "DNAT", "--to-destination", dst)
 			if err != nil {
-				fmt.Println(err)
 				continue
+			}
+			if exist == false {
+				fmt.Println("iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
+					" -p tcp --dport " + service.Spec.Ports[0].Port +
+					" -m statistic --mode random --probability " + probability +
+					" -j DNAT --to-destination " + dst)
+
+				err = ipt.AppendNAT("OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+					"-m", "statistic", "--mode", "random", "--probability", probability,
+					"-j", "DNAT", "--to-destination", dst)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+			}
+
+			exist, err = ipt.Exists("nat", "PREROUTING", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+				"-m", "statistic", "--mode", "random", "--probability", probability,
+				"-j", "DNAT", "--to-destination", dst)
+			if err != nil {
+				continue
+			}
+			if exist == false {
+				fmt.Println("iptables -t nat -A PREROUTING --dst " + service.Spec.ClusterIp +
+					" -p tcp --dport " + service.Spec.Ports[0].Port +
+					" -m statistic --mode random --probability " + probability +
+					" -j DNAT --to-destination " + dst)
+
+				err = ipt.AppendNAT("PREROUTING", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+					"-m", "statistic", "--mode", "random", "--probability", probability,
+					"-j", "DNAT", "--to-destination", dst)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 			}
 		}
 	}
@@ -137,12 +166,14 @@ func (kubeProxy *KubeProxy) deleteService(name string) {
 			probability = "1"
 		}
 
-		fmt.Println("delete iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
-			" -p tcp --dport " + service.Spec.Ports[0].Port +
-			" -m statistic --mode random --probability " + probability +
-			" -j DNAT --to-destination " + dst)
-
 		err = ipt.DeleteIfExists("nat", "OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+			"-m", "statistic", "--mode", "random", "--probability", probability,
+			"-j", "DNAT", "--to-destination", dst)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		err = ipt.DeleteIfExists("nat", "PREROUTING", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
 			"-m", "statistic", "--mode", "random", "--probability", probability,
 			"-j", "DNAT", "--to-destination", dst)
 		if err != nil {
