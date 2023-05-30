@@ -24,11 +24,10 @@ func (m *NodeManager) recover() bool {
 			m.DynamicIp = result.Spec.DynamicIp
 			m.node = result
 			_const.NODE_NAME = m.NodeName
+			fmt.Printf("[Node Manager] recover with %s name", _const.NODE_NAME)
 			return true
 		}
 	}
-
-	fmt.Printf("[Node Manager] recover with %d name", _const.NODE_NAME)
 
 	return false
 }

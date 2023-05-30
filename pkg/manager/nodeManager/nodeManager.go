@@ -68,6 +68,9 @@ func NewNodeManager(lsConfig *listwatcher.Config) (*NodeManager, error) {
 		NodeName:  nodeManager.NodeName,
 		Error:     sErr,
 	}
+
+	_ = nodeManager.recover()
+
 	return nodeManager, nil
 }
 
@@ -76,7 +79,6 @@ func (m *NodeManager) Start() {
 	if m.reboot {
 		return
 	}
-	_ = m.recover()
 	m.registerNode()
 }
 
@@ -198,6 +200,7 @@ func (m *NodeManager) watchNode(res etcdstorage.WatchRes) {
 	//更新nodeName
 	if node.Spec.DynamicIp == m.DynamicIp {
 		m.NodeName = node.MetaData.Name
+		_const.NODE_NAME = node.MetaData.Name
 	}
 
 	fmt.Println("[Node Manager] new node name", m.NodeName)

@@ -1,7 +1,7 @@
-kind: Node
-masterIp: 10.119.11.91
-role: master
+kind: Node  #文件为Node类型
+masterIp: 10.119.11.91  #Node主节点的ip
+role: master  #Node的角色(master/worker)
 spec:
-  physicalIp: 10.119.11.91
+  physicalIp: 10.119.11.91  #本机ip
 metadata:
-  name: master
+  name: master  #Node名字

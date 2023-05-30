@@ -2,14 +2,19 @@
 package pod
 
 import (
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/kubelet/dockerClient"
 	"Mini-K8s/pkg/kubelet/message"
 	"Mini-K8s/pkg/kubelet/podWorker"
 	"Mini-K8s/pkg/object"
+	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	uuid2 "github.com/google/uuid"
+	"net/http"
 	"os"
 	"path"
 	"runtime"
@@ -114,6 +119,7 @@ func (p *Pod) uploadPod() {
 // ------初始化相关函数--------//
 func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 	newPod := &Pod{}
+	newPodMeta := &object.PodMeta{}
 	newPod.configPod = config
 	// newPod.configPod.Ctime = time.Now().Format("2006-01-02 15:04:05")
 	newPod.canProbeWork = false
@@ -180,9 +186,19 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 		ContainerCommand: &(commandWithConfig.Command),
 		PodCommandType:   message.ADD_POD,
 	}
+	//更新并上传podMeta
+	newPodMeta.PodName = newPod.configPod.Name
+	newPodMeta.NodeName = _const.NODE_NAME
+	newPodMeta.Containers = newPod.containers
+	newPodMeta.HostDirMap = newPod.hostDirMap
+	newPodMeta.HostFileMap = newPod.hostFileMap
+	newPodMeta.TmpDirMap = newPod.tmpDirMap
+	err = uploadPodMeta(newPodMeta)
+	if err != nil {
+		return nil
+	}
+
 	newPod.commandChan <- podCommand
-	//提交pod
-	newPod.uploadPod()
 	return newPod
 }
 
@@ -401,6 +417,44 @@ func (p *Pod) DeletePod() {
 	fmt.Println("[Kubelet] send command")
 	deleteRuntimePod(p.GetName())
 	//p.rwLock.Unlock()
+}
+
+func RecoverPod(meta *object.PodMeta, configPod *object.Pod) *Pod {
+	var rwLock sync.RWMutex
+	pod := &Pod{}
+	pod.configPod = configPod
+	pod.hostFileMap = meta.HostFileMap
+	pod.hostDirMap = meta.HostDirMap
+	pod.tmpDirMap = meta.TmpDirMap
+	pod.containers = meta.Containers
+	pod.podWorker = &podWorker.PodWorker{}
+	pod.canProbeWork = false
+	pod.rwLock = rwLock
+	pod.commandChan = make(chan message.PodCommand, 100)
+	pod.responseChan = make(chan message.PodResponse, 100)
+
+	return pod
+}
+
+func uploadPodMeta(meta *object.PodMeta) error {
+	metaRaw, err := json.Marshal(meta)
+	if err != nil {
+		return err
+	}
+	reqBody := bytes.NewBuffer(metaRaw)
+
+	req, err := http.NewRequest("PUT", _const.BASE_URI+_const.POD_META_PREFIX+"/"+meta.PodName, reqBody)
+	if err != nil {
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		return errors.New("status code not 200")
+	}
+	return nil
 }
 
 // 释放所有资源

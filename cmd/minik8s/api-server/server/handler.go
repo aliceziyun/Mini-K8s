@@ -16,12 +16,28 @@ import (
 )
 
 func (s *APIServer) watch(ctx *gin.Context) {
-	//TODO: 现在是超简化版本
 	key := ctx.Request.URL.Path
-	fmt.Printf("[API-Server] receive watch request with key %s \n", key)
-	s.watcherChan <- watchOpt{key: key, withPrefix: false}
-	ctx.Data(http.StatusOK, "application/json", nil)
+	if s.recordTable.Contains(key) {
+		return
+	} else {
+		fmt.Printf("[API-Server] receive watch request with key %s \n", key)
+		s.recordTable.Put(key, "")
+		s.watcherChan <- watchOpt{key: key, withPrefix: false}
+		ctx.Data(http.StatusOK, "application/json", nil)
+	}
 }
+
+//func (s *APIServer) watchWithPrefix(ctx *gin.Context) {
+//	key := ctx.Request.URL.Path
+//	if s.recordTable.Contains(key) {
+//		return
+//	} else {
+//		fmt.Printf("[API-Server] receive watch request with key %s \n", key)
+//		s.recordTable.Put(key, "")
+//		s.watcherChan <- watchOpt{key: key, withPrefix: true}
+//		ctx.Data(http.StatusOK, "application/json", nil)
+//	}
+//}
 
 func (s *APIServer) put(ctx *gin.Context) {
 	key := ctx.Request.URL.Path

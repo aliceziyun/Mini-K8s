@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
+	"strings"
 )
 
 func createPod(rs *object.ReplicaSet) error {
@@ -145,7 +146,11 @@ func GetAllPods(ls *listwatcher.ListWatcher, name string, UID string) ([]*object
 }
 
 func getPodByName(name string, ls *listwatcher.ListWatcher) (*object.Pod, error) {
-	podList, err := ls.List(name)
+	fields := strings.Split(name, "/")
+	podName := fields[len(fields)-1]
+	suffix := _const.POD_CONFIG_PREFIX + "/" + podName
+
+	podList, err := ls.List(suffix)
 	if err != nil {
 		fmt.Println(err)
 	}

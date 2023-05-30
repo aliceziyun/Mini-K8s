@@ -22,6 +22,7 @@ const (
 	POD_CONFIG         string = "/registry/pod_config/default/:resourceName"
 	POD_CONFIG_PREFIX  string = "/registry/pod_config/default"
 	POD_RUNTIME_PREFIX string = "/registry/pod/default"
+	POD_META_PREFIX    string = "/registry/pod_meta/default"
 
 	RS_CONFIG        string = "/registry/rs_config/default/:resourceName"
 	RS_CONFIG_PREFIX string = "/registry/rs_config/default"

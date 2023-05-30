@@ -56,9 +56,18 @@ type Containers struct {
 
 // ContainerMeta (added)
 type ContainerMeta struct {
-	OriginName  string
-	RealName    string
-	ContainerId string
+	OriginName  string `json:"origin-name" yaml:"originName"`
+	RealName    string `json:"real-name" yaml:"realName"`
+	ContainerId string `json:"container-id" yaml:"containerId"`
+}
+
+type PodMeta struct {
+	PodName     string            `json:"pod-name" yaml:"podName"`
+	NodeName    string            `json:"node-name" yaml:"nodeName"`
+	Containers  []ContainerMeta   `json:"containers" yaml:"containers"`
+	TmpDirMap   map[string]string `json:"tmp-dir-map" yaml:"tmpDirMap"`
+	HostDirMap  map[string]string `json:"host-dir-map" yaml:"hostDirMap"`
+	HostFileMap map[string]string `json:"host-file-map" yaml:"hostFileMap"`
 }
 
 type Volume struct {
