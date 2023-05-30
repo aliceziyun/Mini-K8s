@@ -7,23 +7,18 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"sync"
 )
 
-var globalCount int
-var mtx sync.Mutex
+var globalCount = 0 //保证第一个node分配到master上，方便测试
 
 // 使用Round Robin
 func selectNode(nodes []object.Node) (string, error) {
-	mtx.Lock()
 	num := len(nodes)
 	if num == 0 {
 		return "", errors.New("[Scheduler] no node to select")
 	}
 	idx := globalCount % num
 	globalCount++
-
-	defer mtx.Unlock()
 
 	return nodes[idx].MetaData.Name, nil
 }

@@ -5,6 +5,7 @@ import (
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
+	_map "Mini-K8s/third_party/map"
 	"Mini-K8s/third_party/queue"
 	"encoding/json"
 	"fmt"
@@ -19,6 +20,7 @@ type Scheduler struct {
 	stopChannel <-chan struct{}
 	selectType  string
 	queue       queue.ConcurrentQueue
+	hashMap     *_map.ConcurrentMap
 	mtx         sync.Mutex
 }
 
@@ -32,7 +34,8 @@ func NewScheduler(lsConfig *listwatcher.Config) *Scheduler {
 	}
 
 	scheduler := &Scheduler{
-		ls: ls,
+		ls:      ls,
+		hashMap: _map.NewConcurrentMap(),
 	}
 	scheduler.stopChannel = make(chan struct{})
 	return scheduler
@@ -60,9 +63,9 @@ func (sched *Scheduler) worker() {
 		if !sched.queue.Empty() {
 			podPtr := sched.queue.Front()
 			sched.queue.Dequeue()
-			mtx.Lock()
+			sched.mtx.Lock()
 			err := sched.schedulePod(podPtr.(*object.Pod))
-			mtx.Unlock()
+			sched.mtx.Unlock()
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -94,6 +97,10 @@ func (sched *Scheduler) watchNewPod(res etcdstorage.WatchRes) {
 
 func (sched *Scheduler) schedulePod(pod *object.Pod) error {
 	fmt.Println("[Scheduler] Begin scheduling")
+	if sched.hashMap.Contains(pod.Name) {
+		return nil
+	}
+
 	nodes, err := sched.getNode()
 	if err != nil {
 		fmt.Println(err)
@@ -110,6 +117,7 @@ func (sched *Scheduler) schedulePod(pod *object.Pod) error {
 
 	//填充pod的node部分
 	pod.Spec.NodeName = nodeName
+	sched.hashMap.Put(pod.Name, nodeName)
 	err = updatePod(pod)
 	return err
 }

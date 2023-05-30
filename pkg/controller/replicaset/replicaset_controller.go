@@ -27,6 +27,7 @@ type ReplicaSetController struct {
 }
 
 func NewReplicaSetController(controllerContext controller_context.ControllerContext) *ReplicaSetController {
+	//hashMap中包含了当前有的replicaset的信息，重启的时候需要进行恢复
 	rsConfig := RSConfig.NewRSConfig()
 	hash := _map.NewConcurrentMap()
 	rsc := &ReplicaSetController{
@@ -39,6 +40,8 @@ func NewReplicaSetController(controllerContext controller_context.ControllerCont
 
 func (rsc *ReplicaSetController) Run(ctx context.Context) {
 	fmt.Println("[ReplicaSet Controller] start run ...")
+
+	rsc.recover() //recover from failure
 
 	go rsc.register()
 	go rsc.worker() //单worker，足够

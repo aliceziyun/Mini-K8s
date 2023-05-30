@@ -2,11 +2,16 @@
 package podManager
 
 import (
+	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/client"
+	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/kubelet/pod"
 	"Mini-K8s/pkg/object"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"sync"
 )
 
@@ -23,8 +28,6 @@ type PodManager struct {
 	Err          error
 }
 
-var instance *PodManager
-
 func NewPodManager(clientConfig client.Config) *PodManager {
 	newManager := &PodManager{}
 	newManager.name2pod = make(map[string]*pod.Pod)
@@ -35,12 +38,38 @@ func NewPodManager(clientConfig client.Config) *PodManager {
 	newManager.clientConfig = clientConfig
 	var lock sync.Mutex
 	newManager.lock = lock
+
+	newManager.recover()
+
 	return newManager
 }
+
+// 进行恢复，填充name2pod
+func (p *PodManager) recover() {
+	resList, err := list(_const.POD_CONFIG_PREFIX)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, res := range resList {
+		result := &object.Pod{}
+		err = json.Unmarshal(res.ValueBytes, result)
+		if result.Spec.NodeName == _const.NODE_NAME { //是本机的pod
+			pod := pod.NewPodfromConfig(result, p.clientConfig)
+			p.name2pod[result.Name] = pod
+		}
+	}
+
+	fmt.Printf("[Pod Manager] recover with %d data", len(resList))
+	return
+}
+
 func (p *PodManager) CheckIfPodExist(podName string) bool {
 	_, ok := p.name2pod[podName]
 	return ok
 }
+
 func (p *PodManager) DeletePod(podName string) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
@@ -76,4 +105,32 @@ func (p *PodManager) CopyName2pod() map[string]*pod.Pod {
 		uuidMap[key] = val
 	}
 	return uuidMap
+}
+
+func list(key string) ([]etcdstorage.ListRes, error) {
+	fmt.Printf("[list watcher] list %s \n", key)
+	resourceURL := _const.BASE_URI + key
+	request, err := http.NewRequest("GET", resourceURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	//向api-server发送请求
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return nil, errors.New("StatusCode not 200")
+	}
+	reader := response.Body
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	var resList []etcdstorage.ListRes
+	err = json.Unmarshal(data, &resList)
+	if err != nil {
+		return nil, err
+	}
+	return resList, nil
 }

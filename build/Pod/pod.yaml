@@ -9,3 +9,4 @@ spec: #详细
       image: nginx #使用的镜像
       ports: #容器开放的端口
         - containerPort: 80
+      

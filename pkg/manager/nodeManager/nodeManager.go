@@ -76,6 +76,7 @@ func (m *NodeManager) Start() {
 	if m.reboot {
 		return
 	}
+	_ = m.recover()
 	m.registerNode()
 }
 
@@ -97,31 +98,31 @@ func (m *NodeManager) registerNode() {
 
 	//boot.BootFlannel()
 
-	//发起注册的http请求
-	suffix := _const.NODE_CONFIG_PREFIX + "/" + m.DynamicIp
-	var node *object.Node
-	if m.node == nil {
-		node = &object.Node{
-			MasterIp: _const.MASTER_IP,
-			Spec: object.NodeSpec{
-				DynamicIp:     m.DynamicIp,
-				NodeIpAndMask: m.IpAndMask,
-			},
-		}
-	} else {
-		node = &object.Node{
-			MetaData: m.node.MetaData,
-			MasterIp: m.node.MasterIp,
-			Spec: object.NodeSpec{
-				DynamicIp:     m.DynamicIp,
-				NodeIpAndMask: m.IpAndMask,
-			},
-		}
-	}
-	err := m.putNode(suffix, node)
-	if err != nil {
-		return
-	}
+	//发起注册的http请求（没必要注册吧
+	//suffix := _const.NODE_CONFIG_PREFIX + "/" + m.DynamicIp
+	//var node *object.Node
+	//if m.node == nil {
+	//	node = &object.Node{
+	//		MasterIp: _const.MASTER_IP,
+	//		Spec: object.NodeSpec{
+	//			DynamicIp:     m.DynamicIp,
+	//			NodeIpAndMask: m.IpAndMask,
+	//		},
+	//	}
+	//} else {
+	//	node = &object.Node{
+	//		MetaData: m.node.MetaData,
+	//		MasterIp: m.node.MasterIp,
+	//		Spec: object.NodeSpec{
+	//			DynamicIp:     m.DynamicIp,
+	//			NodeIpAndMask: m.IpAndMask,
+	//		},
+	//	}
+	//}
+	//err := m.putNode(suffix, node)
+	//if err != nil {
+	//	return
+	//}
 	return
 }
 

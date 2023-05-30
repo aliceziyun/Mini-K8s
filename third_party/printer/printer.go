@@ -6,10 +6,10 @@ import (
 )
 
 func PrintPods(pods []object.UserPod) {
-	fmt.Printf("NAME\tREADY\tSTATUS\tIP\n")
+	fmt.Printf("NAME\tREADY\tSTATUS\tIP\tOWNER\tCTIME\n")
 
 	for _, pod := range pods {
-		fmt.Printf("%s\t%s\t%s\t%s\n", pod.Name, pod.Ready, pod.Status, pod.IP)
+		fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\n", pod.Name, pod.Ready, pod.Status, pod.IP, pod.Owner, pod.Ctime)
 	}
 
 	return
@@ -30,5 +30,18 @@ func PrintNode(node []object.UserNode) {
 
 	for _, each := range node {
 		fmt.Printf("%s\t%s\t%s\t%s\n", each.Name, each.DynamicIP, each.Role, each.Ctime)
+	}
+}
+
+func PrintSrv(srv []object.UserService) {
+	for _, each := range srv {
+		fmt.Println("Name: ", each.Name)
+		fmt.Println("NameSpcace: ", each.NameSpace)
+		fmt.Println("Selector: ", each.Selector)
+		fmt.Println("IP Families: ", each.IPFamily)
+		fmt.Println("IP: ", each.IP)
+		fmt.Println("Port: ", each.Port)
+		fmt.Println("Endpoint: ", each.EndPoint)
+		fmt.Println("--------------------------------")
 	}
 }

@@ -22,3 +22,13 @@ type UserNode struct {
 	Role      string
 	Ctime     string
 }
+
+type UserService struct {
+	Name      string
+	NameSpace string
+	Selector  map[string]string
+	IPFamily  string
+	IP        string
+	Port      []string
+	EndPoint  []string
+}

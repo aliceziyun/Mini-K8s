@@ -23,6 +23,7 @@ func createPod(rs *object.ReplicaSet) error {
 	pod.Name = rs.Name + podUID.String()
 	pod.Kind = object.POD
 	pod.Spec = rs.Spec.Pods.Spec
+	pod.Metadata = rs.Spec.Pods.Metadata
 	owner := object.OwnerReference{
 		Kind:       object.REPLICASET,
 		Name:       rs.Name,

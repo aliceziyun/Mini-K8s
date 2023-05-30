@@ -213,6 +213,8 @@ func (p *Pod) listeningResponse() {
 				if responseWithContainIds.Err != nil {
 					//出错了
 					if p.SetStatusAndErr(POD_FAILED_STATUS, responseWithContainIds.Err) {
+						p.SetContainersAndStatus(responseWithContainIds.Containers, POD_RUNNING_STATUS)
+						p.setIpAddress(responseWithContainIds.NetWorkInfos)
 						p.uploadPod()
 					}
 					fmt.Println(responseWithContainIds.Err.Error())
@@ -381,7 +383,7 @@ func (p *Pod) StartProbe() {
 }
 
 func (p *Pod) DeletePod() {
-	p.rwLock.Lock()
+	//p.rwLock.Lock()
 	fmt.Println("[Kubelet] into deletePod")
 	p.compareAndSetStatus(POD_DELETED_STATUS)
 	command := &message.CommandWithContainerIds{}
@@ -398,7 +400,7 @@ func (p *Pod) DeletePod() {
 	p.commandChan <- podCommand
 	fmt.Println("[Kubelet] send command")
 	deleteRuntimePod(p.GetName())
-	p.rwLock.Unlock()
+	//p.rwLock.Unlock()
 }
 
 // 释放所有资源

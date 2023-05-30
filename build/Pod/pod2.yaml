@@ -1,0 +1,26 @@
+kind: Pod #kind资源 Pod
+name: p6
+metadata:
+  labels:
+    app: test-service
+spec:
+  volumes:
+    - name: testVolume
+      path: /home/lcz/go/src/Mini-K8s/build
+  containers:
+    - name: jwstest
+      image: jwstest:latest
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - name: testVolume
+          mountPath: /home/test
+      args: ["/bin/sh","-c","while true; do echo hello world; sleep 1; done"]
+#    - name: nginx2
+#      image: nginx:1.17.1
+#      ports:
+#        - containerPort: 90
+#      args: ["/bin/sh","-c","while true; do echo hello world; sleep 1; done"]
+#      volumeMounts:
+#        - name: testVolume
+#          mountPath: /home/test

@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-var resourceList = []string{object.POD, object.REPLICASET, object.SERVICE, object.HPA}
+var resourceList = []string{object.POD, object.REPLICASET, object.SERVICE, object.HPA, object.NODE}
 
 func NewGetPodCommand() cli.Command {
 	getPodCmd := cli.Command{
@@ -50,6 +50,8 @@ func newGetAllRequest(arg string) {
 		printer.PrintRS(getRS())
 	case strings.ToLower(object.NODE):
 		printer.PrintNode(getNodes())
+	case strings.ToLower(object.SERVICE):
+		printer.PrintSrv(getServices())
 	default:
 		fmt.Println("No such resource!")
 		fmt.Printf("[Possible Resource Object]: ")
@@ -107,6 +109,40 @@ func getRS() []object.UserRS {
 		usrRSs = append(usrRSs, usrRS)
 	}
 	return usrRSs
+}
+
+func getServices() []object.UserService {
+	resList := getAll(_const.BASE_URI + _const.SERVICE_CONFIG_PREFIX)
+	var usrSvcs []object.UserService
+	for _, res := range resList {
+		service := &object.Service{}
+		err := json.Unmarshal(res.ValueBytes, service)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
+		var endpoint []string
+		var ports []string
+		for _, port := range service.Spec.Ports {
+			tmp := port.Port + "/" + port.Protocol
+			ports = append(ports, tmp)
+		}
+		for _, elem := range service.Spec.PodNameAndIps {
+			endpoint = append(endpoint, elem.Ip)
+		}
+		usrService := object.UserService{
+			Name:      service.Name,
+			NameSpace: service.Metadata.Namespace,
+			Selector:  service.Spec.Selector,
+			IPFamily:  "IPv4",
+			IP:        service.Spec.ClusterIp,
+			Port:      ports,
+			EndPoint:  endpoint,
+		}
+		usrSvcs = append(usrSvcs, usrService)
+	}
+	return usrSvcs
 }
 
 func getNodes() []object.UserNode {

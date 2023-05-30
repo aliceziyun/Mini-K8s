@@ -56,9 +56,6 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 	}
 	kubelet.Client = restClient
 
-	// initialize pod manager
-	kubelet.podManager = podManager.NewPodManager(clientConfig)
-
 	// initialize list watch
 	ls, err := listwatcher.NewListWatcher(lsConfig)
 	if err != nil {
@@ -70,6 +67,7 @@ func NewKubelet(lsConfig *listwatcher.Config, clientConfig client.Config) *Kubel
 	kubelet.PodConfig = podConfig.NewPodConfig()
 	kubelet.podMonitor = monitor.NewMonitor()
 	kubelet.NodeManager, err = nodeManager.NewNodeManager(listwatcher.DefaultConfig())
+	kubelet.podManager = podManager.NewPodManager(clientConfig)
 	kubelet.kubeProxy = kubeproxy.NewKubeProxy(listwatcher.DefaultConfig())
 
 	return kubelet
@@ -159,7 +157,7 @@ func (kl *Kubelet) HandlePodDelete(pods []*object.Pod) {
 		fmt.Printf("[Kubelet] delete pod:%s \n", pod.Name)
 		err := kl.podManager.DeletePod(pod.Name)
 		if err != nil {
-			fmt.Printf("[Kubelet] Delete pod fail...\n")
+			fmt.Println(err)
 		}
 	}
 }
@@ -201,7 +199,6 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 		return
 	}
 
-	fmt.Println("[kubelet] Add Pod")
 	pods := []*object.Pod{pod}
 	//检查pod是否已经存在
 	ok := kl.podManager.CheckIfPodExist(pod.Name)
@@ -289,5 +286,6 @@ func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
 }
 
 func (kl *Kubelet) getNodeName() string {
-	return kl.NodeManager.NodeName
+	return "master"
+	//return kl.NodeManager.NodeName
 }
