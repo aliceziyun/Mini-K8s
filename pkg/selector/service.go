@@ -30,9 +30,6 @@ func (r *ServRuntime) podSelector() {
 
 	var selectedPods []*object.Pod
 	for _, pod := range allPods {
-		//if pod.Status.Phase != "RUNNING" {
-		//	continue
-		//} todo this is for debug
 
 		isSelected := true
 		for key, val := range selector {
