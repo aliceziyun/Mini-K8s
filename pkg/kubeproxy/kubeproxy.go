@@ -73,37 +73,8 @@ func (kubeProxy *KubeProxy) Run() {
 func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 	fmt.Println("kubeProxy handle watch")
 	if res.ResType == etcdstorage.DELETE {
-		serviceName := res.Key
-		service := kubeProxy.ServName2Serv[serviceName]
-
-		ipt, err := iptables.New()
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		num := len(service.Spec.PodNameAndIps)
-		for i := 0; i < num; i++ {
-			dst := service.Spec.PodNameAndIps[i].Ip + ":" + service.Spec.Ports[0].TargetPort
-			probability := strconv.FormatFloat(1/float64(num-i), 'f', 2, 64)
-			if i+1 == num {
-				probability = "1"
-			}
-
-			fmt.Println("delete iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
-				" -p tcp --dport " + service.Spec.Ports[0].Port +
-				" -m statistic --mode random --probability " + probability +
-				" -j DNAT --to-destination " + dst)
-
-			err = ipt.DeleteIfExists("nat", "OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
-				"-m", "statistic", "--mode", "random", "--probability", probability,
-				"-j", "DNAT", "--to-destination", dst)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-		}
+		kubeProxy.deleteService(res.Key)
 	} else {
-		// now, we assume only exist CREAT
 		service := &object.Service{}
 		err := json.Unmarshal(res.ValueBytes, service)
 		if err != nil {
@@ -111,11 +82,13 @@ func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 			return
 		}
 		fmt.Println(service)
+		kubeProxy.deleteService(service.Name)
 		kubeProxy.ServName2Serv[service.Name] = *service
 
 		ipt, err := iptables.New()
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
 
 		num := len(service.Spec.PodNameAndIps)
@@ -136,8 +109,44 @@ func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 				"-j", "DNAT", "--to-destination", dst)
 			if err != nil {
 				fmt.Println(err)
-				return
+				continue
 			}
+		}
+	}
+}
+
+func (kubeProxy *KubeProxy) deleteService(name string) {
+	service, ok := kubeProxy.ServName2Serv[name]
+	if !ok {
+		fmt.Println("[KubeProxy] delete empty service")
+		return
+	}
+
+	ipt, err := iptables.New()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	num := len(service.Spec.PodNameAndIps)
+	for i := 0; i < num; i++ {
+		dst := service.Spec.PodNameAndIps[i].Ip + ":" + service.Spec.Ports[0].TargetPort
+		probability := strconv.FormatFloat(1/float64(num-i), 'f', 2, 64)
+		if i+1 == num {
+			probability = "1"
+		}
+
+		fmt.Println("delete iptables -t nat -A OUTPUT --dst " + service.Spec.ClusterIp +
+			" -p tcp --dport " + service.Spec.Ports[0].Port +
+			" -m statistic --mode random --probability " + probability +
+			" -j DNAT --to-destination " + dst)
+
+		err = ipt.DeleteIfExists("nat", "OUTPUT", "--dst", service.Spec.ClusterIp, "-p", "tcp", "--dport", service.Spec.Ports[0].Port,
+			"-m", "statistic", "--mode", "random", "--probability", probability,
+			"-j", "DNAT", "--to-destination", dst)
+		if err != nil {
+			fmt.Println(err)
+			continue
 		}
 	}
 }

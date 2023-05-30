@@ -210,3 +210,18 @@ type DNSPath struct {
 	Path      string `json:"path" yaml:"path"`
 	ServiceIp string `json:"serviceIp" yaml:"serviceIp"`
 }
+
+type VServiceSpec struct { //todo
+}
+
+type VServiceStatus struct {
+}
+
+type VService struct {
+	Name       string         `json:"name" yaml:"name"`
+	ApiVersion int            `json:"apiVersion" yaml:"apiVersion"`
+	Kind       string         `json:"kind" yaml:"kind"`
+	Metadata   ObjMetadata    `json:"metadata" yaml:"metadata"`
+	Spec       VServiceSpec   `json:"spec" yaml:"spec"`
+	Status     VServiceStatus `json:"status" yaml:"status"`
+}
