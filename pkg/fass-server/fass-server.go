@@ -10,7 +10,6 @@ import (
 	"Mini-K8s/third_party/queue"
 	"encoding/json"
 	"fmt"
-	uuid2 "github.com/google/uuid"
 	"os"
 	"path"
 	"strings"
@@ -62,10 +61,10 @@ func (s *FassServer) worker() {
 	fmt.Printf("[FassServer] Starting...\n")
 	for {
 		if !s.queue.Empty() {
-			metaMap := s.queue.Front()
+			meta := s.queue.Front()
 			s.queue.Dequeue()
 			s.mtx.Lock()
-			err := s.invokeFunction(metaMap.(map[string]any))
+			err := s.invokeFunction(meta.(*object.FunctionMeta))
 			s.mtx.Unlock()
 			if err != nil {
 				fmt.Println(err)
@@ -77,19 +76,28 @@ func (s *FassServer) worker() {
 }
 
 func (s *FassServer) watchNewFunc(res etcdstorage.WatchRes) {
-	metaMap := make(map[string]any, 10)
-	err := json.Unmarshal(res.ValueBytes, &metaMap)
+	//说明有任务做完了
+	if res.ResType == etcdstorage.DELETE {
+		fields := strings.Split(res.Key, "/")
+		funcName := fields[len(fields)-1]
+		fmt.Printf("[FassServer] function %s finish! Please go to the shared directory to check the result!", funcName)
+		return
+	}
+
+	meta := &object.FunctionMeta{}
+	err := json.Unmarshal(res.ValueBytes, &meta)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	s.queue.Enqueue(metaMap)
+	s.queue.Enqueue(meta)
 }
 
-func (s *FassServer) invokeFunction(metaMap map[string]any) error {
+func (s *FassServer) invokeFunction(meta *object.FunctionMeta) error {
 	//从etcd中读取出Function实体
-	name := fmt.Sprintln(metaMap["name"])
-	name = strings.Replace(name, "\n", "", -1)
+	nameAndUid := strings.Split(meta.Name, "_")
+	name := nameAndUid[0]
+	uuid := nameAndUid[1]
 	resList, err := s.ls.List(_const.FUNC_CONFIG_PREFIX + "/" + name)
 	if err != nil {
 		return err
@@ -109,17 +117,15 @@ func (s *FassServer) invokeFunction(metaMap map[string]any) error {
 	zip, err := os.ReadFile(function.Path)
 	functionBody := string(zip)
 
-	uuid, err := uuid2.NewUUID()
-
-	body := getFunctionBody(functionBody, function.ArgNum, function.Return, function.FuncName, uuid.String())
+	body := getFunctionBody(functionBody, function.ArgNum, function.Name, function.FuncName, uuid)
 
 	//将文件放入共享目录中
-	fileName := name + "-" + uuid.String() + ".py"
-	dirName := path.Join(_const.SHARED_DATA_DIR, name+"-"+uuid.String())
+	fileName := name + "_" + uuid + ".py"
+	dirName := path.Join(_const.SHARED_DATA_DIR, name+"-"+uuid)
 	err = file.Bytes2File(body, fileName, dirName)
 
 	//创建Pod
-	err = invokePod(uuid.String(), fileName, dirName)
+	err = invokePod(uuid, fileName, dirName, meta.ArgList)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -128,7 +134,7 @@ func (s *FassServer) invokeFunction(metaMap map[string]any) error {
 	return nil
 }
 
-func invokePod(uuid string, fileName string, dirName string) error {
+func invokePod(uuid string, fileName string, dirName string, argList []string) error {
 	pod := object.Pod{}
 	pod.Metadata.Name = fmt.Sprintf("Func-%s", uuid)
 	pod.Metadata.Uid = uuid
@@ -139,6 +145,7 @@ func invokePod(uuid string, fileName string, dirName string) error {
 	container.Image = "testpy:latest"
 	container.Name = fmt.Sprintf("Func-%s", uuid)
 	//commands := []string{
+	//	"sudo",
 	//	"python",
 	//	fileName,
 	//}
@@ -147,6 +154,7 @@ func invokePod(uuid string, fileName string, dirName string) error {
 		"-c",
 		"while true; do echo hello world; sleep 1; done",
 	}
+	commands = append(commands, argList...)
 	container.Command = commands
 	container.Args = nil
 	volumeMounts := []object.VolumeMount{

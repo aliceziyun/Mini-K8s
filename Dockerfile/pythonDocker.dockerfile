@@ -8,6 +8,8 @@ RUN apt-get install -y curl
 RUN apt-get install -y openssh-server
 RUN apt-get install -y expect
 
+RUN pip install requests
+
 ARG user=test
 
 RUN useradd --create-home --no-log-init --shell /bin/bash ${user} \

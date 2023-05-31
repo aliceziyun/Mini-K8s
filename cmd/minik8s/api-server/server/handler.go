@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	uuid2 "github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -255,23 +256,24 @@ func (s *APIServer) invoke(ctx *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-	metaMap := make(map[string]any, 10)
-	err = json.Unmarshal(body, &metaMap)
+	meta := &object.FunctionMeta{}
+	err = json.Unmarshal(body, &meta)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	//fmt.Println(metaMap)
 
-	funcRaw, err := json.Marshal(metaMap)
+	uuid := uuid2.New()
+	name := meta.Name + "_" + uuid.String()
+	meta.Name = name
+
+	funcRaw, err := json.Marshal(meta)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	reqBody := bytes.NewBuffer(funcRaw)
-	name := fmt.Sprintln(metaMap["name"])
-	name = strings.Replace(name, "\n", "", -1)
 	suffix := _const.FUNC_RUNTIME_PREFIX + "/" + name
 
 	req, err := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
@@ -295,12 +297,13 @@ func (s *APIServer) receive(context *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-	res := make(map[string]any, 10)
-	err = json.Unmarshal(body, &res)
-	name := fmt.Sprintln(res["name"])
-	name = strings.Replace(name, "\n", "", -1)
+	//这里不知道为什么body无法解析到json，只能暴力做
+	name := strings.Replace(string(body), "name=", "", -1)
+
+	fmt.Println("[APIServer] receive result from remote server")
+
 	suffix := _const.FUNC_RUNTIME_PREFIX + "/" + name
-	req, err := http.NewRequest("DEL", _const.BASE_URI+suffix, nil)
+	req, err := http.NewRequest("DELETE", _const.BASE_URI+suffix, nil)
 	if err != nil {
 		fmt.Println(err)
 		return

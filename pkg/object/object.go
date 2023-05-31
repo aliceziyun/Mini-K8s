@@ -235,6 +235,11 @@ type Function struct {
 	Return   bool   `json:"return" yaml:"return"`
 }
 
+type FunctionMeta struct {
+	Name    string   `json:"name" yaml:"name"`
+	ArgList []string `json:"args" yaml:"args"`
+}
+
 type VServiceSpec struct { //todo
 }
 

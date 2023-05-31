@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func getFunctionBody(body string, argNum int, isReturn bool, funcName string, uuid string) []byte {
+func getFunctionBody(body string, argNum int, serveName string, funcName string, uuid string) []byte {
 	body = appendRedirector(body)
 
 	body = body + "    print(" + funcName + "("
@@ -22,17 +22,16 @@ func getFunctionBody(body string, argNum int, isReturn bool, funcName string, uu
 			body += ","
 		}
 	}
-	body = body + "))"
+	body = body + "))\n"
 
-	body = appendCallBack(body, funcName+"-"+uuid)
+	body = appendCallBack(body, serveName+"_"+uuid)
 
 	return []byte(body)
 }
 
 func appendRedirector(body string) string {
 	body += "\nimport sys\n"
-	body += "from urllib.parse import urlencode\n"
-	body += "from urllib.request import urlopen\n"
+	body += "import requests\n"
 	body += "with open('output.txt', 'w') as f:\n"
 	body += "    sys.stdout = f\n"
 
@@ -42,11 +41,12 @@ func appendRedirector(body string) string {
 
 // 写都写了……
 func appendCallBack(body string, name string) string {
-	body += "\nurl='http://"
-	body = body + _const.MASTER_IP + ":8080" + _const.SERVERLESS_CALLBACK_PATH + "'\n"
-	body = body + "data = {'Name':'" + name + "'}\n"
-	body += "s = urlencode(data)\n"
-	body += "urlopen(url,s.encode())"
+	url := "http://"
+	//这里不知道为什么只有内网才有回复
+	url = url + _const.MATSTER_INNER_IP + ":8080" + _const.SERVERLESS_CALLBACK_PATH
+	requestBody := fmt.Sprintf("requests.post(url='%s',headers={'Content-Type': 'application/x-www-form-urlencoded'},data={'name':'%s'})",
+		url, name)
+	body = body + requestBody
 	return body
 }
 
