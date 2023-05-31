@@ -34,7 +34,7 @@ type CommandWithId struct {
 }
 type CommandWithConfig struct {
 	Command
-	Group []object.Container
+	Group []object.Container //container数组
 }
 
 type CommandWithImages struct {
@@ -73,6 +73,7 @@ type PodCommand struct {
 	ContainerCommand *Command
 	PodCommandType   int
 }
+
 type PodResponse struct {
 	ContainerResponse *Response
 	PodResponseType   int

@@ -31,6 +31,8 @@ func initApp() *cli.App {
 		app.Commands = []cli.Command{
 			commands.NewApplyCommand(),
 			commands.NewQuitCommand(),
+			commands.NewGetPodCommand(),
+			commands.NewDeleteCommand(),
 		}
 	}
 	return app

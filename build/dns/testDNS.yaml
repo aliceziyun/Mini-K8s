@@ -1,0 +1,6 @@
+kind: DNS
+name: dns1
+host: minik8s.lcz.com
+paths:
+  - serviceIp: http://10.10.0.8:6666/
+    path: /k8s

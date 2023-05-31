@@ -11,9 +11,6 @@ import (
 	"github.com/spf13/cast"
 )
 
-// reference: https://docs.hpc.sjtu.edu.cn
-// https://docs.hpc.sjtu.edu.cn/job/slurm.html
-
 const (
 	gpuUser      = "stu1641"
 	gpuPasswd    = "lj#sJpH4"

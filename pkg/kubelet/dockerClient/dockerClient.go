@@ -1,11 +1,14 @@
 package dockerClient
 
 import (
+	"Mini-K8s/pkg/kubelet/message"
 	"Mini-K8s/pkg/object"
 	"context"
 	"fmt"
+	"github.com/docker/docker/api/types/mount"
 	"io"
 	"io/ioutil"
+	"unsafe"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -64,18 +67,18 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 		fmt.Println("error on creating Pause Container")
 		return container.ContainerCreateCreatedBody{}, err2
 	}
-	var exports nat.PortSet = make(nat.PortSet, len(ports))
+	var exports = make(nat.PortSet, len(ports))
 	for _, port := range ports {
 		//默认是tcp
 		if port.Protocol == "" || port.Protocol == "tcp" || port.Protocol == "all" {
-			p, err := nat.NewPort("tcp", port.ContainerPort)
+			p, err := nat.NewPort("tcp", port.Port)
 			if err != nil {
 				return container.ContainerCreateCreatedBody{}, err
 			}
 			exports[p] = struct{}{}
 		}
 		if port.Protocol == "udp" || port.Protocol == "all" {
-			p, err := nat.NewPort("udp", port.ContainerPort)
+			p, err := nat.NewPort("udp", port.Port)
 			if err != nil {
 				return container.ContainerCreateCreatedBody{}, err
 			}
@@ -86,10 +89,9 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 		Image:        "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.6",
 		ExposedPorts: exports, //所有暴露的接口
 	}, &container.HostConfig{
-		IpcMode: container.IpcMode("shareable"),
+		IpcMode: "shareable",
 		//DNS:     []string{netconfig.ServiceDns},
 		DNS: []string{ServiceDns}, //暂时在本文件设置一个const，以后可以写在config文件里
-		//const ServiceDns = "10.10.10.10"
 	}, nil, nil, name)
 	return resp, err
 }
@@ -105,7 +107,7 @@ func deleteExistedContainers(names []string) error {
 		_, err := cli.ContainerInspect(context.Background(), value)
 		if err == nil {
 			//需要先停止container
-			err = cli.ContainerStop(context.Background(), value, nil)
+			//err = cli.ContainerStop(context.Background(), value, nil)
 			// err = cli.ContainerStop(context.Background(), value, container.StopOptions{})
 			if err != nil {
 				return err
@@ -130,7 +132,7 @@ func isImageExist(a string, tags []string) bool {
 		}
 	}
 
-	fmt.Printf("Local image:%v Target image:%s\n", tags, a)
+	//fmt.Printf("Local image:%v Target image:%s\n", tags, a)
 	return false
 }
 
@@ -167,6 +169,7 @@ func dockerClientPullImages(images []string) error {
 		flag := false //此镜像是否已在本地
 		for _, it := range resp {
 			if isImageExist(value, it.RepoTags) {
+				fmt.Printf("[Kubelet] image %s exists \n", value)
 				flag = true
 				break
 			}
@@ -187,20 +190,24 @@ func dockerClientPullImages(images []string) error {
 
 	return nil
 }
+
 func runContainers(containerIds []object.ContainerMeta) error {
-	fmt.Println("runContainers:")
+	fmt.Println("[dockerClient] runContainers: ", containerIds)
 	cli, err2 := GetNewClient()
 	if err2 != nil {
 		return err2
 	}
 	for _, value := range containerIds {
+		fmt.Printf("[Kubelet] Run Container with ID %s \n", value)
 		err := cli.ContainerStart(context.Background(), value.ContainerId, types.ContainerStartOptions{})
 		if err != nil {
+			fmt.Println("[Kubelet] start container fail", err)
 			return err
 		}
 	}
 	return nil
 }
+
 func getContainerNetInfo(name string) (*types.NetworkSettings, error) {
 	cli, err1 := GetNewClient()
 	if err1 != nil {
@@ -213,11 +220,9 @@ func getContainerNetInfo(name string) (*types.NetworkSettings, error) {
 		return nil, err
 	}
 	return res.NetworkSettings, nil
-	return nil, nil
 }
 func createContainersOfPod(containers []object.Container) ([]object.ContainerMeta, *types.NetworkSettings, error) {
-	fmt.Println("createContainersOfPod:")
-	//cli, err2 := getNewClient()
+	fmt.Println("[dockerClient] createContainersOfPod")
 	cli, err2 := client.NewClientWithOpts()
 	if err2 != nil {
 		return nil, nil, err2
@@ -255,6 +260,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 	}
 	//创建pause容器
 	pause, err := createPause(totalPort, pauseName)
+	fmt.Println("[Kubelet] pausename:", pauseName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -264,16 +270,19 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		ContainerId: firstContainerId,
 	})
 	for _, value := range containers {
-		//var mounts []mount.Mount
-		//if value.VolumeMounts != nil {
-		//	for _, it := range value.VolumeMounts {
-		//		mounts = append(mounts, mount.Mount{
-		//			Type:   mount.TypeBind,
-		//			Source: it.Name,
-		//			Target: it.MountPath,
-		//		})
-		//	}
-		//}
+		fmt.Println("[Kubelet] containerName:", value.Name)
+		//fmt.Println("[Kubelet] commandTest:", value.Command)
+		//fmt.Println("[Kubelet] argTest:", value.Args)
+		var mounts []mount.Mount
+		if value.VolumeMounts != nil {
+			for _, it := range value.VolumeMounts {
+				mounts = append(mounts, mount.Mount{
+					Type:   mount.TypeBind,
+					Source: it.Name,
+					Target: it.MountPath,
+				})
+			}
+		}
 		//生成env
 		var env []string
 		if value.Env != nil {
@@ -291,7 +300,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		//	resourceConfig.Memory = getMemory(value.Limits.Memory)
 		//}
 		//创建容器
-		fmt.Println("ContainerCreate")
+		fmt.Printf("[dockerClient] ContainerCreate with image %s \n", value.Image)
 		resp, err := cli.ContainerCreate(context.Background(), &container.Config{
 			Image:      value.Image,
 			Entrypoint: value.Command,
@@ -299,12 +308,13 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 			Env:        env,
 		}, &container.HostConfig{
 			NetworkMode: container.NetworkMode("container:" + firstContainerId),
-			//Mounts:      mounts,
-			IpcMode:   container.IpcMode("container:" + firstContainerId),
-			PidMode:   container.PidMode("container" + firstContainerId),
-			Resources: resourceConfig,
+			Mounts:      mounts,
+			IpcMode:     container.IpcMode("container:" + firstContainerId),
+			PidMode:     container.PidMode("container" + firstContainerId),
+			Resources:   resourceConfig,
 		}, nil, nil, value.Name)
 		if err != nil {
+			fmt.Println("[Kubelet] run container fail with reason", err)
 			return nil, nil, err
 		}
 		result = append(result, object.ContainerMeta{
@@ -361,4 +371,19 @@ func Main(Group []object.Container) {
 	//result.CommandType = message.COMMAND_BUILD_CONTAINERS_OF_POD
 	//result.Containers = res
 	//result.NetWorkInfos = netSetting
+}
+
+func HandleCommand(command *message.Command) *message.Response {
+	switch command.CommandType {
+	case message.COMMAND_BUILD_CONTAINERS_OF_POD:
+		p := (*message.CommandWithConfig)(unsafe.Pointer(command))
+		res, netSetting, err := createContainersOfPod(p.Group)
+		var result message.ResponseWithContainIds
+		result.Err = err
+		result.CommandType = message.COMMAND_BUILD_CONTAINERS_OF_POD
+		result.Containers = res
+		result.NetWorkInfos = netSetting
+		return &(result.Response)
+	}
+	return nil
 }
