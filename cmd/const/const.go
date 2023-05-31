@@ -43,10 +43,19 @@ const (
 
 	DNS_CONFIG        string = "/registry/dns_config/default/:resourceName"
 	DNS_CONFIG_PREFIX string = "/registry/dns_config/default"
+
+	FUNC_CONFIG         string = "/registry/func_config/default/:resourceName"
+	FUNC_CONFIG_PREFIX  string = "/registry/func_config/default"
+	FUNC_RUNTIME        string = "/registry/func_runtime/default/:resourceName"
+	FUNC_RUNTIME_PREFIX string = "/registry/func_runtime/default"
 )
 
 // api-server
 const (
 	BASE_URI         string = "http://192.168.1.6:8080"
 	BASE_MONITOR_URI string = "http://192.168.1.6:2112/metrics"
+)
+
+const (
+	SERVELESS_PATH string = "/mini-fass"
 )

@@ -1,0 +1,7 @@
+kind: Function
+apiVersion: v1
+name: HelloWorld  #该serveless function的标识符
+type: python  #函数类型
+functionName: hello_world #函数名，必须和文件中一样
+path: /home/lcz/go/src/Mini-K8s/build/Serveless/hello_world.zip #存放函数的路径
+arg: 1  #参数个数

@@ -123,6 +123,15 @@ func applyFile(file string) error {
 		}
 		createNewNode(node)
 		break
+	case "Function":
+		function := &object.Function{}
+		err = v2.Unmarshal([]byte(data), function)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		createNewFunc(function)
+		break
 	default:
 		err = errors.New("no such resources")
 		return err
@@ -242,6 +251,29 @@ func createNewJob(job *object.GPUJob) {
 
 	req2, _ := http.NewRequest("PUT", _const.BASE_URI+suffix2, reqBody2)
 	resp, _ = http.DefaultClient.Do(req2)
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func createNewFunc(funtion *object.Function) {
+	funcRaw, err := json.Marshal(funtion)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	reqBody := bytes.NewBuffer(funcRaw)
+	suffix := _const.FUNC_CONFIG_PREFIX + "/" + funtion.Name
+
+	req, err := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
 }

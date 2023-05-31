@@ -194,19 +194,19 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 	}
 
 	//如果pod没有分配node，则返回
-	if pod.Spec.NodeName == "" {
-		fmt.Println("[Kubelet] the pod not belong to any node")
-		return
-	}
+	//if pod.Spec.NodeName == "" {
+	//	fmt.Println("[Kubelet] the pod not belong to any node")
+	//	return
+	//}
 
 	pods := []*object.Pod{pod}
 	//检查pod是否已经存在
 	ok := kl.podManager.CheckIfPodExist(pod.Name)
 	if !ok { //pod不存在
 		//不是本节点的pod
-		if pod.Spec.NodeName != kl.getNodeName() {
-			return
-		}
+		//if pod.Spec.NodeName != kl.getNodeName() {
+		//	return
+		//}
 		if pod.Status.Phase != object.DELETED {
 			fmt.Printf("[Kubelet] create new pod %s ! \n", pod.Name)
 			//新建

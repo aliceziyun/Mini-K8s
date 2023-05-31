@@ -224,6 +224,16 @@ type DNSPath struct {
 	ServiceIp string `json:"serviceIp" yaml:"serviceIp"`
 }
 
+// ---------------------Serveless--------------------------
+type Function struct {
+	Kind     string `json:"kind" yaml:"kind"`
+	Name     string `json:"name" yaml:"name"`
+	Type     string `json:"type" yaml:"type"`
+	FuncName string `json:"function-name" yaml:"functionName"`
+	Path     string `json:"path" yaml:"path"`
+	ArgNum   int    `json:"arg" yaml:"arg"`
+}
+
 type VServiceSpec struct { //todo
 }
 

@@ -7,11 +7,13 @@ import (
 	"Mini-K8s/pkg/object"
 	"Mini-K8s/pkg/selector"
 	"Mini-K8s/third_party/util"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -26,18 +28,6 @@ func (s *APIServer) watch(ctx *gin.Context) {
 		ctx.Data(http.StatusOK, "application/json", nil)
 	}
 }
-
-//func (s *APIServer) watchWithPrefix(ctx *gin.Context) {
-//	key := ctx.Request.URL.Path
-//	if s.recordTable.Contains(key) {
-//		return
-//	} else {
-//		fmt.Printf("[API-Server] receive watch request with key %s \n", key)
-//		s.recordTable.Put(key, "")
-//		s.watcherChan <- watchOpt{key: key, withPrefix: true}
-//		ctx.Data(http.StatusOK, "application/json", nil)
-//	}
-//}
 
 func (s *APIServer) put(ctx *gin.Context) {
 	key := ctx.Request.URL.Path
@@ -257,6 +247,46 @@ func (s *APIServer) addNode(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusBadRequest)
 	}
 	ctx.Status(http.StatusOK)
+}
+
+func (s *APIServer) invoke(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	metaMap := make(map[string]any, 10)
+	err = json.Unmarshal(body, &metaMap)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	//fmt.Println(metaMap)
+
+	funcRaw, err := json.Marshal(metaMap)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	reqBody := bytes.NewBuffer(funcRaw)
+	name := fmt.Sprintln(metaMap["name"])
+	name = strings.Replace(name, "\n", "", -1)
+	suffix := _const.FUNC_RUNTIME_PREFIX + "/" + name
+
+	req, err := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
 }
 
 //----------------------通用----------------------
