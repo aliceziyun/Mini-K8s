@@ -74,7 +74,7 @@ func (kubeProxy *KubeProxy) Run() {
 func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 	fmt.Println("kubeProxy handle watch")
 	if res.ResType == etcdstorage.DELETE {
-		kubeProxy.deleteService(res.Key)
+		kubeProxy.DeleteService(res.Key)
 	} else {
 		service := &object.Service{}
 		err := json.Unmarshal(res.ValueBytes, service)
@@ -83,7 +83,7 @@ func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 			return
 		}
 		fmt.Println(service)
-		kubeProxy.deleteService(service.Name)
+		kubeProxy.DeleteService(service.Name)
 		kubeProxy.ServName2Serv[service.Name] = *service
 
 		ipt, err := iptables.New()
@@ -145,10 +145,9 @@ func (kubeProxy *KubeProxy) serviceChangeHandler(res etcdstorage.WatchRes) {
 	}
 }
 
-func (kubeProxy *KubeProxy) deleteService(name string) {
+func (kubeProxy *KubeProxy) DeleteService(name string) {
 	service, ok := kubeProxy.ServName2Serv[name]
 	if !ok {
-		fmt.Println("[KubeProxy] delete empty service")
 		return
 	}
 

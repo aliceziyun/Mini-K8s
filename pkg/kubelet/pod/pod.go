@@ -181,8 +181,6 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 		PodCommandType:   message.ADD_POD,
 	}
 	newPod.commandChan <- podCommand
-	//提交pod
-	newPod.uploadPod()
 	return newPod
 }
 

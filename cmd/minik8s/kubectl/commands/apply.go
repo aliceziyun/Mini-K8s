@@ -123,6 +123,14 @@ func applyFile(file string) error {
 		}
 		createNewNode(node)
 		break
+	case "VService":
+		vs := &object.VService{}
+		err = v2.Unmarshal([]byte(data), vs)
+		if err != nil {
+			fmt.Printf("file in %s unmarshal fail, use default config", path)
+		}
+		createNewVService(vs)
+		break
 	default:
 		err = errors.New("no such resources")
 		return err
@@ -164,6 +172,18 @@ func createNewDNS(dnsConfig *object.DNSConfig) {
 	reqBody := bytes.NewBuffer(podRaw)
 
 	suffix := _const.DNS_CONFIG_PREFIX + "/" + dnsConfig.Name
+
+	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	resp, _ := http.DefaultClient.Do(req)
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func createNewVService(vs *object.VService) {
+	podRaw, _ := json.Marshal(vs)
+	reqBody := bytes.NewBuffer(podRaw)
+
+	suffix := _const.VSERVICE_CONFIG_PREFIX + "/" + vs.Name
 
 	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
 	resp, _ := http.DefaultClient.Do(req)

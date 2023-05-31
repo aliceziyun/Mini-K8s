@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: httpd
+spec:
+  hosts:
+    - httpd.web.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: httpd-1.web.svc.cluster.local
+          weight: 70
+        - destination:
+            host: httpd-2.web.svc.cluster.local
+          weight: 30

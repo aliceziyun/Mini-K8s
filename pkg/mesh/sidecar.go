@@ -19,7 +19,16 @@ type Sidecar struct {
 	forwardServer *net.TCPListener
 }
 
-func (sc *Sidecar) RunForwardServer(mode string) {
+func RunSidecar() {
+	sidecar := Sidecar{
+		PodIP: "10.10.72.2",
+		Host:  "192.168.1.4",
+	}
+	go sidecar.runForwardServer("outbound")
+	go sidecar.runForwardServer("inbound")
+}
+
+func (sc *Sidecar) runForwardServer(mode string) {
 
 	var host string
 	if mode == "outbound" {
@@ -75,7 +84,9 @@ func (sc *Sidecar) RunForwardServer(mode string) {
 	}
 
 	// set gateway
-	sc.gateway = NewGateway(listwatcher.DefaultConfig())
+	if mode == "inbound" {
+		sc.gateway = NewGateway(listwatcher.DefaultConfig())
+	}
 
 	// listen
 	for {

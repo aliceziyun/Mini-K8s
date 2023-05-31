@@ -215,7 +215,14 @@ type DNSPath struct {
 	ServiceIp string `json:"serviceIp" yaml:"serviceIp"`
 }
 
-type VServiceSpec struct { //todo
+type PodIpAndWeight struct {
+	Ip     string `json:"ip"`
+	Weight string `json:"weight"`
+}
+
+type VServiceSpec struct {
+	ServiceName     string           `json:"serviceName" yaml:"serviceName"`
+	PodIpAndWeights []PodIpAndWeight `json:"podIpAndWeights"`
 }
 
 type VServiceStatus struct {

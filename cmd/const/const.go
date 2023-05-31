@@ -42,6 +42,9 @@ const (
 
 	DNS_CONFIG        string = "/registry/dns_config/default/:resourceName"
 	DNS_CONFIG_PREFIX string = "/registry/dns_config/default"
+
+	VSERVICE_CONFIG        string = "/registry/vservice_config/default/:resourceName"
+	VSERVICE_CONFIG_PREFIX string = "/registry/vservice_config/default"
 )
 
 // api-server

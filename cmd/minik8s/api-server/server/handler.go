@@ -243,6 +243,27 @@ func (s *APIServer) addNode(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
+func (s *APIServer) addVService(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	vs := &object.VService{}
+	err = json.Unmarshal(body, vs)
+	if err != nil {
+		fmt.Println("[AddService] vs unmarshal fail")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	key := _const.VSERVICE_CONFIG_PREFIX + "/" + vs.Name
+	fmt.Printf("key:%v\n", key)
+
+	body, _ = json.Marshal(vs)
+
+	err = s.store.Put(key, string(body))
+	if err != nil {
+		return
+	}
+}
+
 //----------------------通用----------------------
 
 func (s *APIServer) get(ctx *gin.Context) {
