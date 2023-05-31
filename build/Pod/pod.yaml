@@ -1,5 +1,5 @@
 kind: Pod #kind资源 Pod
-name: TestPod
+name: TestPod5
 metadata:
   labels:
     app: nginx-pod

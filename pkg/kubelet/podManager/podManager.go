@@ -46,19 +46,40 @@ func NewPodManager(clientConfig client.Config) *PodManager {
 
 // 进行恢复，填充name2pod
 func (p *PodManager) recover() {
-	resList, err := list(_const.POD_CONFIG_PREFIX)
+	resList, err := list(_const.POD_META_PREFIX)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	for _, res := range resList {
-		result := &object.Pod{}
+		result := &object.PodMeta{}
 		err = json.Unmarshal(res.ValueBytes, result)
-		if result.Spec.NodeName == _const.NODE_NAME { //是本机的pod
-			pod := pod.NewPodfromConfig(result, p.clientConfig)
-			p.name2pod[result.Name] = pod
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
+		if result.NodeName == _const.NODE_NAME {
+			fmt.Println("[Pod Manager] recover with pod", result.PodName)
+			res, err := list(_const.POD_RUNTIME_PREFIX + "/" + result.PodName)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			configPod := &object.Pod{}
+			if len(res) == 0 {
+				return
+			}
+			err = json.Unmarshal(res[0].ValueBytes, configPod)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			pod := pod.RecoverPod(result, configPod)
+			p.name2pod[result.PodName] = pod
+			pod.StartPod()
+		}
+
 	}
 
 	fmt.Printf("[Pod Manager] recover with %d data", len(resList))

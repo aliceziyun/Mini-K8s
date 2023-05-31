@@ -1,9 +1,9 @@
 kind: Service
 name: serv2
 spec:
-  clusterIp: 10.10.0.10
+  clusterIp: 10.10.0.12
   selector:
-    app: test-service
+    app: test-RS
   ports:
     - name: sp
       port: 6666

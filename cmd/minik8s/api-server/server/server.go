@@ -4,6 +4,7 @@ import (
 	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/message"
+	_map "Mini-K8s/third_party/map"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -22,15 +23,14 @@ type Ticket struct {
 }
 
 type APIServer struct {
-	engine *gin.Engine
-	port   int
-	//resourceSet  mapset.Set[string]
-	store     *etcdstorage.KVStore
-	publisher *message.Publisher
-	//watcherMap   map[string]*watcher
+	engine       *gin.Engine
+	port         int
+	store        *etcdstorage.KVStore
+	publisher    *message.Publisher
 	watcherMtx   sync.Mutex // watcherMtx 保护watcherCount
 	watcherChan  chan watchOpt
 	ticketSeller *atomic.Uint64
+	recordTable  *_map.ConcurrentMap
 }
 
 // NewServer :
@@ -56,15 +56,13 @@ func NewServer(c *ServerConfig) (*APIServer, error) {
 	watcherChan := make(chan watchOpt)
 
 	s := &APIServer{
-		engine: engine,
-		port:   c.HttpPort,
-		//resourceSet:  mapset.NewSet[string](c.ValidResources...),
-		store:     store,
-		publisher: publisher,
-		//watcherMap:   map[string]*watcher{},
+		engine:       engine,
+		port:         c.HttpPort,
+		store:        store,
+		publisher:    publisher,
 		watcherChan:  watcherChan,
 		ticketSeller: atomic.NewUint64(0),
-		//kubeNetSupport: kubeNetSupport,
+		recordTable:  _map.NewConcurrentMap(),
 	}
 
 	registerWebFunc(engine, s)
@@ -88,6 +86,7 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 	engine.POST(_const.PATH, s.watch)
 	engine.PUT(_const.PATH, s.put)
 	engine.DELETE(_const.PATH, s.delete)
+	engine.GET(_const.PATH, s.get)
 
 	engine.POST(_const.PATH_PREFIX, s.watch)
 
@@ -97,6 +96,8 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 
 	engine.PUT(_const.POD_RUNTIME_PREFIX, s.addPodRuntime)
 	engine.GET(_const.POD_RUNTIME_PREFIX, s.getByPrefix)
+
+	engine.GET(_const.POD_META_PREFIX, s.getByPrefix)
 
 	engine.PUT(_const.RS_CONFIG, s.addRS)
 	engine.GET(_const.RS_CONFIG, s.get)
@@ -128,7 +129,11 @@ func (s *APIServer) daemon(listening <-chan watchOpt) {
 
 			s.watcherMtx.Lock()
 			var resChan <-chan etcdstorage.WatchRes
+			//if opt.withPrefix {
+			//	_, resChan = s.store.WatchWithPrefix(key)
+			//} else {
 			_, resChan = s.store.Watch(key)
+			//}
 
 			go func(resChan <-chan etcdstorage.WatchRes) {
 				for res := range resChan {

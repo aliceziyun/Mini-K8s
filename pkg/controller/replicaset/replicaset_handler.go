@@ -33,6 +33,9 @@ func (rsc *ReplicaSetController) handlePod(res etcdstorage.WatchRes) {
 
 	// 获取该pod对应的rs
 	rs := getReplicaSetOf(pod, rsc)
+	if rs == nil {
+		return
+	}
 	key := getKey(rs)
 	rsc.hashMap.Put(key, rs)
 	rsc.queue.Enqueue(key)

@@ -67,7 +67,7 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 		fmt.Println("error on creating Pause Container")
 		return container.ContainerCreateCreatedBody{}, err2
 	}
-	var exports nat.PortSet = make(nat.PortSet, len(ports))
+	var exports = make(nat.PortSet, len(ports))
 	for _, port := range ports {
 		//默认是tcp
 		if port.Protocol == "" || port.Protocol == "tcp" || port.Protocol == "all" {
@@ -89,10 +89,9 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 		Image:        "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.6",
 		ExposedPorts: exports, //所有暴露的接口
 	}, &container.HostConfig{
-		IpcMode: container.IpcMode("shareable"),
+		IpcMode: "shareable",
 		//DNS:     []string{netconfig.ServiceDns},
 		DNS: []string{ServiceDns}, //暂时在本文件设置一个const，以后可以写在config文件里
-		//const ServiceDns = "10.10.10.10"
 	}, nil, nil, name)
 	return resp, err
 }
@@ -272,8 +271,8 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 	})
 	for _, value := range containers {
 		fmt.Println("[Kubelet] containerName:", value.Name)
-		fmt.Println("[Kubelet] commandTest:", value.Command)
-		fmt.Println("[Kubelet] argTest:", value.Args)
+		//fmt.Println("[Kubelet] commandTest:", value.Command)
+		//fmt.Println("[Kubelet] argTest:", value.Args)
 		var mounts []mount.Mount
 		if value.VolumeMounts != nil {
 			for _, it := range value.VolumeMounts {
