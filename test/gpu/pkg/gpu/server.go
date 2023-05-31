@@ -32,8 +32,8 @@ type JobArgs struct {
 }
 
 const pollPeriod = time.Second * 10
-const DefaultJobURL = "./home/data/gpu"
-const DefaultResultURL = "./home/data/res"
+const DefaultJobURL = "/home/data/gpu"
+const DefaultResultURL = "/home/data/res"
 
 type Server interface {
 	Run()
