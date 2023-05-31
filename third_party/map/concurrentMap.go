@@ -50,6 +50,18 @@ func (cp *ConcurrentMap) GetAll() []interface{} {
 	return elemList
 }
 
+func (cp *ConcurrentMap) GetAllKey() []string {
+	cp.mtx.RLock()
+	defer cp.mtx.RUnlock()
+
+	var elemList []string
+
+	for key, _ := range cp.m {
+		elemList = append(elemList, key.(string))
+	}
+	return elemList
+}
+
 type ConcurrentMapTrait[KEY comparable, VALUE any] struct {
 	innerMap map[KEY]VALUE
 	mtx      sync.RWMutex

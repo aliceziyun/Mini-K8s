@@ -225,6 +225,11 @@ type DNSPath struct {
 }
 
 // ---------------------Serveless--------------------------
+const (
+	FUNCTION = "FUNC"
+	WORKFLOW = "WF"
+)
+
 type Function struct {
 	Kind     string `json:"kind" yaml:"kind"`
 	Name     string `json:"name" yaml:"name"`
@@ -232,12 +237,29 @@ type Function struct {
 	FuncName string `json:"function-name" yaml:"functionName"`
 	Path     string `json:"path" yaml:"path"`
 	ArgNum   int    `json:"arg" yaml:"arg"`
-	Return   bool   `json:"return" yaml:"return"`
+	Level    int    `json:"level" yaml:"level"`
+	Scale    bool   `json:"scale" yaml:"scale"`
 }
 
 type FunctionMeta struct {
-	Name    string   `json:"name" yaml:"name"`
-	ArgList []string `json:"args" yaml:"args"`
+	Name    string    `json:"name" yaml:"name"`
+	ArgList []string  `json:"args" yaml:"args"`
+	Type    string    `json:"type" yaml:"type"`
+	Ctime   time.Time `json:"time"`
+}
+
+type FassNode struct {
+	Name  string   `json:"name" yaml:"name"`
+	Child []string `json:"child" yaml:"child"`
+}
+
+type WorkFlow struct {
+	Kind         string     `json:"kind" yaml:"kind"`
+	Name         string     `json:"name" yaml:"name"`
+	Type         string     `json:"type" yaml:"type"`
+	FunctionList []Function `json:"functions" yaml:"functions"`
+	MaxLevel     int        `json:"maxLevel" yaml:"maxLevel"`
+	Graph        []FassNode `json:"graph" yaml:"graph"`
 }
 
 type VServiceSpec struct { //todo

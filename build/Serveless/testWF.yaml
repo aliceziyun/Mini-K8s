@@ -1,0 +1,35 @@
+kind: WorkFlow  #同一个workflow共享同一个目录
+apiVersion: v1
+name: MapReduce
+type: python
+functions:
+  - functionName: addTwo
+    path: /home/lcz/go/src/Mini-K8s/build/Serveless/addTwo.py
+    arg: 1
+    scale: false
+    level: 1  #level应该通过拓扑排序计算，但时间不够了因此简化替代
+  - functionName: double
+    path: /home/lcz/go/src/Mini-K8s/build/Serveless/double.py
+    arg: 1
+    scale: true
+    level: 2
+  - functionName: printerA
+    path: /home/lcz/go/src/Mini-K8s/build/Serveless/printerA.py
+    arg: 1
+    scale: false
+    level: 3
+  - functionName: printerB
+    path: /home/lcz/go/src/Mini-K8s/build/Serveless/printerB.py
+    arg: 1
+    scale: false
+    level: 3
+maxLevel: 3   #最多的层数，这个本来也不该在yaml里的
+graph:
+  - name: addTwo
+    child: double #设置parent比child更合理，这里也是为了简化
+  - name: double
+    child: [printerA,printerB]
+  - name: printerA
+    child: nil  #叶子节点默认设置为nil
+  - name: printerB
+    child: nil

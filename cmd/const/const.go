@@ -48,6 +48,8 @@ const (
 	FUNC_CONFIG_PREFIX  string = "/registry/func_config/default"
 	FUNC_RUNTIME        string = "/registry/func_runtime/default/:resourceName"
 	FUNC_RUNTIME_PREFIX string = "/registry/func_runtime/default"
+
+	WORKFLOW_CONFIG_PREFIX string = "/registry/workflow/default"
 )
 
 // api-server
