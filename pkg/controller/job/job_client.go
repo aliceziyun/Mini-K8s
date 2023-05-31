@@ -77,7 +77,3 @@ func addJobPod(pod *object.Pod) error {
 	}
 	return nil
 }
-
-//func addJob2Pod(key string) error {
-//
-//}

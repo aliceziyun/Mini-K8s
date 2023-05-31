@@ -18,4 +18,7 @@ RUN echo 'test ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 WORKDIR /home/${user}
 
+RUN touch output.txt
+RUN chmod 777 output.txt
+
 USER ${user}

@@ -232,6 +232,7 @@ type Function struct {
 	FuncName string `json:"function-name" yaml:"functionName"`
 	Path     string `json:"path" yaml:"path"`
 	ArgNum   int    `json:"arg" yaml:"arg"`
+	Return   bool   `json:"return" yaml:"return"`
 }
 
 type VServiceSpec struct { //todo

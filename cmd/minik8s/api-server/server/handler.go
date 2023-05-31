@@ -289,6 +289,32 @@ func (s *APIServer) invoke(ctx *gin.Context) {
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
 }
 
+func (s *APIServer) receive(context *gin.Context) {
+	body, err := ioutil.ReadAll(context.Request.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	res := make(map[string]any, 10)
+	err = json.Unmarshal(body, &res)
+	name := fmt.Sprintln(res["name"])
+	name = strings.Replace(name, "\n", "", -1)
+	suffix := _const.FUNC_RUNTIME_PREFIX + "/" + name
+	req, err := http.NewRequest("DEL", _const.BASE_URI+suffix, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
 //----------------------通用----------------------
 
 func (s *APIServer) get(ctx *gin.Context) {

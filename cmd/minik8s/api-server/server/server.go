@@ -118,6 +118,7 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 
 	//-------------------non-REST------------------------
 	engine.POST(_const.SERVELESS_PATH, s.invoke)
+	engine.POST(_const.SERVERLESS_CALLBACK_PATH, s.receive)
 }
 
 func (s *APIServer) daemon(listening <-chan watchOpt) {

@@ -57,5 +57,6 @@ const (
 )
 
 const (
-	SERVELESS_PATH string = "/mini-fass"
+	SERVELESS_PATH           string = "/mini-fass"
+	SERVERLESS_CALLBACK_PATH string = "/mini-callback"
 )
