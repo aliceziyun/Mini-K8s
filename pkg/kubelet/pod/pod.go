@@ -26,25 +26,25 @@ import (
 	"github.com/docker/docker/api/types"
 )
 
+// yaml文件中表示emptyDir和hostPath的
 const emptyDir = "emptyDir"
 const hostPath = "hostPath"
 
 // pod的状态
 const POD_PENDING_STATUS = "Pending"
-
 const POD_FAILED_STATUS = "Failed"
 const POD_RUNNING_STATUS = "Running"
 const POD_EXITED_STATUS = "Exited"
 const POD_DELETED_STATUS = "deleted"
 const POD_CREATEED_STATUS = "created"
 
-// container 的状态
+// container的状态
 const CONTAINER_EXITED_STATUS = "exited"
 const CONTAINER_RUNNING_STATUS = "running"
 const CONTAINER_CREATED_STATUS = "created"
 
-// pod探针间隔,为了防止探针command拥堵，要等上一次的response
-const PROBE_INTERVAL = 60 //探针间隔，单位为秒
+// pod的liveness probe间隔,为了防止探针command拥堵，要等上一次的response
+const PROBE_INTERVAL = 60 //探针间隔=60s
 
 type Pod struct {
 	configPod   *object.Pod
@@ -52,14 +52,14 @@ type Pod struct {
 	tmpDirMap   map[string]string
 	hostDirMap  map[string]string
 	hostFileMap map[string]string
-	//读写锁，更小粒度
+	//读写锁
 	rwLock       sync.RWMutex
 	commandChan  chan message.PodCommand
 	responseChan chan message.PodResponse
 	podWorker    *podWorker.PodWorker
 	//探针相关
 	timer        *time.Ticker
-	canProbeWork bool
+	canProbeWork bool //控制是否能probe；每次probe后要暂设为false
 	stopChan     chan bool
 }
 
@@ -70,18 +70,18 @@ type PodNetWork struct {
 
 }
 
-// --------------tool function--------------------------------//
 func (p *Pod) GetName() string {
 	return p.configPod.Name
 }
-func (p *Pod) GetLabel() map[string]string {
-	// return p.configPod.Labels
-	return nil
-}
-func (p *Pod) GetUid() string {
-	// return p.configPod.UID
-	return ""
-}
+
+// func (p *Pod) GetLabel() map[string]string {
+// 	// return p.configPod.Labels
+// 	return nil
+// }
+// func (p *Pod) GetUid() string {
+// 	// return p.configPod.UID
+// 	return ""
+// }
 
 func (p *Pod) GetContainers() []object.ContainerMeta {
 	p.rwLock.RLock()
@@ -90,7 +90,7 @@ func (p *Pod) GetContainers() []object.ContainerMeta {
 	return deepContainers
 }
 
-// 修改了status返回true
+// 修改pod的status，如果不用修改则返回falses
 func (p *Pod) compareAndSetStatus(status string) bool {
 	oldStatus := p.getStatus()
 	if oldStatus == status {
@@ -102,11 +102,8 @@ func (p *Pod) compareAndSetStatus(status string) bool {
 func (p *Pod) getStatus() string {
 	return p.configPod.Status.Phase
 }
-func (p *Pod) setError(err error) {
-	// p.configPod.Status.Err = err.Error()
-}
 
-// Pod: 通知etcdPod被创建
+// Pod: 更新pod
 func (p *Pod) uploadPod() {
 	err := updatePod(p.configPod)
 	if err != nil {
@@ -114,14 +111,12 @@ func (p *Pod) uploadPod() {
 	}
 }
 
-//--------------------------------------------------------------//
-
-// ------初始化相关函数--------//
+// 初始化pod
 func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 	newPod := &Pod{}
 	newPodMeta := &object.PodMeta{}
 	newPod.configPod = config
-	// newPod.configPod.Ctime = time.Now().Format("2006-01-02 15:04:05")
+	// newPod.configPod.Ctime = time.Now().Format("2020-06-01 15:40:00")
 	newPod.canProbeWork = false
 	var rwLock sync.RWMutex
 	newPod.rwLock = rwLock
@@ -148,18 +143,17 @@ func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 	newPod.containers[0].RealName = pauseRealName
 	err := newPod.AddVolumes(config.Spec.Volumes)
 	if err != nil {
-		newPod.setError(err)
 		newPod.compareAndSetStatus(POD_FAILED_STATUS)
 	} else {
 		newPod.compareAndSetStatus(POD_PENDING_STATUS)
 	}
 	//启动pod
 	newPod.StartPod()
-	//生成command
+	//生成创建pod容器的command
 	commandWithConfig := &message.CommandWithConfig{}
 	commandWithConfig.CommandType = message.COMMAND_BUILD_CONTAINERS_OF_POD
 	commandWithConfig.Group = config.Spec.Containers
-	// 把config中的container里的volumeMounts MountPath 换成实际路径
+	// 把config中容器的volumeMounts MountPath 换成实际路径
 	for _, value := range commandWithConfig.Group {
 		if value.VolumeMounts != nil {
 			for index, it := range value.VolumeMounts {
@@ -220,14 +214,14 @@ func (p *Pod) listeningResponse() {
 			}
 			switch response.PodResponseType {
 			case message.ADD_POD:
-				//判断是否成功
 				p.rwLock.Lock()
 				responseWithContainIds := (*message.ResponseWithContainIds)(unsafe.Pointer(response.ContainerResponse))
 				fmt.Printf("[pod] receive AddPod responce")
 				fmt.Println(*responseWithContainIds)
 				fmt.Println(*responseWithContainIds.NetWorkInfos)
+				//先看response是否是操作成功了
 				if responseWithContainIds.Err != nil {
-					//出错了
+					//操作出错了
 					if p.SetStatusAndErr(POD_FAILED_STATUS, responseWithContainIds.Err) {
 						p.SetContainersAndStatus(responseWithContainIds.Containers, POD_RUNNING_STATUS)
 						p.setIpAddress(responseWithContainIds.NetWorkInfos)
@@ -235,7 +229,7 @@ func (p *Pod) listeningResponse() {
 					}
 					fmt.Println(responseWithContainIds.Err.Error())
 				} else {
-					//设置containersId
+					//成功添加pod，将其状态变成running
 					p.SetContainersAndStatus(responseWithContainIds.Containers, POD_RUNNING_STATUS)
 					p.setIpAddress(responseWithContainIds.NetWorkInfos)
 					p.uploadPod()
@@ -275,6 +269,7 @@ func (p *Pod) listeningResponse() {
 				}
 
 			case message.DELETE_POD:
+				//
 				return
 			}
 		}
@@ -331,9 +326,7 @@ func GetCurrentAbPathByCaller() string {
 	return abPath
 }
 
-//----------------初始化相关函数结束------------------------//
-
-// ----------------辅助函数--------------------------------//
+// --------------------辅助函数-------------------------------- //
 func (p *Pod) SetStatusAndErr(status string, err error) bool {
 	// p.configPod.Status.Err = err.Error()
 	return p.compareAndSetStatus(status)
@@ -372,7 +365,7 @@ func (p *Pod) StartProbe() {
 			select {
 			case <-p.timer.C:
 				p.rwLock.Lock()
-				//这几种情况下不进行检查
+				// 当前状态为running且探针可用时监测
 				if p.canProbeWork && p.getStatus() != POD_PENDING_STATUS && p.getStatus() != POD_FAILED_STATUS && p.getStatus() != POD_DELETED_STATUS && p.getStatus() != POD_EXITED_STATUS {
 					command := &message.CommandWithContainerIds{}
 					command.CommandType = message.COMMAND_PROBE_CONTAINER
@@ -395,11 +388,11 @@ func (p *Pod) StartProbe() {
 				}
 			}
 		}
-	}(p)
+	}(p) //p作为参数，调用这个函数
 }
 
 func (p *Pod) DeletePod() {
-	//p.rwLock.Lock()
+	p.rwLock.Lock()
 	fmt.Println("[Kubelet] into deletePod")
 	p.compareAndSetStatus(POD_DELETED_STATUS)
 	command := &message.CommandWithContainerIds{}
@@ -416,7 +409,7 @@ func (p *Pod) DeletePod() {
 	p.commandChan <- podCommand
 	fmt.Println("[Kubelet] send command")
 	deleteRuntimePod(p.GetName())
-	//p.rwLock.Unlock()
+	p.rwLock.Unlock()
 }
 
 func RecoverPod(meta *object.PodMeta, configPod *object.Pod) *Pod {
@@ -457,7 +450,6 @@ func uploadPodMeta(meta *object.PodMeta) error {
 	return nil
 }
 
-// 释放所有资源
 func (p *Pod) releaseResource() {
 	p.rwLock.Lock()
 	p.canProbeWork = false
