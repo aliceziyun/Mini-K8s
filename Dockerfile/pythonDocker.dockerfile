@@ -1,14 +1,16 @@
-FROM python:3.6
+FROM python:3.9
 
 RUN apt-get update
-RUN apt-get install net-tools
-RUN apt-get install sudo
+RUN apt-get install -y net-tools
+RUN apt-get install -y sudo
 RUN apt-get install -y vim
 RUN apt-get install -y curl
 RUN apt-get install -y openssh-server
 RUN apt-get install -y expect
 
 RUN pip install requests
+RUN pip install scp
+RUN pip install paramiko
 
 ARG user=test
 
