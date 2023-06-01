@@ -74,14 +74,14 @@ func (p *Pod) GetName() string {
 	return p.configPod.Name
 }
 
-// func (p *Pod) GetLabel() map[string]string {
-// 	// return p.configPod.Labels
-// 	return nil
-// }
-// func (p *Pod) GetUid() string {
-// 	// return p.configPod.UID
-// 	return ""
-// }
+func (p *Pod) GetLabel() map[string]string {
+	// return p.configPod.Labels
+	return nil
+}
+func (p *Pod) GetUid() string {
+	// return p.configPod.UID
+	return ""
+}
 
 func (p *Pod) GetContainers() []object.ContainerMeta {
 	p.rwLock.RLock()
