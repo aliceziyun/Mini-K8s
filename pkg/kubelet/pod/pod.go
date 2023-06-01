@@ -2,6 +2,7 @@ package pod
 
 import (
 	_const "Mini-K8s/cmd/const"
+	"Mini-K8s/pkg/client"
 	"Mini-K8s/pkg/kubelet/dockerClient"
 	"Mini-K8s/pkg/kubelet/message"
 	"Mini-K8s/pkg/kubelet/podWorker"
@@ -116,84 +117,7 @@ func (p *Pod) uploadPod() {
 //--------------------------------------------------------------//
 
 // ------初始化相关函数--------//
-//
-//	func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
-//		newPod := &Pod{}
-//		newPod.configPod = config
-//		// newPod.configPod.Ctime = time.Now().Format("2006-01-02 15:04:05")
-//		newPod.canProbeWork = false
-//		var rwLock sync.RWMutex
-//		newPod.rwLock = rwLock
-//		restClient := client.RESTClient{
-//			Base: "http://" + clientConfig.Host,
-//		}
-//		newPod.client = restClient
-//		newPod.commandChan = make(chan message.PodCommand, 100)
-//		newPod.responseChan = make(chan message.PodResponse, 100)
-//		newPod.podWorker = &podWorker.PodWorker{}
-//		////创建pod里的containers同时把config里的originName替换为realName
-//		//先填第一个pause容器
-//		newPod.containers = append(newPod.containers, object.ContainerMeta{
-//			OriginName: "pause",
-//			RealName:   "", //先设置为空
-//		})
-//		pauseRealName := "pause"
-//		for index, value := range config.Spec.Containers {
-//			realName := config.Name + "_" + value.Name
-//			newPod.containers = append(newPod.containers, object.ContainerMeta{
-//				OriginName: value.Name,
-//				RealName:   realName,
-//			})
-//			pauseRealName += "_" + realName
-//			config.Spec.Containers[index].Name = realName
-//		}
-//		newPod.containers[0].RealName = pauseRealName
-//		err := newPod.AddVolumes(config.Spec.Volumes)
-//		if err != nil {
-//			newPod.setError(err)
-//			newPod.compareAndSetStatus(POD_FAILED_STATUS)
-//		} else {
-//			newPod.compareAndSetStatus(POD_PENDING_STATUS)
-//		}
-//		//启动pod
-//		newPod.StartPod()
-//		//生成command
-//		commandWithConfig := &message.CommandWithConfig{}
-//		commandWithConfig.CommandType = message.COMMAND_BUILD_CONTAINERS_OF_POD
-//		commandWithConfig.Group = config.Spec.Containers
-//		// 把config中的container里的volumeMounts MountPath 换成实际路径
-//		// for _, value := range commandWithConfig.Group {
-//		// 	if value.VolumeMounts != nil {
-//		// 		for index, it := range value.VolumeMounts {
-//		// 			path, ok := newPod.tmpDirMap[it.Name]
-//		// 			if ok {
-//		// 				value.VolumeMounts[index].Name = path
-//		// 				continue
-//		// 			}
-//		// 			path, ok = newPod.hostDirMap[it.Name]
-//		// 			if ok {
-//		// 				value.VolumeMounts[index].Name = path
-//		// 				continue
-//		// 			}
-//		// 			path, ok = newPod.hostFileMap[it.Name]
-//		// 			if ok {
-//		// 				value.VolumeMounts[index].Name = path
-//		// 				continue
-//		// 			}
-//		// 			fmt.Println("[pod] error:container Mount path didn't exist")
-//		// 		}
-//		// 	}
-//		// }
-//		podCommand := message.PodCommand{
-//			ContainerCommand: &(commandWithConfig.Command),
-//			PodCommandType:   message.ADD_POD,
-//		}
-//		newPod.commandChan <- podCommand
-//		//提交pod
-//		newPod.uploadPod()
-//		return newPod
-//	}
-func NewPodfromConfig(config *object.Pod) *Pod {
+func NewPodfromConfig(config *object.Pod, clientConfig client.Config) *Pod {
 	newPod := &Pod{}
 	newPodMeta := &object.PodMeta{}
 	newPod.configPod = config
@@ -222,13 +146,13 @@ func NewPodfromConfig(config *object.Pod) *Pod {
 		config.Spec.Containers[index].Name = realName
 	}
 	newPod.containers[0].RealName = pauseRealName
-	// err := newPod.AddVolumes(config.Spec.Volumes)
-	// if err != nil {
-	// 	newPod.setError(err)
-	// 	newPod.compareAndSetStatus(POD_FAILED_STATUS)
-	// } else {
-	// 	newPod.compareAndSetStatus(POD_PENDING_STATUS)
-	// }
+	err := newPod.AddVolumes(config.Spec.Volumes)
+	if err != nil {
+		newPod.setError(err)
+		newPod.compareAndSetStatus(POD_FAILED_STATUS)
+	} else {
+		newPod.compareAndSetStatus(POD_PENDING_STATUS)
+	}
 	//启动pod
 	newPod.StartPod()
 	//生成command
@@ -542,21 +466,3 @@ func (p *Pod) releaseResource() {
 	close(p.responseChan)
 	p.rwLock.Unlock()
 }
-
-func (pod *Pod) GetContainerByName(name string) *object.Container {
-	for _, container := range pod.configPod.Spec.Containers {
-		if container.Name == name {
-			return &container
-		}
-	}
-	return nil
-}
-
-// func (pod *Pod) GetContainerByName2(name string) *object.ContainerMeta {
-// 	for _, container := range pod.containers {
-// 		if container.RealName == name { //originName?
-// 			return &container
-// 		}
-// 	}
-// 	return nil
-// }

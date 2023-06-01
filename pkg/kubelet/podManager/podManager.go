@@ -1,4 +1,3 @@
-// 暂时用来参考
 package podManager
 
 import (
@@ -20,12 +19,12 @@ const PODMANAGER_TIME_INTERVAL = 20
 
 // 存储所有的pod信息， 当需要获取pod信息时，直接从缓存中取，速度快  需要初始化变量
 type PodManager struct {
-	podByName map[string]*pod.Pod //name-pod的映射
-	// //对map的保护
-	// lock         sync.Mutex
-	// client       client.RESTClient
-	// clientConfig client.Config
-	// Err          error
+	name2pod map[string]*pod.Pod //name-pod的映射
+	//对map的保护
+	lock         sync.Mutex
+	client       client.RESTClient
+	clientConfig client.Config
+	Err          error
 }
 
 func NewPodManager(clientConfig client.Config) *PodManager {
@@ -92,16 +91,16 @@ func (p *PodManager) CheckIfPodExist(podName string) bool {
 }
 
 func (p *PodManager) DeletePod(podName string) error {
-	// p.lock.Lock()
-	// defer p.lock.Unlock()
-	if !p.CheckPodExist(podName) {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+	if !p.CheckIfPodExist(podName) {
 		//不存在该pod
 		return errors.New(podName + "对应的pod不存在")
 	}
 	pod, _ := p.name2pod[podName]
 	fmt.Printf("[Kubelet] Prepare delete pod...")
 	pod.DeletePod()
-	delete(p.podByName, podName) //删除podName为key的pod
+	delete(p.name2pod, podName)
 	return nil
 }
 
