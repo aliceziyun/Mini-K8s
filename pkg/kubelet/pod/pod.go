@@ -1,4 +1,3 @@
-// 暂时用来参考
 package pod
 
 import (
@@ -13,7 +12,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	uuid2 "github.com/google/uuid"
 	"net/http"
 	"os"
 	"path"
@@ -22,6 +20,8 @@ import (
 	"sync"
 	"time"
 	"unsafe"
+
+	uuid2 "github.com/google/uuid"
 
 	"github.com/docker/docker/api/types"
 )
