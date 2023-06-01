@@ -3,6 +3,7 @@ package fass_server
 import (
 	_const "Mini-K8s/cmd/const"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/third_party/file"
 	_map "Mini-K8s/third_party/map"
 	"Mini-K8s/third_party/queue"
 	"bufio"
@@ -11,6 +12,7 @@ import (
 	"fmt"
 	uuid2 "github.com/google/uuid"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -20,10 +22,10 @@ import (
 const (
 	RUNNING = "RUN"
 	FINISH  = "FIN"
+	REMOVED = "REMOVED"
 )
 
 type WorkflowManager struct {
-	ResMap         map[string]string //存放每一个function的result
 	StatusMap      *_map.ConcurrentMap
 	FunctionMap    *_map.ConcurrentMap    //存放名字到function的映射
 	Queue          *queue.ConcurrentQueue //主队列
@@ -36,15 +38,13 @@ type WorkflowManager struct {
 
 type FuncEntity struct {
 	Parent   string
-	Function *object.Function
+	Function object.Function
 }
 
 func NewWorkflowManager(workflow *object.WorkFlow, channel chan string) *WorkflowManager {
-	resMap := make(map[string]string, 10)
 	notiChan := make(chan bool, 10)
 	q := &queue.ConcurrentQueue{}
 	workflowManger := &WorkflowManager{
-		ResMap:         resMap,
 		Queue:          q,
 		Workflow:       workflow,
 		sharedWorkDir:  _const.SHARED_DATA_DIR + "/" + workflow.Name,
@@ -55,13 +55,14 @@ func NewWorkflowManager(workflow *object.WorkFlow, channel chan string) *Workflo
 		nowLevelNumber: 0,
 	}
 	for _, each := range workflow.FunctionList {
-		workflowManger.FunctionMap.Put(each.Name, each)
+		workflowManger.FunctionMap.Put(each.FuncName, each)
 	}
 
 	return workflowManger
 }
 
 func (m *WorkflowManager) Run() {
+	fmt.Println("[Workflow] Run...")
 	go m.syncLoop(m.resChan)
 	err := m.callFunctions()
 	if err != nil {
@@ -71,6 +72,7 @@ func (m *WorkflowManager) Run() {
 }
 
 func (m *WorkflowManager) syncLoop(resChan <-chan string) {
+	fmt.Println("[Workflow] start syncLoop...")
 	//有工作执行完成
 	for {
 		select {
@@ -80,7 +82,9 @@ func (m *WorkflowManager) syncLoop(resChan <-chan string) {
 			}
 			fmt.Printf("[Workflow] function %s finish!", funcName)
 			m.StatusMap.Put(funcName, FINISH)
+			m.nowLevelNumber--
 			if m.isFinish() { //当前层全部函数执行完，通知主线程
+				fmt.Println("[Workflow] clear")
 				m.notifyChan <- true
 			}
 		}
@@ -88,6 +92,7 @@ func (m *WorkflowManager) syncLoop(resChan <-chan string) {
 }
 
 func (m *WorkflowManager) callFunctions() error {
+	fmt.Println("[Workflow] start calling function...")
 	funcList := m.Workflow.FunctionList
 	var flag = false
 	//层序遍历
@@ -97,7 +102,7 @@ func (m *WorkflowManager) callFunctions() error {
 			for _, function := range funcList {
 				if function.Level == 1 {
 					funcEntity := &FuncEntity{
-						Function: &function,
+						Function: function,
 						Parent:   "",
 					}
 					m.Queue.Enqueue(funcEntity)
@@ -120,28 +125,35 @@ func (m *WorkflowManager) callFunctions() error {
 		//当前层结点所有子节点入队，且准备输入的参数
 		funcNameList := m.StatusMap.GetAllKey()
 		for _, each := range funcNameList {
+			if m.StatusMap.Get(each).(string) == REMOVED {
+				continue
+			}
 			for _, child := range m.getChild(each) {
 				if child == "nil" {
 					continue
 				} else {
 					funcEntity := &FuncEntity{
-						Function: m.FunctionMap.Get(child).(*object.Function),
-						Parent:   "",
+						Function: m.FunctionMap.Get(child).(object.Function),
+						Parent:   each,
 					}
 					m.Queue.Enqueue(funcEntity)
 					m.nowLevelNumber++
 				}
 			}
-
+			m.StatusMap.Put(each, REMOVED)
 		}
 		if err != nil {
 			return err
 		}
 	}
+	//结束之后收集所有的结果
+	m.collectResult()
+
 	return nil
 }
 
 func (m *WorkflowManager) doBatch() error {
+	fmt.Println("[Workflow] start batching...")
 	for {
 		if !m.Queue.Empty() {
 			function := m.Queue.Front().(*FuncEntity)
@@ -161,13 +173,14 @@ func (m *WorkflowManager) doBatch() error {
 func (m *WorkflowManager) invokeFunction(funcEntity *FuncEntity) error {
 	function := funcEntity.Function
 	//先将函数本体上传至etcd
+	function.Name = function.FuncName
 	funcRaw, err := json.Marshal(function)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 	reqBody := bytes.NewBuffer(funcRaw)
-	suffix := _const.FUNC_CONFIG_PREFIX + "/" + function.Name
+	suffix := _const.FUNC_CONFIG_PREFIX + "/" + function.FuncName
 
 	req, err := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
 	if err != nil {
@@ -182,13 +195,17 @@ func (m *WorkflowManager) invokeFunction(funcEntity *FuncEntity) error {
 
 	//再生成函数的meta数据
 	uuid := uuid2.New().String()
-	name := function.Name + "_" + uuid
+	name := function.FuncName + "_" + uuid
 	m.StatusMap.Put(name, RUNNING) //在这里写statusMap
 
 	parent := funcEntity.Parent
-
 	var argList []string
-	argList = append(argList, m.getArg(parent))
+
+	if parent == "" { //初始节点，读取yaml中的参数
+		argList = m.Workflow.InitialArgs
+	} else {
+		argList = append(argList, m.getArg(parent))
+	}
 
 	meta := object.FunctionMeta{
 		Name:    name,
@@ -219,6 +236,9 @@ func (m *WorkflowManager) invokeFunction(funcEntity *FuncEntity) error {
 }
 
 func (m *WorkflowManager) isFinish() bool {
+	if m.nowLevelNumber == 0 {
+		return true
+	}
 	list := m.StatusMap.GetAll()
 	for _, each := range list {
 		each := each.(string)
@@ -231,33 +251,34 @@ func (m *WorkflowManager) isFinish() bool {
 
 // 获取arg
 func (m *WorkflowManager) getArg(name string) string {
+	fmt.Println("[Workflow] get args")
 	//从文件中读取返回值
-	fi, err := os.Open(path.Join(m.sharedWorkDir, name))
+	//fi, err := os.Open(path.Join(m.sharedWorkDir, name))
+	//fmt.Println(path.Join(m.sharedWorkDir, name))
+	fi, err := os.Open(path.Join(_const.SHARED_DATA_DIR, name, "output.txt"))
 	if err != nil {
 		return ""
 	}
 	r := bufio.NewReader(fi)
-	var flag = false
 	var arg string
+	var upLine string
 	for {
+		upLine = arg
 		line, err := r.ReadString('\n')
 		line = strings.TrimSpace(line)
+		arg = line
 		if err != nil && err != io.EOF {
 			return ""
 		}
 		if err == io.EOF {
 			break
 		}
-		if flag && line != "None" {
-			arg = line
-			fmt.Println("[Workflow] the arg is:", line)
-			return arg
-		}
-		if line == "the return value is:" {
-			flag = true
-		}
 	}
-	return ""
+	if upLine == "None" {
+		return ""
+	} else {
+		return upLine
+	}
 }
 
 func (m *WorkflowManager) getChild(name string) []string {
@@ -271,4 +292,21 @@ func (m *WorkflowManager) getChild(name string) []string {
 		}
 	}
 	return nil
+}
+
+func (m *WorkflowManager) collectResult() {
+	var res = ""
+	for _, each := range m.StatusMap.GetAllKey() {
+		dataPath := path.Join(_const.SHARED_DATA_DIR, each)
+		data, _ := ioutil.ReadFile(path.Join(dataPath, "output.txt"))
+		res = res + each + ":\n" + string(data) + "\n"
+	}
+	fmt.Println(res)
+	raw := []byte(res)
+	err := file.Bytes2File(raw, m.Workflow.Name, path.Join(_const.SHARED_DATA_DIR, m.Workflow.Name))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("[Workflow] workflow %s finish", m.Workflow.Name)
 }

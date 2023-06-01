@@ -22,12 +22,15 @@ type Ticket struct {
 	T uint64
 }
 
+var counter = 1
+var mtx sync.Mutex
+
 type APIServer struct {
 	engine       *gin.Engine
 	port         int
 	store        *etcdstorage.KVStore
 	publisher    *message.Publisher
-	watcherMtx   sync.Mutex // watcherMtx 保护watcherCount
+	watcherMtx   sync.Mutex
 	watcherChan  chan watchOpt
 	ticketSeller *atomic.Uint64
 	recordTable  *_map.ConcurrentMap

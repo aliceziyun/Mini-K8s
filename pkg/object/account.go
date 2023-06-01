@@ -47,7 +47,7 @@ func (account *Account) GetRemoteBasePath() string {
 
 func (account *Account) SetRemoteBasePath(host string) error {
 	switch host {
-	case _const.HostARM, _const.HostPiAndAI:
+	case _const.HostARM, "202.120.58.225":
 		account.host = host
 		account.remoteBasePath = fmt.Sprintf("/lustre/home/acct-stu/%s", account.username)
 		return nil

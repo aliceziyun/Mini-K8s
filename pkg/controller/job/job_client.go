@@ -31,7 +31,7 @@ func getHost(partition string) (string, error) {
 	}
 	for _, v := range PiAndAi {
 		if v == partition {
-			host = _const.HostPiAndAI
+			host = "202.120.58.225"
 			return host, nil
 		}
 	}

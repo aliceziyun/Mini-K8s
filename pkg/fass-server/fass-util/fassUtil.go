@@ -18,7 +18,6 @@ import (
 func GetFunctionBody(body string, argNum int, serveName string, funcName string, uuid string) []byte {
 	body = appendRedirector(body)
 
-	body += "the return value is:\n" //这一行指示了return value
 	body = body + "    print(" + funcName + "("
 	//根据参数数量修饰函数体
 	for i := 0; i < argNum; i++ {
@@ -76,6 +75,7 @@ func AddFunctionPod(pod *object.Pod) error {
 }
 
 func InvokePod(uuid string, fileName string, dirName string, argList []string) error {
+	fmt.Println(fileName)
 	pod := object.Pod{}
 	pod.Metadata.Name = fmt.Sprintf("Func-%s", uuid)
 	pod.Metadata.Uid = uuid
@@ -85,6 +85,11 @@ func InvokePod(uuid string, fileName string, dirName string, argList []string) e
 	container := object.Container{}
 	container.Image = "testpy:latest"
 	container.Name = fmt.Sprintf("Func-%s", uuid)
+	//commands := []string{
+	//	"/bin/sh",
+	//	"-c",
+	//	"while true; do echo hello world; sleep 1; done",
+	//}
 	commands := []string{
 		"sudo",
 		"python",
@@ -92,7 +97,7 @@ func InvokePod(uuid string, fileName string, dirName string, argList []string) e
 	}
 	commands = append(commands, argList...)
 	container.Command = commands
-	container.Args = nil
+	//container.Args = commands
 	volumeMounts := []object.VolumeMount{
 		{
 			Name:      "Serveless",
@@ -132,7 +137,9 @@ func InvokeFunction(meta *object.FunctionMeta, ls *listwatcher.ListWatcher) erro
 	nameAndUid := strings.Split(meta.Name, "_")
 	name := nameAndUid[0]
 	uuid := nameAndUid[1]
+
 	resList, err := ls.List(_const.FUNC_CONFIG_PREFIX + "/" + name)
+
 	if err != nil {
 		return err
 	}
@@ -154,9 +161,20 @@ func InvokeFunction(meta *object.FunctionMeta, ls *listwatcher.ListWatcher) erro
 	body := GetFunctionBody(functionBody, function.ArgNum, function.Name, function.FuncName, uuid)
 
 	//将文件放入共享目录中
-	fileName := name + "_" + uuid + ".py"
-	dirName := path.Join(_const.SHARED_DATA_DIR, name+"_"+uuid)
-	err = file.Bytes2File(body, fileName, dirName)
+	var fileName string
+	var dirName string
+	switch meta.Type {
+	case "JOB":
+		fileName = name + "_" + uuid + ".py"
+		dirName = path.Join(_const.SHARED_DATA_DIR, "job-"+uuid)
+		err = file.Bytes2File(body, fileName, dirName)
+		break
+	default:
+		fileName = name + "_" + uuid + ".py"
+		dirName = path.Join(_const.SHARED_DATA_DIR, name+"_"+uuid)
+		err = file.Bytes2File(body, fileName, dirName)
+		break
+	}
 
 	//创建Pod
 	err = InvokePod(uuid, fileName, dirName, meta.ArgList)

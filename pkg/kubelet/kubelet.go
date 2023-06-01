@@ -99,19 +99,6 @@ func (kl *Kubelet) Run() {
 		time.Sleep(1 * time.Second)
 	}()
 
-	go func() {
-		fmt.Println("[Kubelet] start watch shared data...")
-		err := kl.ls.Watch(_const.SHARED_DATA_PREFIX, kl.watchSharedData, kl.stopChannel)
-		if err != nil {
-			fmt.Printf("[Kubelet] watch shared_data error " + err.Error())
-		} else {
-			fmt.Println("[Kubelet] return...")
-			stopChan <- 1
-			return
-		}
-		time.Sleep(1 * time.Second)
-	}()
-
 	<-stopChan
 }
 

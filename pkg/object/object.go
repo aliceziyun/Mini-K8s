@@ -231,21 +231,22 @@ const (
 )
 
 type Function struct {
-	Kind     string `json:"kind" yaml:"kind"`
-	Name     string `json:"name" yaml:"name"`
-	Type     string `json:"type" yaml:"type"`
-	FuncName string `json:"function-name" yaml:"functionName"`
-	Path     string `json:"path" yaml:"path"`
-	ArgNum   int    `json:"arg" yaml:"arg"`
-	Level    int    `json:"level" yaml:"level"`
-	Scale    bool   `json:"scale" yaml:"scale"`
+	Kind     string    `json:"kind" yaml:"kind"`
+	Name     string    `json:"name" yaml:"name"`
+	Type     string    `json:"type" yaml:"type"`
+	FuncName string    `json:"function-name" yaml:"functionName"`
+	Path     string    `json:"path" yaml:"path"`
+	ArgNum   int       `json:"arg" yaml:"arg"`
+	Level    int       `json:"level" yaml:"level"`
+	Scale    bool      `json:"scale" yaml:"scale"`
+	Ctime    time.Time `json:"time"`
 }
 
 type FunctionMeta struct {
-	Name    string    `json:"name" yaml:"name"`
-	ArgList []string  `json:"args" yaml:"args"`
-	Type    string    `json:"type" yaml:"type"`
-	Ctime   time.Time `json:"time"`
+	Name    string   `json:"name" yaml:"name"`
+	ArgList []string `json:"args" yaml:"args"`
+	Type    string   `json:"type" yaml:"type"`
+	Path    string   //only for job
 }
 
 type FassNode struct {
@@ -260,6 +261,7 @@ type WorkFlow struct {
 	FunctionList []Function `json:"functions" yaml:"functions"`
 	MaxLevel     int        `json:"maxLevel" yaml:"maxLevel"`
 	Graph        []FassNode `json:"graph" yaml:"graph"`
+	InitialArgs  []string   `json:"args" yaml:"args"`
 }
 
 type VServiceSpec struct { //todo

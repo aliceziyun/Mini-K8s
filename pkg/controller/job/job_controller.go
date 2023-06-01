@@ -6,10 +6,12 @@ import (
 	"Mini-K8s/pkg/etcdstorage"
 	"Mini-K8s/pkg/listwatcher"
 	"Mini-K8s/pkg/object"
+	"Mini-K8s/third_party/file"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	uuid2 "github.com/google/uuid"
+	"net/http"
 	"path"
 	"time"
 )
@@ -48,6 +50,18 @@ func (jc *JobController) register() {
 			time.Sleep(5 * time.Second)
 		}
 	}()
+
+	go func() {
+		fmt.Println("[Kubelet] start watch shared data...")
+		err := jc.ls.Watch(_const.SHARED_DATA_PREFIX, jc.watchSharedData, jc.stopChannel)
+		if err != nil {
+			fmt.Printf("[Kubelet] watch shared_data error " + err.Error())
+		} else {
+			fmt.Println("[Kubelet] return...")
+			return
+		}
+		time.Sleep(1 * time.Second)
+	}()
 }
 
 func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
@@ -60,68 +74,99 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 		fmt.Println(err)
 		return
 	}
-	//account := getAccount(job.Spec.SlurmConfig.Partition)
 
-	// 对Pod进行初始化
-	pod := object.Pod{}
-	pod.Metadata.Name = fmt.Sprintf("Job-%s-Pod", job.Metadata.Uid)
-	uuid, err := uuid2.NewUUID()
+	account := getAccount(job.Spec.SlurmConfig.Partition)
+
+	//初始化function
+	function := &object.Function{
+		Name:     "GPU",
+		Kind:     "Function",
+		Type:     "python",
+		FuncName: "GPUjob",
+		Path:     "/home/lcz/go/src/Mini-K8s/build/Serveless/GPUjob.py",
+		ArgNum:   5,
+	}
+	funcRaw, err := json.Marshal(function)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	pod.Metadata.Uid = uuid.String()
-	pod.Name = fmt.Sprintf("Job-%s-Pod", job.Metadata.Uid)
-	pod.Kind = object.POD
+	reqBody := bytes.NewBuffer(funcRaw)
+	suffix := _const.FUNC_CONFIG_PREFIX + "/" + function.Name
 
-	container := job.Spec.App.AppSpec.Container
-	fmt.Printf("[Job Controller] new container %s \n", container.Name)
-	//commands := []string{
-	//	"sh",
-	//	"test.sh",
-	//	account.GetUsername(),
-	//	account.GetPassword(),
-	//	account.GetHost(),
-	//	"/home/job",
-	//	path.Join(account.GetRemoteBasePath(), "job"+"test"),
-	//}
-	commands := []string{
-		"/bin/sh",
-		"-c",
-		"while true; do echo hello world; sleep 1; done",
+	req, err := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
-	container.Command = commands
-	//container.Command = nil
-	container.Args = nil
-	volumeMounts := []object.VolumeMount{
-		{
-			Name:      "gpuPath",
-			MountPath: "/home/job",
-		},
+	_, err = http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
-	container.VolumeMounts = volumeMounts
-	container.Ports = []object.ContainerPort{
-		{Port: "9999"},
-	}
-	pod.Spec.Containers = append(pod.Spec.Containers, container)
 
-	volumes := []object.Volume{
-		{
-			Name: "gpuPath",
-			Type: "hostPath",
-			Path: path.Join(_const.SHARED_DATA_DIR, "job-"+job.Metadata.Uid),
-		},
-	}
-	pod.Spec.Volumes = volumes
+	pathName := "job-" + job.Metadata.Uid
 
-	go func() {
-		fmt.Println("[Job Controller] add new GPU job")
-		err = addJobPod(&pod)
+	var arglist []string
+	arglist = append(arglist, account.GetUsername(), account.GetPassword(), account.GetHost(), "./", ".")
+
+	//初始化function mata
+	funcMeta := &object.FunctionMeta{
+		Name:    "GPU" + "_" + job.Metadata.Uid,
+		ArgList: arglist,
+		Type:    "JOB",
+		Path:    pathName,
+	}
+
+	meta, err := json.Marshal(funcMeta)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	reqBody2 := bytes.NewBuffer(meta)
+	suffix2 := _const.FUNC_RUNTIME_PREFIX + "/" + funcMeta.Name
+
+	req2, err := http.NewRequest("PUT", _const.BASE_URI+suffix2, reqBody2)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	resp2, err := http.DefaultClient.Do(req2)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("[Job Controller] send request to server with code %d", resp2.StatusCode)
+
+}
+
+func (jc *JobController) watchSharedData(res etcdstorage.WatchRes) {
+	if res.ResType == etcdstorage.PUT {
+		appZipFile := object.JobAppFile{}
+		err := json.Unmarshal(res.ValueBytes, &appZipFile)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-
-		//TODO: 这里可能还需要维护一个job到pod的映射
-	}()
+		zipName := appZipFile.Key + ".zip"
+		unzippedDir := path.Join(_const.SHARED_DATA_DIR, appZipFile.Key)
+		err = file.Bytes2File(appZipFile.App, zipName, _const.SHARED_DATA_DIR)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		err = file.Unzip(path.Join(_const.SHARED_DATA_DIR, zipName), unzippedDir)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		err = file.Bytes2File(appZipFile.Slurm, "test.slurm", unzippedDir)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
 }

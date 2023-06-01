@@ -288,7 +288,7 @@ func (s *APIServer) invoke(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+	fmt.Printf("send request to server with code %d", resp.StatusCode)
 }
 
 func (s *APIServer) receive(context *gin.Context) {

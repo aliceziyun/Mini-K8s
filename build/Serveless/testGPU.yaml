@@ -1,0 +1,7 @@
+kind: Function
+apiVersion: v1
+name: GPU  #该serveless function的标识符
+type: python  #函数类型
+functionName: GPUjob #函数名，必须和文件中一样
+path: /home/lcz/go/src/Mini-K8s/build/Serveless/GPUjob.py #存放函数的路径
+arg: 5  #参数个数

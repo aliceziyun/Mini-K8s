@@ -132,6 +132,15 @@ func applyFile(file string) error {
 		}
 		createNewFunc(function)
 		break
+	case "Workflow":
+		workflow := &object.WorkFlow{}
+		err = v2.Unmarshal([]byte(data), workflow)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		createNewWorkflow(workflow)
+		break
 	default:
 		err = errors.New("no such resources")
 		return err
@@ -269,6 +278,30 @@ func createNewFunc(funtion *object.Function) {
 		fmt.Println(err)
 		return
 	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func createNewWorkflow(workflow *object.WorkFlow) {
+	workflowRaw, err := json.Marshal(workflow)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	reqBody := bytes.NewBuffer(workflowRaw)
+	suffix := _const.WORKFLOW_CONFIG_PREFIX + "/" + workflow.Name
+
+	req, err := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Println(err)

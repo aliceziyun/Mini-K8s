@@ -1,6 +1,8 @@
 package _map
 
-import "sync"
+import (
+	"sync"
+)
 
 type ConcurrentMap struct {
 	m   map[interface{}]interface{}

@@ -1,35 +1,37 @@
-kind: WorkFlow  #同一个workflow共享同一个目录
+#建议做字符串操作，因为python字符串可以做乘法，会和数字操作混淆
+kind: Workflow
 apiVersion: v1
-name: MapReduce
+name: Test
 type: python
 functions:
-  - functionName: addTwo
-    path: /home/lcz/go/src/Mini-K8s/build/Serveless/addTwo.py
-    arg: 1
+  - functionName: concatTwoString
+    path: /home/lcz/go/src/Mini-K8s/build/Serveless/concatTwoString.py
+    arg: 2
     scale: false
     level: 1  #level应该通过拓扑排序计算，但时间不够了因此简化替代
-  - functionName: double
-    path: /home/lcz/go/src/Mini-K8s/build/Serveless/double.py
+  - functionName: appendPrefix
+    path: /home/lcz/go/src/Mini-K8s/build/Serveless/appendPrefix.py
     arg: 1
     scale: true
     level: 2
-  - functionName: printerA
-    path: /home/lcz/go/src/Mini-K8s/build/Serveless/printerA.py
+  - functionName: printStr
+    path: /home/lcz/go/src/Mini-K8s/build/Serveless/printStr.py
     arg: 1
     scale: false
     level: 3
-  - functionName: printerB
-    path: /home/lcz/go/src/Mini-K8s/build/Serveless/printerB.py
+  - functionName: countStrLen
+    path: /home/lcz/go/src/Mini-K8s/build/Serveless/countStrLen.py
     arg: 1
     scale: false
     level: 3
 maxLevel: 3   #最多的层数，这个本来也不该在yaml里的
+args: ["Hello","World"]
 graph:
-  - name: addTwo
-    child: double #设置parent比child更合理，这里也是为了简化
-  - name: double
-    child: [printerA,printerB]
-  - name: printerA
-    child: nil  #叶子节点默认设置为nil
-  - name: printerB
-    child: nil
+  - name: concatTwoString
+    child: [appendPrefix] #设置parent比child更合理，这里也是为了简化
+  - name: appendPrefix
+    child: [printStr,countStrLen]
+  - name: printStr
+    child: [nil]  #叶子节点默认设置为nil
+  - name: countStrLen
+    child: [nil]

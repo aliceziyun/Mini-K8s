@@ -1,2 +1,2 @@
-def conCatTwoString():
-    return 12
+def concatTwoString(str1,str2):
+    return str1+str2

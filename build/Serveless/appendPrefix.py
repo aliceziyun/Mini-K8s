@@ -1,2 +1,2 @@
-def appendPrefix(num):
-    return num*2
+def appendPrefix(str):
+    return "prefix"+str
