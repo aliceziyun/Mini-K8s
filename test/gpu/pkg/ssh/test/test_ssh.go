@@ -154,8 +154,24 @@ func TestCDAndSubmit() {
 	// cli.CD("Job")
 
 }
+func TestStr() {
+	var s1 string = "123"
+	s2 := s1 + "45"
+	s1 += s2
+	fmt.Println(s1)
+	fmt.Println(s2)
+}
+func TestClearLocalDir() {
+	cli := ssh.NewClient(gpuUser, gpuPasswd)
+	err := cli.ClearLocalDir("/home/data/res")
+	if err != nil {
+		fmt.Println(err)
+	}
+}
 func main() {
-	TestCDAndSubmit()
+	TestClearLocalDir()
+	// TestStr()
+	// TestCDAndSubmit()
 	// TestSSH()
 	// TestMkdir()
 	// TestRmdir()

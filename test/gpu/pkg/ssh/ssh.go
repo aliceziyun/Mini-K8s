@@ -60,6 +60,7 @@ type Client interface {
 	Rsync(localPath, remotePath string) error      //Rsync必须在本地操作
 	MkLocalDir(dir string) error
 	TryMkLocalDir(dir string) error
+	ClearLocalDir(dir string) error //清除(本地)目录下所有文件
 
 	//remote的命令
 	LS() (string, error)
@@ -335,10 +336,48 @@ func (cli *client) TryMkdir(dir string) (string, error) {
 		// fmt.Println("sth is wrong")
 		fmt.Println(err)
 	} else {
-		fmt.Println("Successfully mkdir!")
+		// fmt.Println("Successfully mkdir!")
 	}
 	return string(resp), err
 }
+
+func (cli *client) ClearLocalDir(dir string) error {
+	if runtime.GOOS == "linux" {
+		tmpDir := dir
+		// 这里通配符没有效果，不知道为什么。自己开命令行是可以的。。。
+		// if dir[len(dir)-1] == '/' {
+		// 	tmpDir += "*"
+		// } else {
+		// 	tmpDir += "/*"
+		// 	// tmpDir += "/"
+		// }
+
+		//所以这里就先把整个文件夹删了再创一个新的
+		cmd := exec.Command("rm", "-rf", tmpDir)
+		cmd.Stdout = &bytes.Buffer{}
+		cmd.Stderr = &bytes.Buffer{}
+		err := cmd.Run()
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println(cmd.Stderr.(*bytes.Buffer).String())
+			fmt.Println(cmd.Stdout.(*bytes.Buffer).String())
+		}
+		cmd = exec.Command("mkdir", tmpDir)
+		cmd.Stdout = &bytes.Buffer{}
+		cmd.Stderr = &bytes.Buffer{}
+		err = cmd.Run()
+		// fmt.Println(cmd.String())
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println(cmd.Stderr.(*bytes.Buffer).String())
+		}
+		fmt.Println(cmd.Stdout.(*bytes.Buffer).String())
+		return err
+	}
+	return fmt.Errorf("rm is not supported in your os")
+
+}
+
 func (cli *client) CreateFile(filename string) (string, error) {
 	cmd := fmt.Sprintf("touch %s", filename)
 	resp, err := cli.sshCli.Run(cmd)

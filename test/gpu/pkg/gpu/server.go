@@ -260,7 +260,8 @@ func (s *server) Run() {
 	fmt.Printf("Job %s has been finished, now sync the result to local\n", s.jobID)
 
 	// 从远端将结果文件同步到本地
-	s.cli.TryMkLocalDir("/home/data/res/res" + s.jobID)
+	s.cli.ClearLocalDir(s.resURL) //先把之前的结果都清了
+	s.cli.TryMkLocalDir(s.resURL + "/res" + s.jobID)
 	s.syncResult()
 
 	fmt.Println("Successfully Sync. Now hang...")
