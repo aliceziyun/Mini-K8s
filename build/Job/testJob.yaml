@@ -12,12 +12,9 @@ spec:
     gres: gpu:1
   template:
     spec:
-      containers:
-          name: test
-          image: jwstest:latest
       command:
         - "module load gcc/8.3.0 cuda/10.1.243-gcc-8.3.0"
-        - "nvcc matrix.cu -o matrix -lcublas"
-        - "./matrix"
+        - "nvcc Matrix.cu -o Matrix -lcublas"
+        - "./Matrix"
       zipPath: "/home/lcz/go/src/Mini-K8s/build/Job/Matrix.zip"
       restartPolicy: Never

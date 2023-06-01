@@ -75,6 +75,10 @@ func (jc *JobController) handleJob(res etcdstorage.WatchRes) {
 		return
 	}
 
+	if job.Status == object.FIN {
+		return
+	}
+
 	account := getAccount(job.Spec.SlurmConfig.Partition)
 
 	//初始化function

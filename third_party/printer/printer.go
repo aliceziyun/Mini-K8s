@@ -45,3 +45,19 @@ func PrintSrv(srv []object.UserService) {
 		fmt.Println("--------------------------------")
 	}
 }
+
+func PrintJob(job []object.UserJob) {
+	fmt.Printf("NAME\tSTATUS\tCTIME\n")
+
+	for _, each := range job {
+		fmt.Printf("%s\t%s\t%s\n", each.Name, each.Status, each.Ctime)
+	}
+}
+
+func PrintFunc(function []object.UserFunc) {
+	fmt.Printf("NAME\tTYPE\tFUNCTION-NAME\tPATH\n")
+
+	for _, each := range function {
+		fmt.Printf("%s\t%s\t%s\t%s\n", each.Name, each.Type, each.FuncName, each.Path)
+	}
+}

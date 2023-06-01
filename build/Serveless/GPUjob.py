@@ -33,8 +33,7 @@ def GPUjob(username,password,host,path,remote):
         print(res)
         status = res[5].decode('utf-8')
         if status == "COMPLETED":
-            scpclient.get(jobID+".out",path)
-            scpclient.get(jobID+".err",path)
+            scpclient.get("slurm-"+jobID+".out",path)
             break
         else:
             time.sleep(10)

@@ -9,6 +9,7 @@ import (
 	"Mini-K8s/pkg/object"
 	_map "Mini-K8s/third_party/map"
 	"Mini-K8s/third_party/queue"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -40,7 +41,7 @@ func NewServer(lsConfig *listwatcher.Config) *FassServer {
 		hashMap: _map.NewConcurrentMap(),
 	}
 	server.stopChannel = make(chan struct{})
-	server.resChannel = make(chan string)
+	server.resChannel = nil
 	return server
 }
 
@@ -120,13 +121,25 @@ func (s *FassServer) watchNewFunc(res etcdstorage.WatchRes) {
 	if res.ResType == etcdstorage.DELETE {
 		fields := strings.Split(res.Key, "/")
 		funcName := fields[len(fields)-1]
-		fmt.Printf("[FassServer] function %s finish! Please go to the shared directory to check the result! \n", funcName)
 
 		//维护一个Ctime的Map
 		realName := strings.Split(funcName, "_")[0]
+
+		if realName == "GPU" { //job
+			jobName := "job-" + strings.Split(funcName, "_")[1]
+			fmt.Printf("[FassServer] job %s finish! Please go to the shared directory to check the result! \n", jobName)
+
+			//更新job的状态
+			s.updateJobStatus(jobName)
+			return
+		}
+
+		fmt.Printf("[FassServer] function %s finish! Please go to the shared directory to check the result! \n", funcName)
 		s.hashMap.Put(realName, time.Now())
 
-		s.resChannel <- funcName
+		if s.resChannel != nil {
+			s.resChannel <- funcName
+		}
 		//这里可以把代码文件删了，不过也没必要
 		return
 	}
@@ -148,5 +161,22 @@ func (s *FassServer) watchNewWorkflow(res etcdstorage.WatchRes) {
 		fmt.Println(err)
 	}
 	//新建一个workflow manager，由manager管理workflow
+	s.resChannel = make(chan string)
 	go workflow.NewWorkflowManager(wf, s.resChannel).Run()
+}
+
+func (s *FassServer) updateJobStatus(name string) {
+	res, _ := s.ls.List(_const.JOB_CONFIG_PREFIX + "/" + name)
+	job := &object.GPUJob{}
+	_ = json.Unmarshal(res[0].ValueBytes, job)
+
+	job.Status = object.FIN
+	jobRaw, _ := json.Marshal(job)
+	reqBody := bytes.NewBuffer(jobRaw)
+	suffix := _const.JOB_CONFIG_PREFIX + "/" + name
+
+	req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+	_, _ = http.DefaultClient.Do(req)
+
+	fmt.Printf("[FassServer] update job %s status", name)
 }

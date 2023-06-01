@@ -15,7 +15,8 @@ import (
 	"time"
 )
 
-var resourceList = []string{object.POD, object.REPLICASET, object.SERVICE, object.HPA, object.NODE}
+var resourceList = []string{object.POD, object.REPLICASET, object.SERVICE, object.HPA,
+	object.NODE, object.JOB, object.FUNCTION}
 
 func NewGetPodCommand() cli.Command {
 	getPodCmd := cli.Command{
@@ -52,6 +53,10 @@ func newGetAllRequest(arg string) {
 		printer.PrintNode(getNodes())
 	case strings.ToLower(object.SERVICE):
 		printer.PrintSrv(getServices())
+	case strings.ToLower(object.JOB):
+		printer.PrintJob(getJobs())
+	case strings.ToLower(object.FUNCTION):
+		printer.PrintFunc(getFuncs())
 	default:
 		fmt.Println("No such resource!")
 		fmt.Printf("[Possible Resource Object]: ")
@@ -170,6 +175,29 @@ func getNodes() []object.UserNode {
 	return usrNodes
 }
 
+func getJobs() []object.UserJob {
+	resList := getAll(_const.BASE_URI + _const.JOB_CONFIG_PREFIX)
+	var usrJobs []object.UserJob
+	for _, res := range resList {
+		job := &object.GPUJob{}
+		err := json.Unmarshal(res.ValueBytes, job)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
+		ctime := time.Now().Sub(job.Ctime).String()
+
+		usrJob := object.UserJob{
+			Name:   job.Metadata.Name,
+			Status: job.Status,
+			Ctime:  ctime,
+		}
+		usrJobs = append(usrJobs, usrJob)
+	}
+	return usrJobs
+}
+
 func printPossibleResourceObj() {
 	for _, obj := range resourceList {
 		fmt.Printf(strings.ToLower(obj) + " ")
@@ -211,4 +239,26 @@ func getAll(url string) []etcdstorage.ListRes {
 		return nil
 	}
 	return resList
+}
+
+func getFuncs() []object.UserFunc {
+	resList := getAll(_const.BASE_URI + _const.FUNC_CONFIG_PREFIX)
+	var usrFuncs []object.UserFunc
+	for _, res := range resList {
+		function := &object.Function{}
+		err := json.Unmarshal(res.ValueBytes, function)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
+		usrFunc := object.UserFunc{
+			Name:     function.Name,
+			Type:     function.Type,
+			FuncName: function.FuncName,
+			Path:     function.Path,
+		}
+		usrFuncs = append(usrFuncs, usrFunc)
+	}
+	return usrFuncs
 }

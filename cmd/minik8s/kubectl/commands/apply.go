@@ -241,8 +241,6 @@ func createNewJob(job *object.GPUJob) {
 		App:   zip,
 	}
 
-	fmt.Println(jobApp.Slurm)
-
 	//上传job可执行文件到sharedData
 	jobAppRaw, _ := json.Marshal(jobApp)
 	reqBody := bytes.NewBuffer(jobAppRaw)
@@ -254,6 +252,7 @@ func createNewJob(job *object.GPUJob) {
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
 
 	//上传job到etcd
+	job.Status = object.PD
 	jobRaw, _ := json.Marshal(job)
 	reqBody2 := bytes.NewBuffer(jobRaw)
 	suffix2 := _const.JOB_CONFIG_PREFIX + "/" + jobApp.Key

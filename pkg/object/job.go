@@ -3,21 +3,24 @@ package object
 import (
 	"fmt"
 	"strings"
+	"time"
+)
+
+const (
+	PD  = "Pending"
+	FIN = "Finish"
 )
 
 type GPUJob struct {
 	Metadata ObjMetadata `json:"metadata" yaml:"metadata"`
 	Spec     JobSpec     `json:"spec" yaml:"spec"`
+	Status   string      `json:"status" yaml:"status"`
+	Ctime    time.Time   `json:"time"`
 }
 
 type JobSpec struct {
 	SlurmConfig JobConfig   `json:"slurm" yaml:"slurm"`
 	App         AppTemplate `json:"template" yaml:"template"`
-}
-
-type JobStatus struct {
-	JID    string `json:"jid" yaml:"jid"`
-	Status string `json:"status" yaml:"status"`
 }
 
 type JobConfig struct {
@@ -26,7 +29,7 @@ type JobConfig struct {
 	Output          string `json:"output" yaml:"output"`
 	Error           string `json:"error" yaml:"error"`
 	Nodes           int32  `json:"N" yaml:"N"`
-	NTasksPerNode   int32  `json:"nTasksPerNode" yaml:"nTasksPerNode"`
+	NTasksPerNode   int32  `json:"ntasksPerNode" yaml:"ntasksPerNode"`
 	CpusPerTask     int32  `json:"cpusPerTask" yaml:"cpusPerTask"`
 	GenericResource string `json:"gres" yaml:"gres"`
 }
@@ -54,7 +57,7 @@ func (job *GPUJob) NewSlurmScript() []byte {
 	script = append(script, "#!/bin/bash")
 	script = append(script, fmt.Sprintf("#SBATCH --job-name=%s", slurmConfig.JobName))
 	script = append(script, fmt.Sprintf("#SBATCH --partition=%s", slurmConfig.Partition))
-	script = append(script, fmt.Sprintf("#SBATCH --N=%d", slurmConfig.Nodes))
+	script = append(script, fmt.Sprintf("#SBATCH --nodes=%d", slurmConfig.Nodes))
 	script = append(script, fmt.Sprintf("#SBATCH --ntasks-per-node=%d", slurmConfig.NTasksPerNode))
 	script = append(script, fmt.Sprintf("#SBATCH --cpus-per-task=%d", slurmConfig.CpusPerTask))
 	script = append(script, fmt.Sprintf("#SBATCH --gres=%s", slurmConfig.GenericResource))

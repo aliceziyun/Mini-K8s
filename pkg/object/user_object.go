@@ -32,3 +32,16 @@ type UserService struct {
 	Port      []string
 	EndPoint  []string
 }
+
+type UserJob struct {
+	Name   string
+	Status string
+	Ctime  string
+}
+
+type UserFunc struct {
+	Name     string
+	Type     string
+	FuncName string
+	Path     string
+}

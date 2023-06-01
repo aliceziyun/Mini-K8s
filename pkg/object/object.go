@@ -9,6 +9,7 @@ const (
 	SERVICE    string = "SERVICE"
 	HPA        string = "HPA"
 	NODE       string = "NODE"
+	JOB        string = "JOB"
 )
 
 const (
