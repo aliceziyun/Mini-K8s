@@ -90,8 +90,10 @@ func (g *Gateway) virtualServiceChangeHandler(res etcdstorage.WatchRes) {
 		fmt.Println(vs)
 
 		v2w := make(map[int]string)
+		v2n := make(map[int]int)
 		for _, val := range vs.Spec.PodVersionAndWeights {
 			v2w[val.ApiVersion] = val.Weight
+			v2n[val.ApiVersion] = 0
 		}
 
 		service := object.Service{}
@@ -102,12 +104,17 @@ func (g *Gateway) virtualServiceChangeHandler(res etcdstorage.WatchRes) {
 		for _, pod := range servRuntime.Pods {
 			weight, ok := v2w[pod.ApiVersion]
 			if ok {
+				v2n[pod.ApiVersion] += 1
 				endpoints = append(endpoints, Endpoint{pod.Status.PodIP, weight})
 			}
 		}
 
 		//podNum := len(endpoints)
 		//probability := strconv.FormatFloat(1/float64(podNum), 'f', 2, 64)
+		for _, endpoint := range endpoints {
+			// update weight: weight / v2n[v]
+			fmt.Println(endpoint)
+		}
 
 		g.Ip2Endpoint[service.Spec.ClusterIp] = endpoints
 

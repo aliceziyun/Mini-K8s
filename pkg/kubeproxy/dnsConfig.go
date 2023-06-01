@@ -54,16 +54,17 @@ func (dnsUtil *DNSUtil) watchDNSChange(res etcdstorage.WatchRes) {
 			return
 		}
 
-		hostsFile, err := os.OpenFile("/etc/hosts", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+		filename := "/etc/hosts"
+
+		hostsFile, err := os.OpenFile(filename, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 		defer hostsFile.Close()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-
 		w1 := bufio.NewWriter(hostsFile)
+		fmt.Fprintln(w1, "192.168.1.4\t"+dnsConfig.Host)
 		fmt.Fprintln(w1, "127.0.0.1\tlocalhost")
-		fmt.Fprintln(w1, "127.0.0.1\t"+dnsConfig.Host)
 
 		err = w1.Flush()
 		if err != nil {
