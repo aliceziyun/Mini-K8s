@@ -224,14 +224,14 @@ type DNSPath struct {
 	ServiceIp string `json:"serviceIp" yaml:"serviceIp"`
 }
 
-type PodIpAndWeight struct {
-	Ip     string `json:"ip"`
-	Weight string `json:"weight"`
+type PodVersionAndWeight struct {
+	ApiVersion int    `json:"apiVersion" yaml:"apiVersion"`
+	Weight     string `json:"weight" yaml:"weight"`
 }
 
 type VServiceSpec struct {
-	ServiceName     string           `json:"serviceName" yaml:"serviceName"`
-	PodIpAndWeights []PodIpAndWeight `json:"podIpAndWeights"`
+	ServiceName          string                `json:"serviceName" yaml:"serviceName"`
+	PodVersionAndWeights []PodVersionAndWeight `json:"podIpAndWeights"`
 }
 
 type VServiceStatus struct {

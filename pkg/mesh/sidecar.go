@@ -85,7 +85,7 @@ func (sc *Sidecar) runForwardServer(mode string) {
 
 	// set gateway
 	if mode == "inbound" {
-		sc.gateway = NewGateway(listwatcher.DefaultConfig())
+		sc.gateway = RunGateway(listwatcher.DefaultConfig())
 	}
 
 	// listen
@@ -108,6 +108,8 @@ func (sc *Sidecar) handleConnection(conn *net.TCPConn) {
 	}
 
 	fmt.Printf("to %v:%v\n", ipv4, port)
+
+	//ipv4, port = sc.gateway.transferDstIp(ipv4, port)
 
 	dstAddr, err := net.ResolveIPAddr("ip", ipv4)
 	if err != nil {

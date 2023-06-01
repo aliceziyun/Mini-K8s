@@ -149,8 +149,7 @@ func (s *APIServer) addService(ctx *gin.Context) {
 	key := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
 	fmt.Printf("key:%v\n", key)
 
-	ls, _ := listwatcher.NewListWatcher(listwatcher.DefaultConfig())
-	selector.NewService(service, *ls)
+	selector.NewService(service, listwatcher.DefaultConfig())
 
 	body, _ = json.Marshal(service)
 
