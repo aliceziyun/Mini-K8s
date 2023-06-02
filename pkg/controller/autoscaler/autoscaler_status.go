@@ -16,6 +16,10 @@ func (asc *AutoScaleController) getPodResourceStatus(resourceName string, pods [
 	fmt.Println("[AutoScale Controller] get pod resource")
 	var statusList []resourceStatus
 	for _, pod := range pods {
+		//if pod.Spec.NodeName != _const.NODE_NAME {
+		//	continue
+		//}
+
 		var status resourceStatus
 		status.metadata = pod.Metadata
 		status.name = resourceName

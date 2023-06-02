@@ -128,8 +128,6 @@ func (asc *AutoScaleController) reconcileAutoscaler(autoscaler *object.Autoscale
 	minReplicas := autoscaler.Spec.MinReplicas
 	maxReplicas := autoscaler.Spec.MaxReplicas
 
-	fmt.Println("[AutoScale Controller] test", key)
-
 	//计算所需的replica数量
 	if rs.Spec.Replicas == 0 && minReplicas != 0 { //副本数为0，不启动自动扩缩容
 		//TODO: disabled
@@ -147,6 +145,8 @@ func (asc *AutoScaleController) reconcileAutoscaler(autoscaler *object.Autoscale
 		}
 		if metricDesiredReplicas > maxReplicas {
 			desiredReplicas = maxReplicas
+		} else if metricDesiredReplicas < minReplicas {
+			desiredReplicas = minReplicas
 		} else {
 			desiredReplicas = metricDesiredReplicas
 		}
@@ -202,9 +202,9 @@ func (asc *AutoScaleController) computeReplicasForMetric(metric object.Metric, r
 	if err != nil {
 		return -1, err
 	}
-	for _, status := range podResourceStatusList {
-		fmt.Printf("[AutoScale Controller] metric %s status is %s \n", metric.Name, status)
-	}
+	//for _, status := range podResourceStatusList {
+	//	fmt.Printf("[AutoScale Controller] metric %s status is %s \n", metric.Name, status)
+	//}
 
 	//计算需要的replica数量
 	count, err := asc.computeReplicasCount(metric, podResourceStatusList)

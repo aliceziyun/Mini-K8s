@@ -8,8 +8,11 @@ import (
 	"Mini-K8s/pkg/object"
 	_map "Mini-K8s/third_party/map"
 	"Mini-K8s/third_party/queue"
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -207,12 +210,42 @@ func (rsc *ReplicaSetController) slowStartBatch(diff int, rs *object.ReplicaSet)
 		if err == nil {
 			success++
 		}
+		time.Sleep(5 * time.Second) //策略，3秒创建一个pod
 	}
+
+	go rsc.restartService(rs.ObjMetadata.Labels)
 	return success, nil
 }
 
+// 直接暴力重启service
+func (rsc *ReplicaSetController) restartService(labels map[string]string) {
+	resList, _ := rsc.ls.List(_const.SERVICE_CONFIG_PREFIX)
+	for _, each := range resList {
+		service := &object.Service{}
+		err := json.Unmarshal(each.ValueBytes, service)
+		if err != nil {
+			return
+		}
+		if labels["app"] == service.Spec.Selector["app"] { //正确的pod
+			fmt.Println("[Service] restart service")
+			servRaw, _ := json.Marshal(service)
+			reqBody := bytes.NewBuffer(servRaw)
+
+			suffix := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
+
+			req, _ := http.NewRequest("PUT", _const.BASE_URI+suffix, reqBody)
+			resp, _ := http.DefaultClient.Do(req)
+
+			fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+
+			return
+		}
+	}
+
+}
+
 func isOwner(ownerReferences []object.OwnerReference, name string) bool {
-	//TODO: 疑似需要对UID进行判断
+	//TODO: 疑似需要对UID进行判断 -> 现在也不知道要怎么判断
 	for _, owner := range ownerReferences {
 		if owner.Name == name {
 			return true

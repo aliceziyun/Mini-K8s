@@ -1,7 +1,7 @@
 apiVersion: apps/v1   # 版本号
 kind: ReplicaSet    # 类型
 metadata:    # 元数据
-  name: testRS
+  name: RS
 spec:
   replicas: 3    # 副本数量
   template:  # 模板，当副本数量不足时，会根据下面的额模板创建pod副本

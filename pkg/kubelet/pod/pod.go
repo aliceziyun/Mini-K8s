@@ -84,8 +84,7 @@ func (p *Pod) GetUid() string {
 }
 
 func (p *Pod) GetContainers() []object.ContainerMeta {
-	p.rwLock.RLock()
-	defer p.rwLock.RUnlock()
+	fmt.Println("get containers")
 	deepContainers := p.containers
 	return deepContainers
 }

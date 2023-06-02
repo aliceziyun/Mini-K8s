@@ -78,8 +78,8 @@ func (kl *Kubelet) Run() {
 	//kl.kubeProxy.StartKubeProxy()
 	updates := kl.PodConfig.GetUpdates()
 	go kl.syncLoop(updates)
-	//go kl.podMonitor.Listener()
-	//go kl.monitor(context.Background())
+	go kl.podMonitor.Listener()
+	go kl.monitor(context.Background())
 
 	go kl.kubeProxy.Run()
 
@@ -182,10 +182,9 @@ func (kl *Kubelet) watchPod(res etcdstorage.WatchRes) {
 
 	//如果pod没有分配node，则返回
 	//if pod.Spec.NodeName == "" {
-	//	fmt.Println("[Kubelet] the pod not belong to any node")
 	//	return
 	//}
-
+	//
 	pods := []*object.Pod{pod}
 	//检查pod是否已经存在
 	ok := kl.podManager.CheckIfPodExist(pod.Name)

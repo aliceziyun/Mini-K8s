@@ -15,8 +15,8 @@ func main() {
 	controllerCtx := getControllerContext()
 	ch := make(chan int)
 	//err := controller_starter.StartEndpointController(context.TODO(), *controllerCtx)
-	//go controller_starter.StartReplicaSetController(context.TODO(), *controllerCtx)
-	//go controller_starter.StartAutoScaleController(context.TODO(), *controllerCtx)
+	go controller_starter.StartReplicaSetController(context.TODO(), *controllerCtx)
+	go controller_starter.StartAutoScaleController(context.TODO(), *controllerCtx)
 	go controller_starter.StartJobController(context.TODO(), *controllerCtx)
 	<-ch
 }
