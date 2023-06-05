@@ -9,8 +9,8 @@ import (
 
 type ServRuntime struct {
 	service *object.Service
-	ls      listwatcher.ListWatcher
-	pods    []*object.Pod
+	ls      *listwatcher.ListWatcher
+	Pods    []*object.Pod
 }
 
 func (r *ServRuntime) podSelector() {
@@ -45,26 +45,26 @@ func (r *ServRuntime) podSelector() {
 		}
 	}
 
-	r.pods = selectedPods
+	r.Pods = selectedPods
 
-	if len(r.pods) == 0 {
+	if len(r.Pods) == 0 {
 		// ERROR! no pod has been selected
 		return
 	}
 
 	var newPodsInfo []object.PodNameAndIp
-	for _, val := range r.pods {
+	for _, val := range r.Pods {
 		newPodsInfo = append(newPodsInfo, object.PodNameAndIp{Name: val.Name, Ip: val.Status.PodIP})
 	}
 	r.service.Spec.PodNameAndIps = newPodsInfo
 
 }
 
-func NewService(serv *object.Service, ls listwatcher.ListWatcher) *ServRuntime {
+func NewService(serv *object.Service, lsc *listwatcher.Config) *ServRuntime {
 	servRuntime := &ServRuntime{}
 	servRuntime.service = serv
-	servRuntime.ls = ls
+	servRuntime.ls, _ = listwatcher.NewListWatcher(lsc)
 	servRuntime.podSelector()
-	// TODO need to watch the change of pods
+	// TODO need to watch the change of Pods
 	return servRuntime
 }

@@ -5,10 +5,11 @@ import (
 	"Mini-K8s/pkg/object"
 	"context"
 	"fmt"
-	"github.com/docker/docker/api/types/mount"
 	"io"
 	"io/ioutil"
 	"unsafe"
+
+	"github.com/docker/docker/api/types/mount"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -23,36 +24,115 @@ func GetNewClient() (*client.Client, error) {
 	return client.NewClientWithOpts()
 }
 
-func getAllContainers() ([]types.Container, error) {
-	cli, err := GetNewClient()
+// 根据containerId 获取其信息
+func getContainerInfo(containerId string) (containerInfo types.ContainerJSON, err error) {
+	cli, err2 := GetNewClient()
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	containerJson, err := cli.ContainerInspect(context.Background(), containerId)
 	if err != nil {
 		fmt.Println("error")
+		fmt.Println(err)
 	}
-	return cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	fmt.Printf(
+		"=======容器信息======\nID:%+v\nname:%+v\nimage:%+v\n",
+		// containerJson.ID[:10],
+		containerJson.ID,
+		containerJson.Name,
+		containerJson.Image,
+	)
+	return containerJson, err
 }
 
+// 获取所有Containers
+func getAllContainers() ([]types.Container, error) {
+	fmt.Println("[getAllContainers]:")
+	cli, err2 := GetNewClient()
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, container := range containers {
+		fmt.Printf("id=%s, name=%s, image=%s\n", container.ID[:10], container.Names, container.Image)
+		fmt.Printf("status=%s (?)\n", container.Status)
+	}
+	return containers, err
+}
+
+// 根据指定containerId删除指定容器（单个）
+func deleteContainerById(containerId string) error {
+	cli, err := GetNewClient()
+	if err != nil {
+		return err
+	}
+	err = cli.ContainerStop(context.Background(), containerId, nil)
+	if err != nil {
+		fmt.Println("error on Stopping a Container")
+		return err
+	}
+	err = cli.ContainerRemove(context.Background(), containerId, types.ContainerRemoveOptions{})
+	if err != nil {
+		fmt.Println("error on Removing a Container")
+		return err
+	}
+	return nil
+}
+
+// 根据指定containerIds删除指定容器（多个）
+func deleteContainersByIds(containerIds []string) error {
+	cli, err2 := GetNewClient()
+	if err2 != nil {
+		return err2
+	}
+	//需要先停止containers
+	for _, value := range containerIds {
+		err := cli.ContainerStop(context.Background(), value, nil)
+		if err != nil {
+			fmt.Println("error on Stopping a Container")
+			return err
+		}
+	}
+	//停止后删除
+	for _, value := range containerIds {
+		err := cli.ContainerRemove(context.Background(), value, types.ContainerRemoveOptions{})
+		if err != nil {
+			fmt.Println("error on Removing a Container")
+			return err
+		}
+	}
+	return nil
+}
+
+// 获取运行中的容器
 func getRunningContainers() ([]types.Container, error) {
 	cli, err := GetNewClient()
 	if err != nil {
-		fmt.Println("error")
+		fmt.Println(err)
 	}
 	return cli.ContainerList(context.Background(), types.ContainerListOptions{})
 }
 
+// 启动指定id的容器
 func startContainer(containerId string) error {
 	cli, err := GetNewClient()
 	//cli, err := client.NewClientWithOpts()
 	if err != nil {
-		// fmt.Print("%v\n", err)
+		// fmt.Println(err)
 		return err
 	}
 	err = cli.ContainerStart(context.Background(), containerId, types.ContainerStartOptions{})
 	return err
 }
 
+// 停止指定id的容器
 func stopContainer(containerId string) error {
 	cli, err := GetNewClient()
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	err = cli.ContainerStop(context.Background(), containerId, nil)
@@ -61,13 +141,14 @@ func stopContainer(containerId string) error {
 
 // 创建pause容器
 func createPause(ports []object.ContainerPort, name string) (container.ContainerCreateCreatedBody, error) {
-	fmt.Println("createPause:")
+	fmt.Println("[createPause]:")
 	cli, err2 := GetNewClient()
 	if err2 != nil {
-		fmt.Println("error on creating Pause Container")
+		fmt.Println("error on creating Pause Container:")
+		fmt.Println(err2)
 		return container.ContainerCreateCreatedBody{}, err2
 	}
-	var exports = make(nat.PortSet, len(ports))
+	exports := make(nat.PortSet, len(ports))
 	for _, port := range ports {
 		//默认是tcp
 		if port.Protocol == "" || port.Protocol == "tcp" || port.Protocol == "all" {
@@ -85,20 +166,23 @@ func createPause(ports []object.ContainerPort, name string) (container.Container
 			exports[p] = struct{}{}
 		}
 	}
-	resp, err := cli.ContainerCreate(context.Background(), &container.Config{
-		Image:        "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.6",
-		ExposedPorts: exports, //所有暴露的接口
-	}, &container.HostConfig{
-		IpcMode: "shareable",
-		//DNS:     []string{netconfig.ServiceDns},
-		DNS: []string{ServiceDns}, //暂时在本文件设置一个const，以后可以写在config文件里
-	}, nil, nil, name)
+	resp, err := cli.ContainerCreate(
+		context.Background(),
+		&container.Config{
+			Image:        "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.6",
+			ExposedPorts: exports, //所有暴露出来的接口
+		},
+		&container.HostConfig{
+			IpcMode: "shareable",
+			DNS:     []string{ServiceDns}, //暂时在本文件设置一个const，以后可以写在config文件里
+		},
+		nil, nil, name)
 	return resp, err
 }
 
-// 查找是否存在，存在就把原来的删除，之后统一创建新的
+// 查找是否存在，存在就把原来的删除，之后统一创建新的。创建pod时用
 func deleteExistedContainers(names []string) error {
-	fmt.Println("deleteExistedContainers:")
+	fmt.Println("[deleteExistedContainers]:")
 	cli, err2 := GetNewClient()
 	if err2 != nil {
 		return err2
@@ -106,14 +190,13 @@ func deleteExistedContainers(names []string) error {
 	for _, value := range names {
 		_, err := cli.ContainerInspect(context.Background(), value)
 		if err == nil {
-			//需要先停止container
-			//err = cli.ContainerStop(context.Background(), value, nil)
+			//需要先停止container才能删除
+			err = cli.ContainerStop(context.Background(), value, nil)
 			// err = cli.ContainerStop(context.Background(), value, container.StopOptions{})
-			if err != nil {
-				return err
+			if err == nil {
+				//删除
+				err = cli.ContainerRemove(context.Background(), value, types.ContainerRemoveOptions{})
 			}
-			//删除容器
-			err = cli.ContainerRemove(context.Background(), value, types.ContainerRemoveOptions{})
 			if err != nil {
 				return err
 			}
@@ -121,7 +204,7 @@ func deleteExistedContainers(names []string) error {
 	}
 	return nil
 }
-func isImageExist(a string, tags []string) bool {
+func checkImageExists(a string, tags []string) bool {
 	for _, b := range tags {
 		if a == b {
 			return true
@@ -131,12 +214,10 @@ func isImageExist(a string, tags []string) bool {
 			return true
 		}
 	}
-
-	//fmt.Printf("Local image:%v Target image:%s\n", tags, a)
 	return false
 }
 
-// 注意， 调用ImagePull 函数， 拉取进程在后台运行，因此要保证前台挂起足够时间保证拉取成功
+// 拉取单个镜像
 func dockerClientPullSingleImage(image string) error {
 	fmt.Printf("[PullSingleImage] Prepare pull image:%s\n", image)
 	cli, err2 := GetNewClient()
@@ -168,7 +249,7 @@ func dockerClientPullImages(images []string) error {
 	for _, value := range images {
 		flag := false //此镜像是否已在本地
 		for _, it := range resp {
-			if isImageExist(value, it.RepoTags) {
+			if checkImageExists(value, it.RepoTags) {
 				fmt.Printf("[Kubelet] image %s exists \n", value)
 				flag = true
 				break
@@ -211,16 +292,18 @@ func runContainers(containerIds []object.ContainerMeta) error {
 func getContainerNetInfo(name string) (*types.NetworkSettings, error) {
 	cli, err1 := GetNewClient()
 	if err1 != nil {
-		fmt.Println("error")
+		fmt.Println(err1)
 		return nil, err1
 	}
 	res, err := cli.ContainerInspect(context.Background(), name)
 	if err != nil {
-		fmt.Println("error")
+		fmt.Println(err)
 		return nil, err
 	}
 	return res.NetworkSettings, nil
 }
+
+// 创建Pod的容器（先创建pause容器再创建要求的）
 func createContainersOfPod(containers []object.Container) ([]object.ContainerMeta, *types.NetworkSettings, error) {
 	fmt.Println("[dockerClient] createContainersOfPod")
 	cli, err2 := client.NewClientWithOpts()
@@ -248,7 +331,7 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		}
 	}
 	names = append(names, pauseName)
-	//先将列表中之前存在的容器删掉，之后再统一启动（？）s
+	//先将列表中之前存在的容器删掉，之后再统一启动（）
 	err3 := deleteExistedContainers(names)
 	if err3 != nil {
 		return nil, nil, err3
@@ -269,6 +352,8 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 		RealName:    pauseName,
 		ContainerId: firstContainerId,
 	})
+	var tmpContainers []container.ContainerCreateCreatedBody
+	tmpContainers = append(tmpContainers, pause)
 	for _, value := range containers {
 		fmt.Println("[Kubelet] containerName:", value.Name)
 		//fmt.Println("[Kubelet] commandTest:", value.Command)
@@ -291,37 +376,46 @@ func createContainersOfPod(containers []object.Container) ([]object.ContainerMet
 				env = append(env, singleEnv)
 			}
 		}
-		//生成resource
+		//resource
 		resourceConfig := container.Resources{}
-		//if value.Limits.Cpu != "" {
-		//	resourceConfig.NanoCPUs = getCpu(value.Limits.Cpu)
-		//}
-		//if value.Limits.Memory != "" {
-		//	resourceConfig.Memory = getMemory(value.Limits.Memory)
-		//}
 		//创建容器
 		fmt.Printf("[dockerClient] ContainerCreate with image %s \n", value.Image)
-		resp, err := cli.ContainerCreate(context.Background(), &container.Config{
-			Image:      value.Image,
-			Entrypoint: value.Command,
-			Cmd:        value.Args,
-			Env:        env,
-		}, &container.HostConfig{
-			NetworkMode: container.NetworkMode("container:" + firstContainerId),
-			Mounts:      mounts,
-			IpcMode:     container.IpcMode("container:" + firstContainerId),
-			PidMode:     container.PidMode("container" + firstContainerId),
-			Resources:   resourceConfig,
-		}, nil, nil, value.Name)
+		resp, err := cli.ContainerCreate(
+			context.Background(),
+			&container.Config{
+				Image:      value.Image,
+				Entrypoint: value.Command,
+				Cmd:        value.Args,
+				Env:        env,
+			},
+			&container.HostConfig{
+				NetworkMode: container.NetworkMode("container:" + firstContainerId),
+				Mounts:      mounts,
+				IpcMode:     container.IpcMode("container:" + firstContainerId),
+				PidMode:     container.PidMode("container" + firstContainerId),
+				Resources:   resourceConfig,
+			},
+			nil, nil, value.Name)
 		if err != nil {
 			fmt.Println("[Kubelet] run container fail with reason", err)
 			return nil, nil, err
 		}
+		tmpContainers = append(tmpContainers, resp)
+		// //获取信息
+		// getContainerInfo(resp.ID)
+		// //
 		result = append(result, object.ContainerMeta{
 			RealName:    value.Name,
 			ContainerId: resp.ID,
 		})
 	}
+	//-----------获取所有容器信息---------
+	// fmt.Println("Show Containers Info:-----")
+	// for _, value := range tmpContainers {
+	// 	getContainerInfo(value.ID)
+	// }
+	//-----------获取所有容器信息---------
+
 	//启动容器
 	err = runContainers(result)
 	if err != nil {
@@ -358,6 +452,25 @@ func deleteContainers(containerIds []string) error {
 	return nil
 }
 
+// 探针检查容器状态
+func probeContainers(containerIds []string) ([]string, error) {
+	cli, err2 := GetNewClient()
+	if err2 != nil {
+		fmt.Println(err2)
+		return nil, err2
+	}
+	var res []string
+	for _, value := range containerIds {
+		resp, err := cli.ContainerInspect(context.Background(), value)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		res = append(res, resp.State.Status)
+	}
+	return res, nil
+}
+
 func Main(Group []object.Container) {
 	//p := (*message.CommandWithConfig)(unsafe.Pointer(command))
 	//Group := []object.Container{}
@@ -376,6 +489,7 @@ func Main(Group []object.Container) {
 func HandleCommand(command *message.Command) *message.Response {
 	switch command.CommandType {
 	case message.COMMAND_BUILD_CONTAINERS_OF_POD:
+		//创建pod的容器
 		p := (*message.CommandWithConfig)(unsafe.Pointer(command))
 		res, netSetting, err := createContainersOfPod(p.Group)
 		var result message.ResponseWithContainIds
@@ -383,6 +497,23 @@ func HandleCommand(command *message.Command) *message.Response {
 		result.CommandType = message.COMMAND_BUILD_CONTAINERS_OF_POD
 		result.Containers = res
 		result.NetWorkInfos = netSetting
+		return &(result.Response)
+	case message.COMMAND_DELETE_CONTAINER:
+		//删除containers
+		p := (*message.CommandWithContainerIds)(unsafe.Pointer(command))
+		err := deleteContainers(p.ContainerIds)
+		var result message.Response
+		result.CommandType = message.COMMAND_DELETE_CONTAINER
+		result.Err = err
+		return &result
+	case message.COMMAND_PROBE_CONTAINER:
+		//liveness probe 查看是否存活
+		p := (*message.CommandWithContainerIds)(unsafe.Pointer(command))
+		res, err := probeContainers(p.ContainerIds)
+		var result message.ResponseWithProbeInfos
+		result.Err = err
+		result.CommandType = message.COMMAND_PROBE_CONTAINER
+		result.ProbeInfos = res
 		return &(result.Response)
 	}
 	return nil

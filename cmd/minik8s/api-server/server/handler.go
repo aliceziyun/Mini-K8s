@@ -140,8 +140,7 @@ func (s *APIServer) addService(ctx *gin.Context) {
 	key := _const.SERVICE_CONFIG_PREFIX + "/" + service.Name
 	fmt.Printf("key:%v\n", key)
 
-	ls, _ := listwatcher.NewListWatcher(listwatcher.DefaultConfig())
-	selector.NewService(service, *ls)
+	selector.NewService(service, listwatcher.DefaultConfig())
 
 	body, _ = json.Marshal(service)
 
@@ -316,6 +315,27 @@ func (s *APIServer) receive(context *gin.Context) {
 	}
 
 	fmt.Printf("[kubectl] send request to server with code %d", resp.StatusCode)
+}
+
+func (s *APIServer) addVService(ctx *gin.Context) {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	vs := &object.VService{}
+	err = json.Unmarshal(body, vs)
+	if err != nil {
+		fmt.Println("[AddService] vs unmarshal fail")
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	key := _const.VSERVICE_CONFIG_PREFIX + "/" + vs.Name
+	fmt.Printf("key:%v\n", key)
+
+	body, _ = json.Marshal(vs)
+
+	err = s.store.Put(key, string(body))
+	if err != nil {
+		return
+	}
 }
 
 //----------------------通用----------------------

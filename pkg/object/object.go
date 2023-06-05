@@ -265,7 +265,14 @@ type WorkFlow struct {
 	InitialArgs  []string   `json:"args" yaml:"args"`
 }
 
-type VServiceSpec struct { //todo
+type PodVersionAndWeight struct {
+	ApiVersion int    `json:"apiVersion" yaml:"apiVersion"`
+	Weight     string `json:"weight" yaml:"weight"`
+}
+
+type VServiceSpec struct {
+	ServiceName          string                `json:"serviceName" yaml:"serviceName"`
+	PodVersionAndWeights []PodVersionAndWeight `json:"podIpAndWeights"`
 }
 
 type VServiceStatus struct {

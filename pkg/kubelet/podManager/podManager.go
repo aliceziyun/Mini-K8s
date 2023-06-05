@@ -1,4 +1,3 @@
-// 暂时用来参考
 package podManager
 
 import (

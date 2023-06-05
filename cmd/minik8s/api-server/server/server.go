@@ -112,6 +112,11 @@ func registerWebFunc(engine *gin.Engine, s *APIServer) {
 
 	engine.PUT(_const.NODE_CONFIG, s.addNode)
 
+	engine.GET(_const.NODE_CONFIG_PREFIX, s.getByPrefix)
+
+	engine.PUT(_const.VSERVICE_CONFIG, s.addVService)
+	engine.GET(_const.VSERVICE_CONFIG_PREFIX, s.getByPrefix)
+
 	//-------------------non-REST------------------------
 	engine.POST(_const.SERVELESS_PATH, s.invoke)
 	engine.POST(_const.SERVERLESS_CALLBACK_PATH, s.receive)

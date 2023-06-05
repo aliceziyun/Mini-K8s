@@ -272,6 +272,6 @@ func (kl *Kubelet) watchSharedData(res etcdstorage.WatchRes) {
 }
 
 func (kl *Kubelet) getNodeName() string {
-	return "master"
+	return "worker1"
 	//return kl.NodeManager.NodeName
 }

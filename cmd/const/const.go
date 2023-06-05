@@ -11,6 +11,9 @@ const (
 	BASIC_IP_AND_MASK string = "172.16.0.0/16"
 	MASTER_IP         string = "10.119.11.91"
 	MATSTER_INNER_IP  string = "192.168.1.6"
+	// BASIC_IP_AND_MASK string = "172.17.0.1/16"
+	// MASTER_IP string = "10.119.11.108"
+	// MATSTER_INNER_IP string = "192.168.1.11"
 )
 
 // REST resource
@@ -50,6 +53,8 @@ const (
 	FUNC_RUNTIME_PREFIX string = "/registry/func_runtime/default"
 
 	WORKFLOW_CONFIG_PREFIX string = "/registry/workflow/default"
+	VSERVICE_CONFIG        string = "/registry/vservice_config/default/:resourceName"
+	VSERVICE_CONFIG_PREFIX string = "/registry/vservice_config/default"
 )
 
 // api-server
