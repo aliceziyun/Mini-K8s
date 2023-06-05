@@ -6,7 +6,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"math/rand"
 	"net/http"
+	"time"
 )
 
 var globalCount = 0 //保证第一个node分配到master上，方便测试
@@ -20,6 +22,13 @@ func selectNode(nodes []object.Node) (string, error) {
 	idx := globalCount % num
 	globalCount++
 
+	return nodes[idx].MetaData.Name, nil
+}
+
+func selectNodeWithRand(nodes []object.Node) (string, error) {
+	num := len(nodes)
+	rand.Seed(time.Now().Unix())
+	idx := rand.Intn(num)
 	return nodes[idx].MetaData.Name, nil
 }
 
