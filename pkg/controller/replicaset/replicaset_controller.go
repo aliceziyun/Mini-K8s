@@ -213,7 +213,7 @@ func (rsc *ReplicaSetController) slowStartBatch(diff int, rs *object.ReplicaSet)
 		time.Sleep(5 * time.Second) //策略，3秒创建一个pod
 	}
 
-	go rsc.restartService(rs.ObjMetadata.Labels)
+	rsc.restartService(rs.Spec.Pods.Metadata.Labels)
 	return success, nil
 }
 
@@ -226,6 +226,7 @@ func (rsc *ReplicaSetController) restartService(labels map[string]string) {
 		if err != nil {
 			return
 		}
+		fmt.Println(labels, service.Spec.Selector)
 		if labels["app"] == service.Spec.Selector["app"] { //正确的pod
 			fmt.Println("[Service] restart service")
 			servRaw, _ := json.Marshal(service)
